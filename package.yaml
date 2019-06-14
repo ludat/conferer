@@ -1,8 +1,8 @@
-name:                env-config
+name:                conferer
 version:             0.1.0.0
 #synopsis:
 #description:
-homepage:            https://github.com/ludat/env-config#readme
+homepage:            https://github.com/ludat/conferer#readme
 license:             BSD3
 author:              Lucas David Traverso
 maintainer:          lucas6246@gmail.com
@@ -13,6 +13,29 @@ extra-source-files:
 
 dependencies:
   - base >= 4.7 && < 5
+  - containers
+  - unordered-containers
+  - text
+  - bytestring
+  - monad-loops
+  - yaml
+  - aeson
+  - vector
+
+default-extensions:
+  - OverloadedStrings
+  - LambdaCase
+  - QuasiQuotes
+  - ScopedTypeVariables
 
 library:
   source-dirs:      src
+
+tests:
+  spec:
+    main: Spec.hs
+    source-dirs: test
+    dependencies:
+      - conferer
+      - hspec
+

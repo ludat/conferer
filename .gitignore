@@ -22,4 +22,4 @@ cabal.project.local
 cabal.project.local~
 .HTF/
 .ghc.environment.*
-env-config.cabal
+/conferer.cabal
