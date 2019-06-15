@@ -7,15 +7,13 @@ import qualified Data.Text as Text
 
 import           Conferer.Types
 
-mkMapConfigProvider' :: Map Key Text -> ConfigProvider
-mkMapConfigProvider' configMap =
-  ConfigProvider
+mkMapConfigProvider' :: Map Key Text -> ProviderCreator
+mkMapConfigProvider' configMap _config =
+  return $ ConfigProvider
   { getKeyInProvider =
-    \k -> do
-      return $ Map.lookup k configMap
+      \k -> do
+        return $ Map.lookup k configMap
   }
 
-
-
-mkMapConfigProvider :: [(Key, Text)] -> ConfigProvider
+mkMapConfigProvider :: [(Key, Text)] -> ProviderCreator
 mkMapConfigProvider = mkMapConfigProvider' . Map.fromList

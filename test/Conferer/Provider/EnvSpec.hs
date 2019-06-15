@@ -10,27 +10,31 @@ fakeLookupEnv fakeEnv = \envName ->
   return $ Map.lookup envName $ Map.fromList fakeEnv
 
 spec = do
-  xdescribe "with an env config" $ do
+  describe "with an env config" $ do
     let
-      p =
-        mkEnvConfigProvider'
-        (fakeLookupEnv
-         [ ("TMUX","/tmp/tmux-1000/default,2822,0")
-         , ("TMUX_PANE","%1")
-         , ("TMUX_PLUGIN_MANAGER_PATH","/home/user/.tmux/plugins/")
-         ])
-        "TMUX"
+      mkEnvConfig =
+        emptyConfig
+        & addProvider
+        (mkEnvConfigProvider'
+         (fakeLookupEnv
+          [ ("TMUX","/tmp/tmux-1000/default,2822,0")
+          , ("TMUX_PANE","%1")
+          , ("TMUX_PLUGIN_MANAGER_PATH","/home/user/.tmux/plugins/")
+          ])
+         "TMUX"
+        )
     it "getting an existent key returns unwraps top level value (wihtout \
        \children)" $ do
-      res <- p `getKeyInProvider` "."
+      c <- mkEnvConfig
+      res <- getKey "." c
       res `shouldBe` Just "/tmp/tmux-1000/default,2822,0"
 
     it "getting an existent key for a child gets that value" $ do
-      res <- p `getKeyInProvider` "pane"
+      c <- mkEnvConfig
+      res <- getKey "pane" c
       res `shouldBe` Just "%1"
 
-  -- TODO CONTINUE Here
     it "keys should always be consistent as to how the words are separated" $ do
-      undefined
-      res <- p `getKeyInProvider` "pane"
+      c <- mkEnvConfig
+      res <- getKey "pane" c
       res `shouldBe` Just "%1"

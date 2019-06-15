@@ -20,6 +20,8 @@ data Config =
   { providers :: [ConfigProvider]
   }
 
+type ProviderCreator = Config -> IO ConfigProvider
+
 class FromConfig a where
   fromConfig :: Config -> Either Text a
 

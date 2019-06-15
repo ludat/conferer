@@ -13,22 +13,18 @@ spec = do
       "" `shouldBe` Path []
 
   describe "with a config with a nested value" $ do
-    let c =
-          Config
-          [ mkMapConfigProvider
-            [ ("postgres.url", "some url")
-            ]
-          , mkMapConfigProvider
-            [ ("postgres.url", "different url")
-            , ("server.port", "4000")
-            ]
-          ]
+    let mkConfig =
+          emptyConfig
+          & addProvider (mkMapConfigProvider [ ("postgres.url", "some url")])
+          >>= addProvider (mkMapConfigProvider [ ("postgres.url", "different url") , ("server.port", "4000")])
 
     it "getting a non existent key returns an empty config" $ do
+      c <- mkConfig
       res <- getKey "aaa" c
       res `shouldBe` Nothing
 
     it "getting an existent key returns unwraps the original map" $ do
+      c <- mkConfig
       res <- getKey "postgres.url" c
       res `shouldBe` Just "some url"
 

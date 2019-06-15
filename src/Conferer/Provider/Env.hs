@@ -18,12 +18,13 @@ keyToEnvVar prefix (Path keys) =
   $ prefix : keys
 
 
-mkEnvConfigProvider :: Prefix -> ConfigProvider
+mkEnvConfigProvider :: Prefix -> ProviderCreator
 mkEnvConfigProvider prefix =
   mkEnvConfigProvider' System.lookupEnv prefix
 
-mkEnvConfigProvider' :: LookupEnvFunc -> Prefix -> ConfigProvider
-mkEnvConfigProvider' lookupEnv prefix =
+mkEnvConfigProvider' :: LookupEnvFunc -> Prefix -> ProviderCreator
+mkEnvConfigProvider' lookupEnv prefix = \config ->
+  return $
   ConfigProvider
   { getKeyInProvider = \k -> do
       let envVarName = Text.unpack $ keyToEnvVar prefix k
