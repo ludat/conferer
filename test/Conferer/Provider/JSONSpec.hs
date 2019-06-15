@@ -12,12 +12,13 @@ spec = do
       c <- emptyConfig
            & addProvider (mkJsonConfigProvider [aesonQQ| {"postgres": {"url": "some url", "ssl": true}} |])
       res <- getKey "postgres.url" c
-      res `shouldBe` Just "some url"
+      res `shouldBe` Right "some url"
+
     it "getting an non existing path returns nothing" $ do
       c <- emptyConfig
            & addProvider (mkJsonConfigProvider [aesonQQ| {"postgres": {"url": "some url", "ssl": true}} |])
       res <- getKey "some.path" c
-      res `shouldBe` Nothing
+      res `shouldBe` Left "Key 'some.path' was not found"
 
     describe "with an array" $ do
       it "getting a path with number gets the right value" $ do
@@ -25,8 +26,7 @@ spec = do
              & addProvider (mkJsonConfigProvider
                           [aesonQQ| {"key": ["value"]} |])
         res <- getKey "key.0" c
-        res `shouldBe` Just "value"
-      it "getting " True
+        res `shouldBe` Right "value"
 
     describe "with an object" $ do
       it "getting an existing path returns nothing" $ do
@@ -34,7 +34,7 @@ spec = do
            & addProvider (mkJsonConfigProvider
             [aesonQQ| {"key": { "path": "value"}} |])
         res <- getKey "key" c
-        res `shouldBe` Nothing
+        res `shouldBe` Left "Key 'key' was not found"
 
     describe "with a number" $ do
       let c =
@@ -43,7 +43,7 @@ spec = do
         c <- emptyConfig
            & addProvider (mkJsonConfigProvider [aesonQQ| {"key": 1.2} |])
         res <- getKey "key" c
-        res `shouldBe` Just "1.2"
+        res `shouldBe` Right "1.2"
 
     describe "with a boolean" $ do
       let c =
@@ -52,4 +52,4 @@ spec = do
         c <- emptyConfig
            & addProvider (mkJsonConfigProvider [aesonQQ| {"key": false} |])
         res <- getKey "key" c
-        res `shouldBe` Just "false"
+        res `shouldBe` Right "false"
