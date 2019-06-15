@@ -4,6 +4,7 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Function ((&))
 import           Data.Either (either)
+import           Control.Applicative ((<|>))
 
 import           Conferer.Types
 
@@ -12,15 +13,10 @@ unsafeGetKey k config =
   either (error . Text.unpack) id <$> getKey k config
 
 getKey :: Key -> Config -> IO (Either Text Text)
-getKey k config = do
-  go $ providers config
-  where
-    go [] = return $ Left ("Key '" <> keyName k <> "' was not found")
-    go (provider:providers) = do
-      res <- getKeyInProvider provider k
-      case res of
-        Just t -> return $ Right t
-        Nothing -> go providers
+getKey k config =
+  foldr (<|>) (pure notFoundKey) $ map getFromProvider (providers config)
+    where notFoundKey = Left ("Key '" <> keyName k <> "' was not found")
+          getFromProvider provider = maybe notFoundKey Right <$> getKeyInProvider provider k
 
 emptyConfig :: Config
 emptyConfig = Config []
