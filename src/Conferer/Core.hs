@@ -18,6 +18,9 @@ getKey k config =
     where notFoundKey = Left ("Key '" <> keyName k <> "' was not found")
           getFromProvider provider = maybe notFoundKey Right <$> getKeyInProvider provider k
 
+(/.) :: Key -> Key -> Key
+parent /. child = Path (unKey parent ++ unKey child)
+
 emptyConfig :: Config
 emptyConfig = Config []
 

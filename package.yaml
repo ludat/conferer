@@ -21,6 +21,7 @@ dependencies:
   - yaml
   - aeson
   - vector
+  - warp
 
 default-extensions:
   - OverloadedStrings

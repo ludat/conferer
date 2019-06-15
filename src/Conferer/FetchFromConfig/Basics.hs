@@ -1,8 +1,10 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances, FlexibleContexts, DerivingVia, StandaloneDeriving #-}
 module Conferer.FetchFromConfig.Basics where
 import Conferer.Types
 import Conferer (getKey)
 import Data.Text (Text(..), pack, unpack, toLower)
+import Data.ByteString (ByteString)
+import Data.String (IsString, fromString)
 import Text.Read (readMaybe)
 import Debug.Trace
 
@@ -17,8 +19,14 @@ instance FetchFromConfig Bool where
                                     "true" -> Just True
                                     _ -> Nothing
 
-instance FetchFromConfig [Char] where
-    fetch = fetchFromConfigWith (pure . unpack)
+newtype FromString a = FromString { getFromString :: a }
+
+instance (IsString a) => FetchFromConfig (FromString a) where
+    fetch = fetchFromConfigWith (pure . FromString . fromString . unpack)
+
+deriving via FromString [Char] instance FetchFromConfig [Char]
+deriving via FromString ByteString instance FetchFromConfig ByteString
+deriving via FromString Text instance FetchFromConfig Text
 
 fromValueWith :: (Text -> Maybe a) -> Key -> Text -> Either Text a
 fromValueWith parseValue key valueAsText = case parseValue valueAsText of
