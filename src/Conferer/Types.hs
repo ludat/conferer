@@ -14,6 +14,8 @@ newtype Key
   = Path { unKey :: [Text] }
   deriving (Show, Eq, Ord)
 
+keyName :: Key -> Text
+keyName = Text.intercalate "." . unKey
 
 data Config =
   Config
@@ -22,8 +24,8 @@ data Config =
 
 type ProviderCreator = Config -> IO ConfigProvider
 
-class FromConfig a where
-  fromConfig :: Config -> Either Text a
+class FetchFromConfig a where
+  fetch :: Key -> Config -> IO (Either Text a)
 
 instance IsString Key where
   fromString s = Path $ filter (/= mempty) $ Text.split (== '.') $ fromString s
