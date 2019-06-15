@@ -16,9 +16,19 @@ import           Data.Either (either)
 
 import           Conferer.Core
 import           Conferer.Types
+import           Conferer.Provider.Files
 import           Conferer.Provider.Env
 import           Conferer.Provider.Simple
 import           Conferer.Provider.Namespaced
 import           Conferer.Provider.JSON
 import           Conferer.Provider.Mapping
+import           Conferer.Provider.CLIArgs
 
+
+
+defaultConfig :: Text -> IO Config
+defaultConfig appName = do
+  pure emptyConfig
+  >>= addProvider (mkCLIArgsProvider)
+  >>= addProvider (mkEnvConfigProvider appName)
+  >>= addProvider (mkJsonConfigProvider)

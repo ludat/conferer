@@ -9,6 +9,7 @@ import           Control.Monad (join)
 import           Data.Vector
 import           Text.Read (readMaybe)
 
+import Conferer.Provider.Files
 import Conferer.Types
 
 
@@ -38,8 +39,18 @@ resultToMaybe :: Result a -> Maybe a
 resultToMaybe (Error _) = Nothing
 resultToMaybe (Success a) = Just a
 
-mkJsonConfigProvider :: Value -> ProviderCreator
-mkJsonConfigProvider v = \config ->
+
+mkJsonConfigProvider :: ProviderCreator
+mkJsonConfigProvider config = do
+  fileToParse <- getFilePathFromEnv config "json"
+  value <- decodeFileStrict' fileToParse
+
+  case value of
+    Just v -> mkJsonConfigProvider' v config
+    Nothing -> error $ "Failed to decode file '" <> fileToParse <> "'"
+
+mkJsonConfigProvider' :: Value -> ProviderCreator
+mkJsonConfigProvider' v = \config ->
   return $ ConfigProvider
   { getKeyInProvider = \k -> do
       return $ traverseJSON k v
