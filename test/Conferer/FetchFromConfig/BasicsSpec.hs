@@ -23,3 +23,25 @@ spec = do
       config <- configWith [ ("anInt", "50") ]
       fetchedValue <- fetch "anInt" config
       fetchedValue `shouldBe` (Right 50 :: Either Text Int)
+  describe "fetching a Bool from config" $ do
+    it "getting a non existant key returns an error message" $ do
+      config <- configWith [ ("aBool", "True") ]
+      fetchedValue <- fetch "nonExistingKey" config
+      fetchedValue `shouldBe` (Left "Key nonExistingKey was not found" :: Either Text Bool)
+    it "getting an existant key that can't be parsed as a bool returns an error message" $ do
+      config <- configWith [ ("aBool", "nope") ]
+      fetchedValue <- fetch "aBool" config
+      fetchedValue `shouldBe` (Left "Key aBool could not be parsed correctly" :: Either Text Bool)
+    it "getting an existant key that can be parsed as a bool returns the bool" $ do
+      config <- configWith [ ("aBool", "True"), ("anotherBool", "False") ]
+      fetchedValue <- fetch "aBool" config
+      fetchedValue `shouldBe` (Right True :: Either Text Bool)
+      anotherFetchedValue <- fetch "anotherBool" config
+      anotherFetchedValue `shouldBe` (Right False :: Either Text Bool)
+    it "the parsing of the bool value is case insensitive" $ do
+      config <- configWith [ ("aBool", "TRUE"), ("anotherBool", "fAlSe") ]
+      fetchedValue <- fetch "aBool" config
+      fetchedValue `shouldBe` (Right True :: Either Text Bool)
+      anotherFetchedValue <- fetch "anotherBool" config
+      anotherFetchedValue `shouldBe` (Right False :: Either Text Bool)
+  
