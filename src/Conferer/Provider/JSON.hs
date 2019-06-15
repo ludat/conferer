@@ -38,9 +38,9 @@ resultToMaybe :: Result a -> Maybe a
 resultToMaybe (Error _) = Nothing
 resultToMaybe (Success a) = Just a
 
-mkJsonConfigProvider :: Value -> ConfigProvider
-mkJsonConfigProvider v =
-  ConfigProvider
+mkJsonConfigProvider :: Value -> ProviderCreator
+mkJsonConfigProvider v = \config ->
+  return $ ConfigProvider
   { getKeyInProvider = \k -> do
       return $ traverseJSON k v
   }

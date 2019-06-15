@@ -8,11 +8,6 @@ import           Conferer
 
 spec = do
   describe "with a mapping provider" $ do
-    let innerProvider =
-          mkMapConfigProvider
-          [ ("some.key", "some value")
-          ]
-
     it "getting an existent key in the original map but that's not mapped in the \
        \wrapper doesn't exist" $ do
       c <- emptyConfig
