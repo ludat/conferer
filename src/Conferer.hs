@@ -17,6 +17,7 @@ module Conferer
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Function ((&))
+import           Data.Either (either)
 
 import           Conferer.Types
 import           Conferer.Provider.Env
@@ -25,16 +26,18 @@ import           Conferer.Provider.Namespaced
 import           Conferer.Provider.JSON
 import           Conferer.Provider.Mapping
 
+unsafeGetKey :: Key -> Config -> IO Text
+unsafeGetKey k config = either (error . Text.unpack) id <$> getKey k config
 
-getKey :: Key -> Config -> IO (Maybe Text)
+getKey :: Key -> Config -> IO (Either Text Text)
 getKey k config = do
   go $ providers config
   where
-    go [] = return Nothing
+    go [] = return $ Left ("Key '" <> keyName k <> "' was not found")
     go (provider:providers) = do
       res <- getKeyInProvider provider k
       case res of
-        Just t -> return $ Just t
+        Just t -> return $ Right t
         Nothing -> go providers
 
 emptyConfig :: Config
