@@ -44,4 +44,15 @@ spec = do
       fetchedValue `shouldBe` (Right True :: Either Text Bool)
       anotherFetchedValue <- fetch "anotherBool" config
       anotherFetchedValue `shouldBe` (Right False :: Either Text Bool)
+    
+  describe "fetching a String from config" $ do
+    it "getting a non existant key returns an error message" $ do
+      config <- configWith [ ("aString", "Bleh") ]
+      fetchedValue <- fetch "nonExistingKey" config
+      fetchedValue `shouldBe` (Left "Key 'nonExistingKey' was not found" :: Either Text String)
+    it "getting an existant key returns the value as a string" $ do
+      config <- configWith [ ("aString", "Bleh") ]
+      fetchedValue <- fetch "aString" config
+      fetchedValue `shouldBe` (Right "Bleh" :: Either Text String)
+      
   

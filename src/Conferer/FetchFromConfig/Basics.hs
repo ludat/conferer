@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Conferer.FetchFromConfig.Basics where
 import Conferer.Types
 import Conferer (getKey)
@@ -15,6 +16,9 @@ instance FetchFromConfig Bool where
                                     "false" -> Just False
                                     "true" -> Just True
                                     _ -> Nothing
+
+instance FetchFromConfig [Char] where
+    fetch = fetchFromConfigWith (pure . unpack)
 
 fromValueWith :: (Text -> Maybe a) -> Key -> Text -> Either Text a
 fromValueWith parseValue key valueAsText = case parseValue valueAsText of
