@@ -5,6 +5,7 @@ import qualified Data.Text as Text
 import qualified Data.Map as Map
 import           Data.Maybe (mapMaybe)
 import           Data.String (fromString)
+import           System.Environment (getArgs)
 
 import Conferer.Types
 import Conferer.Provider.Simple
@@ -16,13 +17,14 @@ mkCLIArgsProvider' args = \config -> do
   mkMapConfigProvider configMap config
 
 mkCLIArgsProvider :: ProviderCreator
-mkCLIArgsProvider = undefined
+mkCLIArgsProvider = \config -> do
+  args <- getArgs
+  mkCLIArgsProvider' args config
 
 parseArgsIntoKeyValue :: [String] -> [(Key, Text)]
 parseArgsIntoKeyValue =
-        fmap (\(k, s) -> (fromString $ Text.unpack k, s)) .
-        fmap (\s -> if elem '=' $ Text.unpack s
-                then Text.breakOn "=" s
-                else (s, "true")) .
-        mapMaybe (Text.stripPrefix "-X") .
-        fmap Text.pack
+  fmap (\(k, s) -> (fromString $ Text.unpack k, s)) .
+  fmap (\s -> fmap (Text.drop 1) $ Text.breakOn "=" s).
+  mapMaybe (Text.stripPrefix "--") .
+  takeWhile (/= "--") .
+  fmap Text.pack

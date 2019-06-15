@@ -5,6 +5,7 @@ module Conferer
   , module Conferer.Provider.Namespaced
   , module Conferer.Provider.JSON
   , module Conferer.Provider.Mapping
+  , module Conferer.Provider.CLIArgs
   , Key(..)
   , (&)
   ) where
