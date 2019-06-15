@@ -21,10 +21,10 @@ spec = do
     it "getting a non existent key returns an empty config" $ do
       c <- mkConfig
       res <- getKey "aaa" c
-      res `shouldBe` Nothing
+      res `shouldBe` Left "Key 'aaa' was not found"
 
     it "getting an existent key returns unwraps the original map" $ do
       c <- mkConfig
       res <- getKey "postgres.url" c
-      res `shouldBe` Just "some url"
+      res `shouldBe` Right "some url"
 

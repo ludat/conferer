@@ -26,15 +26,15 @@ import           Conferer.Provider.JSON
 import           Conferer.Provider.Mapping
 
 
-getKey :: Key -> Config -> IO (Maybe Text)
+getKey :: Key -> Config -> IO (Either Text Text)
 getKey k config = do
   go $ providers config
   where
-    go [] = return Nothing
+    go [] = return $ Left ("Key '" <> keyName k <> "' was not found")
     go (provider:providers) = do
       res <- getKeyInProvider provider k
       case res of
-        Just t -> return $ Just t
+        Just t -> return $ Right t
         Nothing -> go providers
 
 emptyConfig :: Config

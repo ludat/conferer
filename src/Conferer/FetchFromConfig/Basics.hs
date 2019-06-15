@@ -16,17 +16,10 @@ instance FetchFromConfig Bool where
                                     "true" -> Just True
                                     _ -> Nothing
 
-getKey' :: Key -> Config -> IO (Either Text Text)
-getKey' key config = do
-    maybeValue <- getKey key config
-    return $ case maybeValue of
-        Just value -> Right value
-        Nothing -> Left ("Key " <> keyName key <> " was not found")
-
 fromValueWith :: (Text -> Maybe a) -> Key -> Text -> Either Text a
 fromValueWith parseValue key valueAsText = case parseValue valueAsText of
     Just value -> Right value
     Nothing -> Left ("Key " <> keyName key <> " could not be parsed correctly")
 
 fetchFromConfigWith :: (Text -> Maybe a) -> Key -> Config -> IO (Either Text a)
-fetchFromConfigWith parseValue key config = (fromValueWith parseValue key =<<) <$> getKey' key config
+fetchFromConfigWith parseValue key config = (fromValueWith parseValue key =<<) <$> getKey key config

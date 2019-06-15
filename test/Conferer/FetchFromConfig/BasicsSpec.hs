@@ -14,7 +14,7 @@ spec = do
     it "getting a non existant key returns an error message" $ do
       config <- configWith [ ("anInt", "500") ]
       fetchedValue <- fetch "nonExistingKey" config
-      fetchedValue `shouldBe` (Left "Key nonExistingKey was not found" :: Either Text Int)
+      fetchedValue `shouldBe` (Left "Key 'nonExistingKey' was not found" :: Either Text Int)
     it "getting an existant key that can't be parsed as an int returns an error message" $ do
       config <- configWith [ ("anInt", "50A") ]
       fetchedValue <- fetch "anInt" config
@@ -27,7 +27,7 @@ spec = do
     it "getting a non existant key returns an error message" $ do
       config <- configWith [ ("aBool", "True") ]
       fetchedValue <- fetch "nonExistingKey" config
-      fetchedValue `shouldBe` (Left "Key nonExistingKey was not found" :: Either Text Bool)
+      fetchedValue `shouldBe` (Left "Key 'nonExistingKey' was not found" :: Either Text Bool)
     it "getting an existant key that can't be parsed as a bool returns an error message" $ do
       config <- configWith [ ("aBool", "nope") ]
       fetchedValue <- fetch "aBool" config
