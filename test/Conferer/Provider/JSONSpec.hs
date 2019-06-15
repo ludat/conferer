@@ -36,7 +36,16 @@ spec = do
         res <- getKey "key" c
         res `shouldBe` Left "Key 'key' was not found"
 
-    describe "with a number" $ do
+    describe "with an int" $ do
+      let c =
+            mkJsonConfigProvider'
+      it "getting an existing path returns the right value" $ do
+        c <- emptyConfig
+           & addProvider (mkJsonConfigProvider' [aesonQQ| {"key": 1} |])
+        res <- getKey "key" c
+        res `shouldBe` Right "1"
+
+    describe "with a float" $ do
       let c =
             mkJsonConfigProvider'
       it "getting an existing path returns the right value" $ do
