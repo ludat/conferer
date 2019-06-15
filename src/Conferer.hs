@@ -17,6 +17,7 @@ module Conferer
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Function ((&))
+import           Data.Either (either)
 
 import           Conferer.Types
 import           Conferer.Provider.Env
@@ -25,6 +26,8 @@ import           Conferer.Provider.Namespaced
 import           Conferer.Provider.JSON
 import           Conferer.Provider.Mapping
 
+unsafeGetKey :: Key -> Config -> IO Text
+unsafeGetKey k config = either (error . Text.unpack) id <$> getKey k config
 
 getKey :: Key -> Config -> IO (Either Text Text)
 getKey k config = do
