@@ -4,9 +4,9 @@
 
 VERY UNSTABLE DON'T USE IN PRODUCTION JUST YET
 
-A library that defines ways to get configuration for your Haskell application
-and the libraries it uses, which is at heart string keys which map to other
-strings.
+Conferer is a library that defines ways to get configuration for your Haskell
+application and the libraries it uses, which is at heart string keys which map
+to other strings.
 
 To get this map we use `Providers` which define a way to get a key (eg.
 `db.username`) that may or may not exist, we then use a list of providers for
