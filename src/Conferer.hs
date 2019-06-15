@@ -6,6 +6,7 @@ module Conferer
   , module Conferer.Provider.JSON
   , module Conferer.Provider.Mapping
   , module Conferer.Provider.CLIArgs
+  , defaultConfig
   , Key(..)
   , (&)
   ) where

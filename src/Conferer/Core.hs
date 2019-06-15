@@ -14,7 +14,7 @@ unsafeGetKey k config =
 
 getKey :: Key -> Config -> IO (Either Text Text)
 getKey k config =
-  foldr (<|>) (pure notFoundKey) $ map getFromProvider (providers config)
+  foldr (<>) (pure notFoundKey) $ map getFromProvider (providers config)
     where notFoundKey = Left ("Key '" <> keyName k <> "' was not found")
           getFromProvider provider = maybe notFoundKey Right <$> getKeyInProvider provider k
 

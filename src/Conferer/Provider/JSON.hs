@@ -8,6 +8,9 @@ import qualified Data.Text as Text
 import           Control.Monad (join)
 import           Data.Vector
 import           Text.Read (readMaybe)
+import qualified Data.ByteString.Lazy as B
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 
 import Conferer.Provider.Files
 import Conferer.Types
@@ -21,7 +24,7 @@ valueToText :: Value -> Maybe Text
 valueToText (String t) = Just t
 valueToText (Object o) = Nothing
 valueToText (Array as) = Nothing
-valueToText (Number n) = Just $ Text.pack $ show n
+valueToText (Number n) = Just $ T.decodeUtf8 $ B.toStrict $ encode $ Number n
 valueToText (Bool b) = Just $ boolToString b
 valueToText (Null) = Nothing
 
@@ -46,7 +49,8 @@ mkJsonConfigProvider config = do
   value <- decodeFileStrict' fileToParse
 
   case value of
-    Just v -> mkJsonConfigProvider' v config
+    Just v -> do
+      mkJsonConfigProvider' v config
     Nothing -> error $ "Failed to decode file '" <> fileToParse <> "'"
 
 mkJsonConfigProvider' :: Value -> ProviderCreator
