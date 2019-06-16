@@ -22,6 +22,8 @@ dependencies:
   - aeson
   - vector
   - warp
+  - dhall
+  - dhall-json
 
 default-extensions:
   - OverloadedStrings
