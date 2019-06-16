@@ -8,8 +8,6 @@ author:              Lucas David Traverso
 maintainer:          lucas6246@gmail.com
 copyright:           GPL3
 category:            Web
-extra-source-files:
-- README.md
 
 dependencies:
   - base >= 4.7 && < 5
