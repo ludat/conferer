@@ -44,4 +44,12 @@ spec = do
       fetchedValue <- fetch "aString" config
       fetchedValue `shouldBe` (Right "Bleh" :: Either Text String)
       
-  
+  describe "fetching a Float from config" $ do
+    it "if the value can be parsed as float, it returns that float" $ do
+      config <- configWith [ ("aFloat", "9.5") ]
+      fetchedValue <- fetch "aFloat" config
+      fetchedValue `shouldBe` (Right 9.5 :: Either Text Float)
+    it "if the value cannot be parsed as float, it fails" $ do
+      config <- configWith [ ("aFloat", "ASD") ]
+      fetchedValue <- fetch "aFloat" config
+      fetchedValue `shouldBe` (Left "Key aFloat could not be parsed correctly" :: Either Text Float)

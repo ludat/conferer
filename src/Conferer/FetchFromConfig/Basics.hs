@@ -12,6 +12,10 @@ instance FetchFromConfig Int where
     fetch = fetchFromConfigWith parseInt
         where parseInt = readMaybe . unpack
 
+instance FetchFromConfig Float where
+    fetch = fetchFromConfigWith parseFloat
+        where parseFloat = readMaybe . unpack
+
 instance FetchFromConfig Bool where
     fetch = fetchFromConfigWith parseBool
         where parseBool text = case toLower text of
