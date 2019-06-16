@@ -1,12 +1,9 @@
 module Conferer.Provider.Yaml where
 
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.ByteString as B
 import           Data.Yaml
+
 import           Conferer.Provider.JSON
 import           Conferer.Provider.Files
-
 import           Conferer.Types
 
 mkYamlConfigProvider :: ProviderCreator
