@@ -8,13 +8,14 @@ import Data.String (IsString, fromString)
 import Text.Read (readMaybe)
 import Debug.Trace
 
-instance FetchFromConfig Int where
-    fetch = fetchFromConfigWith parseInt
-        where parseInt = readMaybe . unpack
+deriving via FetchAsRead Int instance FetchFromConfig Int
+deriving via FetchAsRead Float instance FetchFromConfig Float
 
-instance FetchFromConfig Float where
-    fetch = fetchFromConfigWith parseFloat
-        where parseFloat = readMaybe . unpack
+newtype FetchAsRead a = FetchAsRead { getFetchAsRead :: a }
+
+instance (Read a) => FetchFromConfig (FetchAsRead a) where
+    fetch = fetchFromConfigWith parseReadable
+        where parseReadable text = FetchAsRead <$> (readMaybe $ unpack $ text)
 
 instance FetchFromConfig Bool where
     fetch = fetchFromConfigWith parseBool
