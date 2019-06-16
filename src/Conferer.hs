@@ -6,6 +6,7 @@ module Conferer
   , module Conferer.Provider.JSON
   , module Conferer.Provider.Mapping
   , module Conferer.Provider.CLIArgs
+  , module Conferer.Provider.Null
   , defaultConfig
   , Key(..)
   , (&)
@@ -25,6 +26,7 @@ import           Conferer.Provider.Namespaced
 import           Conferer.Provider.JSON
 import           Conferer.Provider.Mapping
 import           Conferer.Provider.CLIArgs
+import           Conferer.Provider.Null
 
 
 
