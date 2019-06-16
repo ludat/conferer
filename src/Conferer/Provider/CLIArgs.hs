@@ -14,7 +14,7 @@ import Conferer.Provider.Simple
 mkCLIArgsProvider' :: [String] -> ProviderCreator
 mkCLIArgsProvider' args = \config -> do
   let configMap = parseArgsIntoKeyValue args
-  mkMapConfigProvider configMap config
+  mkMapProvider configMap config
 
 mkCLIArgsProvider :: ProviderCreator
 mkCLIArgsProvider = \config -> do

@@ -10,11 +10,11 @@ import           Conferer.Provider.Files
 
 import           Conferer.Types
 
-mkDhallConfigProvider :: ProviderCreator
-mkDhallConfigProvider config = do
+mkDhallProvider :: ProviderCreator
+mkDhallProvider config = do
   filePath <- getFilePathFromEnv config "dhall"
   fileContent <- Text.readFile filePath
   dahllExpr <- inputExpr fileContent
   case dhallToJSON dahllExpr of
-    Right jsonConfig -> mkJsonConfigProvider' jsonConfig config
+    Right jsonConfig -> mkJsonProvider' jsonConfig config
     Left compileError -> error (show compileError)

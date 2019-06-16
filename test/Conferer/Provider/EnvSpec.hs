@@ -15,7 +15,7 @@ spec = do
       mkEnvConfig =
         emptyConfig
         & addProvider
-        (mkEnvConfigProvider'
+        (mkEnvProvider'
          (fakeLookupEnv
           [ ("TMUX","/tmp/tmux-1000/default,2822,0")
           , ("TMUX_PANE","%1")

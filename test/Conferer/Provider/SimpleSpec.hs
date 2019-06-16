@@ -10,7 +10,7 @@ spec = do
   describe "json provider" $ do
     let creator =
           emptyConfig
-          & addProvider (mkMapConfigProvider [ ("postgres.url", "some url")])
+          & addProvider (mkMapProvider [ ("postgres.url", "some url")])
 
     it "getting a non existent key returns an empty config" $ do
       c <- creator

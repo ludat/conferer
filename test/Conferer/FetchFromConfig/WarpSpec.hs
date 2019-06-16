@@ -8,7 +8,7 @@ import           Conferer.FetchFromConfig.Warp
 import Network.Wai.Handler.Warp
 
 configWith :: [(Key, Text)] -> IO Config
-configWith keyValues = emptyConfig & addProvider (mkMapConfigProvider keyValues)
+configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
 
 portAndHostShouldBe :: Either Text Settings -> (Port, HostPreference) -> Expectation
 portAndHostShouldBe fetchedSettings (port, host) = do

@@ -5,8 +5,8 @@ import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as Text
 
-data ConfigProvider =
-  ConfigProvider
+data Provider =
+  Provider
   { getKeyInProvider :: Key -> IO (Maybe Text)
   }
 
@@ -19,10 +19,10 @@ keyName = Text.intercalate "." . unKey
 
 data Config =
   Config
-  { providers :: [ConfigProvider]
+  { providers :: [Provider]
   }
 
-type ProviderCreator = Config -> IO ConfigProvider
+type ProviderCreator = Config -> IO Provider
 
 class FetchFromConfig a where
   fetch :: Key -> Config -> IO (Either Text a)

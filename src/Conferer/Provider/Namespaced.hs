@@ -7,7 +7,7 @@ import           Conferer.Types
 mkNamespacedProvider :: Key -> ProviderCreator -> ProviderCreator
 mkNamespacedProvider (Path key) configCreator = \config -> do
   configProvider <- configCreator config
-  return $ ConfigProvider
+  return $ Provider
     { getKeyInProvider = \(Path k) -> do
         case stripPrefix key k of
           Just newKey -> getKeyInProvider configProvider (Path newKey)

@@ -24,7 +24,7 @@ parent /. child = Path (unKey parent ++ unKey child)
 emptyConfig :: Config
 emptyConfig = Config []
 
-mkStandaloneProvider :: ProviderCreator -> IO ConfigProvider
+mkStandaloneProvider :: ProviderCreator -> IO Provider
 mkStandaloneProvider mkProvider =
   mkProvider emptyConfig
 

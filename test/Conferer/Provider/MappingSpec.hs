@@ -12,14 +12,14 @@ spec = do
        \wrapper doesn't exist" $ do
       c <- emptyConfig
            & addProvider (mkMappingProvider Map.empty
-                          $ mkMapConfigProvider [("some.key", "some value")])
+                          $ mkMapProvider [("some.key", "some value")])
       res <- getKey "some.key" c
       res `shouldBe` Left "Key 'some.key' was not found"
 
     it "getting a non existent key isn't there" $ do
       c <- emptyConfig
            & addProvider (mkMappingProvider (Map.fromList [("k", "key")])
-                          $ mkMapConfigProvider [("key", "75")])
+                          $ mkMapProvider [("key", "75")])
 
       res <- getKey "xxxx" c
       res `shouldBe` Left "Key 'xxxx' was not found"
@@ -28,7 +28,7 @@ spec = do
        \inner provider isn't there" $ do
       c <- emptyConfig
            & addProvider (mkMappingProvider (Map.fromList [("another.key", "some.key")])
-                          $ mkMapConfigProvider [])
+                          $ mkMapProvider [])
 
       res <- getKey "another.key" c
       res `shouldBe` Left "Key 'another.key' was not found"
@@ -37,6 +37,6 @@ spec = do
        \the inner provider gets it" $ do
       c <- emptyConfig
            & addProvider (mkMappingProvider (Map.fromList [("another.key", "some.key")])
-                          $ mkMapConfigProvider [("some.key", "some value")])
+                          $ mkMapProvider [("some.key", "some value")])
       res <- getKey "another.key" c
       res `shouldBe` Right "some value"

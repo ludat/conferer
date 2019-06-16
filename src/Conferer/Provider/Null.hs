@@ -4,7 +4,7 @@ import           Conferer.Types
 
 mkNullProvider :: ProviderCreator
 mkNullProvider _config =
-  return $ ConfigProvider
+  return $ Provider
   { getKeyInProvider =
       \k -> do
         return Nothing

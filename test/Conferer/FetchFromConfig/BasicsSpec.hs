@@ -7,7 +7,7 @@ import           Conferer
 import           Conferer.FetchFromConfig.Basics
 
 configWith :: [(Key, Text)] -> IO Config
-configWith keyValues = emptyConfig & addProvider (mkMapConfigProvider keyValues)
+configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
 
 spec = do
   describe "fetching an Int from config" $ do
@@ -37,13 +37,13 @@ spec = do
       fetchedValue `shouldBe` (Right True :: Either Text Bool)
       anotherFetchedValue <- fetch "anotherBool" config
       anotherFetchedValue `shouldBe` (Right False :: Either Text Bool)
-    
+
   describe "fetching a String from config" $ do
     it "getting a value returns the value as a string" $ do
       config <- configWith [ ("aString", "Bleh") ]
       fetchedValue <- fetch "aString" config
       fetchedValue `shouldBe` (Right "Bleh" :: Either Text String)
-      
+
   describe "fetching a Float from config" $ do
     it "if the value can be parsed as float, it returns that float" $ do
       config <- configWith [ ("aFloat", "9.5") ]

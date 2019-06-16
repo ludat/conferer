@@ -6,10 +6,10 @@ import           Conferer.Provider.JSON
 import           Conferer.Provider.Files
 import           Conferer.Types
 
-mkYamlConfigProvider :: ProviderCreator
-mkYamlConfigProvider config = do
+mkYamlProvider :: ProviderCreator
+mkYamlProvider config = do
   filePath <- getFilePathFromEnv config "yaml"
   configAsJson <- decodeFileEither filePath
   case configAsJson of
-    Right jsonConfig -> mkJsonConfigProvider' jsonConfig config
+    Right jsonConfig -> mkJsonProvider' jsonConfig config
     Left parseException -> error (show parseException)

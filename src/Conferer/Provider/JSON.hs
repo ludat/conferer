@@ -45,8 +45,8 @@ resultToMaybe (Error _) = Nothing
 resultToMaybe (Success a) = Just a
 
 
-mkJsonConfigProvider :: ProviderCreator
-mkJsonConfigProvider config = do
+mkJsonProvider :: ProviderCreator
+mkJsonProvider config = do
   fileToParse <- getFilePathFromEnv config "json"
   fileExists <- doesFileExist fileToParse
   if fileExists
@@ -56,13 +56,13 @@ mkJsonConfigProvider config = do
         Nothing ->
           error $ "Failed to decode file '" <> fileToParse <> "'"
         Just v -> do
-          mkJsonConfigProvider' v config
+          mkJsonProvider' v config
     else do
       mkNullProvider config
 
-mkJsonConfigProvider' :: Value -> ProviderCreator
-mkJsonConfigProvider' v = \config ->
-  return $ ConfigProvider
+mkJsonProvider' :: Value -> ProviderCreator
+mkJsonProvider' v = \config ->
+  return $ Provider
   { getKeyInProvider = \k -> do
       return $ traverseJSON k v
   }

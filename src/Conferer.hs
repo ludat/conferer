@@ -34,5 +34,5 @@ defaultConfig :: Text -> IO Config
 defaultConfig appName = do
   pure emptyConfig
   >>= addProvider (mkCLIArgsProvider)
-  >>= addProvider (mkEnvConfigProvider appName)
-  >>= addProvider (mkJsonConfigProvider)
+  >>= addProvider (mkEnvProvider appName)
+  >>= addProvider (mkJsonProvider)

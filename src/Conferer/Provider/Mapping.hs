@@ -10,7 +10,7 @@ mkMappingProvider' :: (Key -> Maybe Key) -> ProviderCreator -> ProviderCreator
 mkMappingProvider' mapper providerCreator config = do
   configProvider <- providerCreator config
 
-  return $ ConfigProvider
+  return $ Provider
     { getKeyInProvider = \k -> do
         case mapper k of
           Just newKey -> getKeyInProvider configProvider newKey
