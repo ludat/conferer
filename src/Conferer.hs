@@ -7,6 +7,8 @@ module Conferer
   , module Conferer.Provider.Mapping
   , module Conferer.Provider.CLIArgs
   , module Conferer.Provider.Null
+  , module Conferer.Provider.Yaml
+  , module Conferer.Provider.Dhall
   , defaultConfig
   , Key(..)
   , (&)
@@ -27,6 +29,8 @@ import           Conferer.Provider.JSON
 import           Conferer.Provider.Mapping
 import           Conferer.Provider.CLIArgs
 import           Conferer.Provider.Null
+import           Conferer.Provider.Yaml
+import           Conferer.Provider.Dhall
 
 
 
@@ -35,4 +39,7 @@ defaultConfig appName = do
   pure emptyConfig
   >>= addProvider (mkCLIArgsProvider)
   >>= addProvider (mkEnvProvider appName)
+  -- >>= addProvider (mkYamlProvider)
+  >>= addProvider (mkDhallProvider)
   >>= addProvider (mkJsonProvider)
+

@@ -12,6 +12,9 @@ unsafeGetKey :: Key -> Config -> IO Text
 unsafeGetKey k config =
   either (error . Text.unpack) id <$> getKey k config
 
+getFromConfig k config =
+  either (error . Text.unpack) id <$> fetch k config
+
 getKey :: Key -> Config -> IO (Either Text Text)
 getKey k config =
   foldr (<>) (pure notFoundKey) $ map getFromProvider (providers config)
