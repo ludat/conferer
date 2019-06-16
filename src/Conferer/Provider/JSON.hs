@@ -11,8 +11,10 @@ import           Text.Read (readMaybe)
 import qualified Data.ByteString.Lazy as B
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
+import           System.Directory (doesFileExist)
 
 import Conferer.Provider.Files
+import Conferer.Provider.Null
 import Conferer.Types
 
 
@@ -46,12 +48,17 @@ resultToMaybe (Success a) = Just a
 mkJsonConfigProvider :: ProviderCreator
 mkJsonConfigProvider config = do
   fileToParse <- getFilePathFromEnv config "json"
-  value <- decodeFileStrict' fileToParse
-
-  case value of
-    Just v -> do
-      mkJsonConfigProvider' v config
-    Nothing -> error $ "Failed to decode file '" <> fileToParse <> "'"
+  fileExists <- doesFileExist fileToParse
+  if fileExists
+    then do
+      value <- decodeFileStrict' fileToParse
+      case value of
+        Nothing ->
+          error $ "Failed to decode file '" <> fileToParse <> "'"
+        Just v -> do
+          mkJsonConfigProvider' v config
+    else do
+      mkNullProvider config
 
 mkJsonConfigProvider' :: Value -> ProviderCreator
 mkJsonConfigProvider' v = \config ->

@@ -19,6 +19,7 @@ dependencies:
   - bytestring
   - monad-loops
   - yaml
+  - directory
   - aeson
   - vector
   - warp

@@ -1,12 +1,12 @@
 {-# LANGUAGE FlexibleInstances, FlexibleContexts, DerivingVia, StandaloneDeriving #-}
+
 module Conferer.FetchFromConfig.Basics where
 import Conferer.Types
-import Conferer (getKey)
+import Conferer.Core (getKey)
 import Data.Text (Text(..), pack, unpack, toLower)
 import Data.ByteString (ByteString)
 import Data.String (IsString, fromString)
 import Text.Read (readMaybe)
-import Debug.Trace
 
 deriving via FetchAsRead Int instance FetchFromConfig Int
 deriving via FetchAsRead Float instance FetchFromConfig Float
@@ -39,4 +39,5 @@ fromValueWith parseValue key valueAsText = case parseValue valueAsText of
     Nothing -> Left ("Key " <> keyName key <> " could not be parsed correctly")
 
 fetchFromConfigWith :: (Text -> Maybe a) -> Key -> Config -> IO (Either Text a)
-fetchFromConfigWith parseValue key config = (fromValueWith parseValue key =<<) <$> getKey key config
+fetchFromConfigWith parseValue key config =
+  (fromValueWith parseValue key =<<) <$> getKey key config
