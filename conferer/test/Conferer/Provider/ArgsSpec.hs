@@ -1,10 +1,10 @@
 module Conferer.Provider.ArgsSpec where
 
 import           Test.Hspec
-import qualified Data.Map as Map
 
 import           Conferer
 
+spec :: Spec
 spec = do
   describe "with a mapping provider" $ do
     let mkConf args =

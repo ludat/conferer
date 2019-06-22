@@ -4,11 +4,12 @@ import           Test.Hspec
 import           Conferer.Types
 import           Data.Text
 import           Conferer
-import           Conferer.FetchFromConfig.Basics
+import           Conferer.FetchFromConfig.Basics ()
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
 
+spec :: Spec
 spec = do
   describe "fetching an Int from config" $ do
     it "getting a value that can't be parsed as an int returns an error message" $ do

@@ -1,9 +1,10 @@
 module Conferer.Provider.NamespacedSpec where
 
 import Test.Hspec
-import Conferer
-import qualified Data.Map as Map
 
+import Conferer
+
+spec :: Spec
 spec = do
   describe "namespaced config" $ do
     it "return nothing if the key doesn't match" $ do

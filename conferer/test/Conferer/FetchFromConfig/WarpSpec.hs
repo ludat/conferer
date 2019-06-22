@@ -4,8 +4,8 @@ import           Test.Hspec
 import           Conferer.Types
 import           Data.Text
 import           Conferer
-import           Conferer.FetchFromConfig.Warp
-import Network.Wai.Handler.Warp
+import           Conferer.FetchFromConfig.Warp ()
+import           Network.Wai.Handler.Warp
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
@@ -15,6 +15,7 @@ portAndHostShouldBe fetchedSettings (port, host) = do
   getPort <$> fetchedSettings `shouldBe` Right port
   getHost <$> fetchedSettings `shouldBe` Right host
 
+spec :: Spec
 spec = do
   let defaultPort = getPort defaultSettings
       defaultHost = getHost defaultSettings

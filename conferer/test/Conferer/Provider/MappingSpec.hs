@@ -6,6 +6,7 @@ import           Data.Function ((&))
 
 import           Conferer
 
+spec :: Spec
 spec = do
   describe "with a mapping provider" $ do
     it "getting an existent key in the original map but that's not mapped in the \

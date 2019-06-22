@@ -1,10 +1,9 @@
 module ConfererSpec where
 
-import Data.Aeson
-import Data.Aeson.QQ.Simple
 import Test.Hspec
 import Conferer
 
+spec :: Spec
 spec = do
   describe "keys" $ do
     it "parsing keys does the right thing" $ do

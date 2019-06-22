@@ -9,6 +9,7 @@ fakeLookupEnv :: [(String, String)] -> LookupEnvFunc
 fakeLookupEnv fakeEnv = \envName ->
   return $ Map.lookup envName $ Map.fromList fakeEnv
 
+spec :: Spec
 spec = do
   describe "with an env config" $ do
     let

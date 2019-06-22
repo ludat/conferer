@@ -12,23 +12,12 @@ category:            Web
 dependencies:
   - base >= 4.7 && < 5
   - containers
-  - unordered-containers
   - text
   - bytestring
-  - monad-loops
-  - yaml
   - directory
-  - aeson
-  - vector
-  - warp
-  - dhall
-  - dhall-json
 
 default-extensions:
-  - OverloadedStrings
-  - LambdaCase
-  - QuasiQuotes
-  - ScopedTypeVariables
+  !include ../utils/extensions.yaml
 
 library:
   source-dirs:      src

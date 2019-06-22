@@ -1,11 +1,12 @@
 module Conferer.Provider.JSONSpec where
 
 import Data.Aeson.QQ.Simple
-import Data.Aeson
 import Test.Hspec
 
 import Conferer
+import Conferer.Provider.JSON
 
+spec :: Spec
 spec = do
   describe "json provider" $ do
     it "getting an existing path returns the right value" $ do
@@ -37,8 +38,6 @@ spec = do
         res `shouldBe` Left "Key 'key' was not found"
 
     describe "with an int" $ do
-      let c =
-            mkJsonProvider'
       it "getting an existing path returns the right value" $ do
         c <- emptyConfig
            & addProvider (mkJsonProvider' [aesonQQ| {"key": 1} |])
@@ -46,8 +45,6 @@ spec = do
         res `shouldBe` Right "1"
 
     describe "with a float" $ do
-      let c =
-            mkJsonProvider'
       it "getting an existing path returns the right value" $ do
         c <- emptyConfig
            & addProvider (mkJsonProvider' [aesonQQ| {"key": 1.2} |])
@@ -55,8 +52,6 @@ spec = do
         res `shouldBe` Right "1.2"
 
     describe "with a boolean" $ do
-      let c =
-            mkJsonProvider'
       it "getting an existing path returns the right value" $ do
         c <- emptyConfig
            & addProvider (mkJsonProvider' [aesonQQ| {"key": false} |])

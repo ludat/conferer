@@ -1,11 +1,10 @@
 module Conferer.Provider.SimpleSpec where
 
-
-import Data.Aeson
 import Test.Hspec
 
 import Conferer
 
+spec :: Spec
 spec = do
   describe "json provider" $ do
     let creator =

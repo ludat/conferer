@@ -2,9 +2,9 @@ resolver: lts-13.24
 packages:
   - ./conferer/
   - ./example/
-  - ./providers/conferer-provider-json/
-  - ./providers/conferer-provider-yaml/
-  - ./providers/conferer-provider-dhall/
+  - ./providers/json/
+  - ./providers/yaml/
+  - ./providers/dhall/
 
 ghc-options:
   "$locals": >

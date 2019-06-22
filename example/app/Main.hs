@@ -1,7 +1,7 @@
 module Main where
 
 import Conferer
-import Conferer.FetchFromConfig.Warp
+import Conferer.FetchFromConfig.Warp ()
 
 import Network.Wai
 import Network.HTTP.Types (status200)
@@ -15,6 +15,7 @@ main = do
   putStrLn $ "Running on port: " ++ show (getPort warpSettings)
   runSettings warpSettings application
 
+application :: Application
 application _ respond = respond $
   responseLBS status200 [("Content-Type", "text/plain")] "Hello World"
 
