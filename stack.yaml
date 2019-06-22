@@ -6,6 +6,11 @@ packages:
   - ./providers/yaml/
   - ./providers/dhall/
 
+  - ./fetchFromConfig/warp/
+  # - ./fetchFromConfig/hspec/
+  # - ./fetchFromConfig/snap/
+
+
 ghc-options:
   "$locals": >
     -Wall
