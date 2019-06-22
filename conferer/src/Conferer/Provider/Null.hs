@@ -6,6 +6,6 @@ mkNullProvider :: ProviderCreator
 mkNullProvider _config =
   return $ Provider
   { getKeyInProvider =
-      \k -> do
+      \_k -> do
         return Nothing
   }

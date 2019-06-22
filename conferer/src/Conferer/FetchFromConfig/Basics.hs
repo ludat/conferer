@@ -3,7 +3,7 @@
 module Conferer.FetchFromConfig.Basics where
 import Conferer.Types
 import Conferer.Core (getKey)
-import Data.Text (Text(..), pack, unpack, toLower)
+import Data.Text (Text, unpack, toLower)
 import Data.ByteString (ByteString)
 import Data.String (IsString, fromString)
 import Text.Read (readMaybe)

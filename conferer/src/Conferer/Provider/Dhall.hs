@@ -1,7 +1,5 @@
 module Conferer.Provider.Dhall where
 
-import           Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Dhall
 import           Dhall.JSON

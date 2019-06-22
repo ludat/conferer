@@ -1,6 +1,5 @@
 module Conferer.Provider.Mapping where
 
-import           Data.List (stripPrefix)
 import           Data.Map (Map)
 import qualified Data.Map as Map
 

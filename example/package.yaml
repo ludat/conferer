@@ -16,10 +16,7 @@ dependencies:
 - conferer
 
 default-extensions:
-  - OverloadedStrings
-  - LambdaCase
-  - QuasiQuotes
-  - ScopedTypeVariables
+  !include ../utils/extensions.yaml
 
 executables:
   example-exe:

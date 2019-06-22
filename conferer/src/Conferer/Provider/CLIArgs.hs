@@ -2,7 +2,6 @@ module Conferer.Provider.CLIArgs where
 
 import           Data.Text (Text)
 import qualified Data.Text as Text
-import qualified Data.Map as Map
 import           Data.Maybe (mapMaybe)
 import           Data.String (fromString)
 import           System.Environment (getArgs)

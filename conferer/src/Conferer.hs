@@ -15,13 +15,10 @@ module Conferer
   ) where
 
 import           Data.Text (Text)
-import qualified Data.Text as Text
 import           Data.Function ((&))
-import           Data.Either (either)
 
 import           Conferer.Core
 import           Conferer.Types
-import           Conferer.Provider.Files
 import           Conferer.Provider.Env
 import           Conferer.Provider.Simple
 import           Conferer.Provider.Namespaced
@@ -39,7 +36,4 @@ defaultConfig appName = do
   pure emptyConfig
   >>= addProvider (mkCLIArgsProvider)
   >>= addProvider (mkEnvProvider appName)
-  -- >>= addProvider (mkYamlProvider)
-  >>= addProvider (mkDhallProvider)
-  >>= addProvider (mkJsonProvider)
 

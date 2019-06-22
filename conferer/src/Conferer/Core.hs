@@ -2,9 +2,7 @@ module Conferer.Core where
 
 import           Data.Text (Text)
 import qualified Data.Text as Text
-import           Data.Function ((&))
 import           Data.Either (either)
-import           Control.Applicative ((<|>))
 
 import           Conferer.Types
 
@@ -12,6 +10,7 @@ unsafeGetKey :: Key -> Config -> IO Text
 unsafeGetKey k config =
   either (error . Text.unpack) id <$> getKey k config
 
+getFromConfig :: FetchFromConfig a => Key -> Config -> IO a
 getFromConfig k config =
   either (error . Text.unpack) id <$> fetch k config
 

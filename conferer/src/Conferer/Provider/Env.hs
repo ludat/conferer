@@ -23,7 +23,7 @@ mkEnvProvider prefix =
   mkEnvProvider' System.lookupEnv prefix
 
 mkEnvProvider' :: LookupEnvFunc -> Prefix -> ProviderCreator
-mkEnvProvider' lookupEnv prefix = \config ->
+mkEnvProvider' lookupEnv prefix = \_config ->
   return $
   Provider
   { getKeyInProvider = \k -> do
