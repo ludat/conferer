@@ -20,8 +20,10 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/githubuser/conferer-snap#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+- base >= 4.3 && < 5
 - conferer
+- snap-server
+- snap-core
 - text
 
 library:
