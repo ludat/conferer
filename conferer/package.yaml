@@ -10,7 +10,7 @@ copyright:           GPL3
 category:            Web
 
 dependencies:
-  - base >= 4.7 && < 5
+  - base >= 4.3 && < 5
   - containers
   - text
   - bytestring

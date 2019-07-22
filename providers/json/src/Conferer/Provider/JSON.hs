@@ -4,11 +4,14 @@ import           Data.Aeson
 import qualified Data.HashMap.Strict as HashMap
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
 import           Data.Vector
 import           Text.Read (readMaybe)
-import qualified Data.ByteString.Lazy as B
-import qualified Data.Text.Encoding as T
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as L
 import           System.Directory (doesFileExist)
+import           Data.Monoid
+
 
 import Conferer.Provider.Files
 import Conferer.Provider.Null
@@ -23,7 +26,7 @@ valueToText :: Value -> Maybe Text
 valueToText (String t) = Just t
 valueToText (Object _o) = Nothing
 valueToText (Array _as) = Nothing
-valueToText (Number n) = Just $ T.decodeUtf8 $ B.toStrict $ encode $ Number n
+valueToText (Number n) = Just $ Text.decodeUtf8 $ L.toStrict $ encode $ Number n
 valueToText (Bool b) = Just $ boolToString b
 valueToText (Null) = Nothing
 
@@ -48,7 +51,7 @@ mkJsonProvider config = do
   fileExists <- doesFileExist fileToParse
   if fileExists
     then do
-      value <- decodeFileStrict' fileToParse
+      value <- decodeStrict' <$> B.readFile fileToParse
       case value of
         Nothing ->
           error $ "Failed to decode file '" <> fileToParse <> "'"

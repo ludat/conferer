@@ -16,9 +16,14 @@ getFromConfig k config =
 
 getKey :: Key -> Config -> IO (Either Text Text)
 getKey k config =
-  foldr (<>) (pure notFoundKey) $ map getFromProvider (providers config)
-    where notFoundKey = Left ("Key '" <> keyName k <> "' was not found")
-          getFromProvider provider = maybe notFoundKey Right <$> getKeyInProvider provider k
+  go $ providers config
+  where
+    go [] = return $ Left ("Key '" `Text.append` keyName k `Text.append` "' was not found")
+    go (provider:providers) = do
+      res <- getKeyInProvider provider k
+      case res of
+        Just t -> return $ Right t
+        Nothing -> go providers
 
 (/.) :: Key -> Key -> Key
 parent /. child = Path (unKey parent ++ unKey child)

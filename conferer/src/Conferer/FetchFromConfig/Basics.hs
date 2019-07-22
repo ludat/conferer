@@ -42,7 +42,7 @@ instance FetchFromConfig Bool where
 fromValueWith :: (Text -> Maybe a) -> Key -> Text -> Either Text a
 fromValueWith parseValue key valueAsText = case parseValue valueAsText of
     Just value -> Right value
-    Nothing -> Left ("Key " <> keyName key <> " could not be parsed correctly")
+    Nothing -> Left ("Key " `Text.append` keyName key `Text.append` " could not be parsed correctly")
 
 fetchFromConfigWith :: (Text -> Maybe a) -> Key -> Config -> IO (Either Text a)
 fetchFromConfigWith parseValue key config =
