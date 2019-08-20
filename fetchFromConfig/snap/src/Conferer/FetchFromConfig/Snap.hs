@@ -1,7 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
 module Conferer.FetchFromConfig.Snap where
 
 import Conferer.Core
@@ -14,9 +13,20 @@ import Data.Text (Text, unpack)
 import qualified Snap.Http.Server.Config as Snap
 import qualified Snap.Core as Snap
 
+instance FetchFromConfig (Snap.ConfigLog) where
+  fetch k config = do
+    getKey k config
+      >>= \case
+        Right "NoLog" -> return $ Right $ Snap.ConfigNoLog
+        Right t -> return $ Right $ Snap.ConfigFileLog $ unpack t
+        Left e -> return $ Left e
+
+
+
+
 instance (FetchFromConfig a, Snap.MonadSnap m) => FetchFromConfig (Snap.Config m a) where
   fetch k config = do
-    pure (Right (Snap.defaultConfig @m))
+    pure (Right Snap.defaultConfig)
       >>= findKeyAndApplyConfig config k "default-timeout" Snap.setDefaultTimeout
       -- >>= findKeyAndApplyConfig config k "access-log" Snap.setAccessLog
       >>= findKeyAndApplyConfig config k "bind" Snap.setBind
