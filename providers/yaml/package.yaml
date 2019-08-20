@@ -1,32 +1,25 @@
 name:                conferer-provider-yaml
 version:             0.1.0.0
-github:              "githubuser/conferer-provider-yaml"
+synopsis: |
+  Configuration for reading json files
+description: |
+  Library to abstract the parsing of many haskell config values from different config sources
+homepage:            https://github.com/ludat/conferer#readme
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2019 Author name here"
+author:              Lucas David Traverso
+maintainer:          lucas6246@gmail.com
+copyright:           MIT
+category:            Configuration
+license-file:        LICENSE
 
-extra-source-files:
-- README.md
-- ChangeLog.md
-
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/conferer-provider-yaml#readme>
+dependencies:
+  - base >= 4.3 && < 5
+  - conferer == 0.1.0.0
+  - conferer-provider-json == 0.1.0.0
+  - yaml >= 0.8 && < 1.0
 
 default-extensions:
   !include ../../utils/extensions.yaml
-
-dependencies:
-  - base >= 4.7 && < 5
-  - conferer
-  - conferer-provider-json
-  - yaml
 
 library:
   source-dirs: src
@@ -35,10 +28,6 @@ tests:
   conferer-provider-yaml-test:
     main:                Spec.hs
     source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
     dependencies:
     - conferer-provider-yaml
     - hspec

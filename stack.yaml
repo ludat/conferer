@@ -3,7 +3,6 @@ resolver: lts-13.24
 
 packages:
   - ./conferer/
-  - ./example/
   - ./providers/json/
   - ./providers/yaml/
   - ./providers/dhall/
