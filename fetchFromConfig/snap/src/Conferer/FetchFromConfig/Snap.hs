@@ -28,7 +28,7 @@ instance (FetchFromConfig a, Snap.MonadSnap m) => FetchFromConfig (Snap.Config m
   fetch k config = do
     pure (Right Snap.defaultConfig)
       >>= findKeyAndApplyConfig config k "default-timeout" Snap.setDefaultTimeout
-      -- >>= findKeyAndApplyConfig config k "access-log" Snap.setAccessLog
+      >>= findKeyAndApplyConfig config k "access-log" Snap.setAccessLog
       >>= findKeyAndApplyConfig config k "bind" Snap.setBind
       >>= findKeyAndApplyConfig config k "compression" Snap.setCompression
       >>= findKeyAndApplyConfig config k "error-log" Snap.setErrorLog
