@@ -5,11 +5,11 @@ module Conferer.FetchFromConfig.Snap
   --
   -- @
   -- import Conferer
-  -- import Conferer.FetchFromConfig.Snap () -- from package conferer-snap
+  -- import Conferer.FetchFromConfig.Snap ()
   --
   -- main = do
   --   config <- 'defaultConfig' \"awesomeapp\"
-  --   snapConfig <- 'getFromConfig' \"warp\" config
+  --   snapConfig <- 'getFromConfig' \"snap\" config
   -- @
   --
   -- * Internal utility functions
