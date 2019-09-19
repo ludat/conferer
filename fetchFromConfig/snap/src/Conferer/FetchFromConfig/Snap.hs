@@ -1,7 +1,22 @@
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE OverloadedStrings #-}
-module Conferer.FetchFromConfig.Snap where
+module Conferer.FetchFromConfig.Snap
+  (
+  -- * How to use this
+  -- | FetchFromConfig instance for snap server configuration
+  --
+  -- @
+  -- import Conferer
+  -- import Conferer.FetchFromConfig.Snap () -- from package conferer-snap
+  --
+  -- main = do
+  --   config <- 'defaultConfig' \"awesomeapp\"
+  --   snapConfig <- 'getFromConfig' \"warp\" config
+  -- @
+  --
+  -- * Internal utility functions
+  -- | These may be useful for someone but are subject to change at any point so
+  -- use with care
+  findKeyAndApplyConfig
+  ) where
 
 import Conferer.Core
 import Conferer.Types
@@ -13,16 +28,13 @@ import Data.Text (Text, unpack)
 import qualified Snap.Http.Server.Config as Snap
 import qualified Snap.Core as Snap
 
-instance FetchFromConfig (Snap.ConfigLog) where
+instance FetchFromConfig Snap.ConfigLog where
   fetch k config = do
     getKey k config
       >>= \case
         Right "NoLog" -> return $ Right $ Snap.ConfigNoLog
         Right t -> return $ Right $ Snap.ConfigFileLog $ unpack t
         Left e -> return $ Left e
-
-
-
 
 instance (FetchFromConfig a, Snap.MonadSnap m) => FetchFromConfig (Snap.Config m a) where
   fetch k config = do
@@ -46,12 +58,20 @@ instance (FetchFromConfig a, Snap.MonadSnap m) => FetchFromConfig (Snap.Config m
       >>= findKeyAndApplyConfig config k "unix-socket" Snap.setUnixSocket
       >>= findKeyAndApplyConfig config k "unix-socket-access-mode" Snap.setUnixSocketAccessMode
 
-
+-- | Concatenate many transformations to the config based on keys and functions
+--
+-- TODO: This should probably be on @conferer@ and maybe should use a
+-- transformer stack to avoid so much repeated code
 findKeyAndApplyConfig ::
   FetchFromConfig newvalue
-  => Config -> Key -> Key
-  -> (newvalue -> config -> config)
-  -> Either Text config -> IO (Either Text config)
+  => Config -- ^ Complete config
+  -> Key -- ^ Key that indicates the part of the config that we care about
+  -> Key -- ^ Key that we use to find the config (usually concatenating with the
+         -- other key)
+  -> (newvalue -> config -> config) -- ^ Function that knows how to use the
+                                    -- value to update the config
+  -> Either Text config -- ^ Result of the last config updating
+  -> IO (Either Text config) -- ^ Updated config
 findKeyAndApplyConfig config k relativeKey f (Right customConfig) =
   fetch (k /. relativeKey) config
     >>= \case
