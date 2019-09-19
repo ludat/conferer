@@ -15,12 +15,12 @@ module Conferer.FetchFromConfig.Snap
   -- * Internal utility functions
   -- | These may be useful for someone but are subject to change at any point so
   -- use with care
-  findKeyAndApplyConfig
   ) where
 
 import Conferer.Core
 import Conferer.Types
 import Conferer.FetchFromConfig.Basics
+
 import Data.Either (rights)
 import Data.String (fromString)
 import Data.Text (Text, unpack)
@@ -57,24 +57,3 @@ instance (FetchFromConfig a, Snap.MonadSnap m) => FetchFromConfig (Snap.Config m
       >>= findKeyAndApplyConfig config k "verbose" Snap.setVerbose
       >>= findKeyAndApplyConfig config k "unix-socket" Snap.setUnixSocket
       >>= findKeyAndApplyConfig config k "unix-socket-access-mode" Snap.setUnixSocketAccessMode
-
--- | Concatenate many transformations to the config based on keys and functions
---
--- TODO: This should probably be on @conferer@ and maybe should use a
--- transformer stack to avoid so much repeated code
-findKeyAndApplyConfig ::
-  FetchFromConfig newvalue
-  => Config -- ^ Complete config
-  -> Key -- ^ Key that indicates the part of the config that we care about
-  -> Key -- ^ Key that we use to find the config (usually concatenating with the
-         -- other key)
-  -> (newvalue -> config -> config) -- ^ Function that knows how to use the
-                                    -- value to update the config
-  -> Either Text config -- ^ Result of the last config updating
-  -> IO (Either Text config) -- ^ Updated config
-findKeyAndApplyConfig config k relativeKey f (Right customConfig) =
-  fetch (k /. relativeKey) config
-    >>= \case
-      Left a -> return $ Right customConfig
-      Right a -> return $ Right $ f a customConfig
-findKeyAndApplyConfig config k relativeKey f (Left e) = return $ Left e

@@ -2,7 +2,7 @@
 module Conferer.FetchFromConfig.Basics where
 
 import           Conferer.Types
-import           Conferer.Core (getKey)
+import           Conferer.Core (getKey, (/.))
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -47,3 +47,21 @@ fromValueWith parseValue key valueAsText = case parseValue valueAsText of
 fetchFromConfigWith :: (Text -> Maybe a) -> Key -> Config -> IO (Either Text a)
 fetchFromConfigWith parseValue key config =
   (fromValueWith parseValue key =<<) <$> getKey key config
+
+-- | Concatenate many transformations to the config based on keys and functions
+findKeyAndApplyConfig ::
+  FetchFromConfig newvalue
+  => Config -- ^ Complete config
+  -> Key -- ^ Key that indicates the part of the config that we care about
+  -> Key -- ^ Key that we use to find the config (usually concatenating with the
+         -- other key)
+  -> (newvalue -> config -> config) -- ^ Function that knows how to use the
+                                    -- value to update the config
+  -> Either Text config -- ^ Result of the last config updating
+  -> IO (Either Text config) -- ^ Updated config
+findKeyAndApplyConfig config k relativeKey f (Right customConfig) =
+  fetch (k /. relativeKey) config
+    >>= \case
+      Left a -> return $ Right customConfig
+      Right a -> return $ Right $ f a customConfig
+findKeyAndApplyConfig config k relativeKey f (Left e) = return $ Left e
