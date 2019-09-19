@@ -1,7 +1,7 @@
 name:                conferer-snap
-version:             0.1.0.1
+version:             0.1.0.2
 synopsis: |
-  Configuration for reading json files
+  conferer's FromConfig instances for snap Config
 description: |
   Library to abstract the parsing of many haskell config values from different config sources
 homepage:            https://github.com/ludat/conferer#readme
@@ -18,7 +18,7 @@ extra-doc-files:
 
 dependencies:
   - base >= 4.3 && < 5
-  - conferer == 0.1.0.1
+  - conferer >= 0.1.0.1 && < 0.2.0.0
   - text >= 1.1 && < 1.3
   - snap-server >= 1.0 && < 2.0
   - snap-core >= 1.0 && < 2.0

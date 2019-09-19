@@ -1,7 +1,7 @@
 name:                conferer-provider-dhall
 version:             0.1.0.1
 synopsis: |
-  Configuration for reading json files
+  Configuration for reading dhall files
 description: |
   Library to abstract the parsing of many haskell config values from different config sources
 homepage:            https://github.com/ludat/conferer#readme
@@ -18,8 +18,8 @@ extra-doc-files:
 
 dependencies:
   - base >= 4.3 && < 5
-  - conferer == 0.1.0.1
-  - conferer-provider-json == 0.1.0.1
+  - conferer >= 0.1.0.1 && < 0.2.0.0
+  - conferer-provider-json >= 0.1.0.1 && < 0.2.0.0
   - bytestring >= 0.10 && < 0.11
   - text >= 1.1 && < 1.3
   - directory >= 1.2 && < 2.0
