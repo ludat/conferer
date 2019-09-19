@@ -16,13 +16,13 @@ module Conferer
   --   command line arguments of @.properties@ files
   --
   -- @
-  -- > import Conferer
-  -- > import Conferer.FetchFromConfig.Warp () -- from package conferer-warp
-  -- >
-  -- > main = do
-  -- >   config <- 'defaultConfig' \"awesomeapp\"
-  -- >   warpSettings <- 'getFromConfig' \"warp\" config
-  -- >   runSettings warpSettings application
+  -- import Conferer
+  -- import Conferer.FetchFromConfig.Warp () -- from package conferer-warp
+  --
+  -- main = do
+  --   config <- 'defaultConfig' \"awesomeapp\"
+  --   warpSettings <- 'getFromConfig' \"warp\" config
+  --   runSettings warpSettings application
   -- @
   --
   -- In the above example we see that we are getting a configuration value for
