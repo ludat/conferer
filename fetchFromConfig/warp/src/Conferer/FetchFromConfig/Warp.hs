@@ -1,5 +1,18 @@
 {-# LANGUAGE FlexibleInstances #-}
-module Conferer.FetchFromConfig.Warp where
+module Conferer.FetchFromConfig.Warp
+  (
+  -- * How to use this
+  -- | FetchFromConfig instance for warp server settings
+  --
+  -- @
+  -- import Conferer
+  -- import Conferer.FetchFromConfig.Warp ()
+  --
+  -- main = do
+  --   config <- 'defaultConfig' \"awesomeapp\"
+  --   warpSettings <- 'getFromConfig' \"warp\" config
+  -- @
+  ) where
 
 import Conferer.Core
 import Conferer.Types
