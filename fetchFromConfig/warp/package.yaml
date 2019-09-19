@@ -1,5 +1,5 @@
 name:                conferer-warp
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis: |
   Configuration for reading json files
 description: |
@@ -11,6 +11,10 @@ maintainer:          lucas6246@gmail.com
 copyright:           MIT
 category:            Configuration
 license-file:        LICENSE
+
+extra-doc-files:
+  - README.md
+  - LICENSE
 
 dependencies:
   - base >= 4.3 && < 5

@@ -1,5 +1,5 @@
 name:                conferer-provider-dhall
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis: |
   Configuration for reading json files
 description: |
@@ -12,10 +12,14 @@ copyright:           MIT
 category:            Configuration
 license-file:        LICENSE
 
+extra-doc-files:
+  - README.md
+  - LICENSE
+
 dependencies:
   - base >= 4.3 && < 5
-  - conferer == 0.1.0.0
-  - conferer-provider-json == 0.1.0.0
+  - conferer == 0.1.0.1
+  - conferer-provider-json == 0.1.0.1
   - bytestring >= 0.10 && < 0.11
   - text >= 1.1 && < 1.3
   - directory >= 1.2 && < 2.0
