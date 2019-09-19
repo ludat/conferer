@@ -54,3 +54,14 @@ spec = do
       config <- configWith [ ("aFloat", "ASD") ]
       fetchedValue <- fetch "aFloat" config
       fetchedValue `shouldBe` (Left "Key aFloat could not be parsed correctly" :: Either Text Float)
+
+  describe "fetching a Maybe from config" $ do
+    it "getting a value returns the value as a Just string" $ do
+      config <- configWith [ ("aString", "Bleh") ]
+      fetchedValue <- fetch "aString" config
+      fetchedValue `shouldBe` (Right (Just "Bleh") :: Either Text (Maybe String))
+    context "with an empty value that's present" $ do
+      it "returns Nothing" $ do
+        config <- configWith [ ("aString", "") ]
+        fetchedValue <- fetch "aString" config
+        fetchedValue `shouldBe` (Right Nothing :: Either Text (Maybe String))

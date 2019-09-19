@@ -8,5 +8,5 @@ packages:
   - ./providers/dhall/
 
   - ./fetchFromConfig/warp/
-  # - ./fetchFromConfig/hspec/
+  - ./fetchFromConfig/hspec/
   - ./fetchFromConfig/snap/

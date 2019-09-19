@@ -15,6 +15,9 @@ import           Text.Read (readMaybe)
 instance FetchFromConfig Int where
   fetch = fetchFromConfigByRead
 
+instance FetchFromConfig Integer where
+  fetch = fetchFromConfigByRead
+
 instance FetchFromConfig Float where
   fetch = fetchFromConfigByRead
 
@@ -23,6 +26,13 @@ fetchFromConfigByRead = fetchFromConfigWith (readMaybe . Text.unpack)
 
 instance FetchFromConfig ByteString where
   fetch = fetchFromConfigWith (Just . Text.encodeUtf8)
+
+instance FetchFromConfig a => FetchFromConfig (Maybe a)  where
+  fetch k c = do
+    v <- getKey k c
+    if v == Right ""
+      then return (Right Nothing)
+      else fmap Just <$> fetch k c
 
 instance FetchFromConfig String where
   fetch = fetchFromConfigWith (Just . Text.unpack)
@@ -38,7 +48,6 @@ instance FetchFromConfig Bool where
               "false" -> Just False
               "true" -> Just True
               _ -> Nothing
-
 fromValueWith :: (Text -> Maybe a) -> Key -> Text -> Either Text a
 fromValueWith parseValue key valueAsText = case parseValue valueAsText of
     Just value -> Right value
