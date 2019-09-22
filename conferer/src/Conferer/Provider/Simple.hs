@@ -6,6 +6,7 @@ module Conferer.Provider.Simple
     -- utility
     mkMapProvider
   , mkMapProvider'
+  , mkPureMapProvider
   ) where
 
 import           Data.Map (Map)
@@ -14,10 +15,15 @@ import           Data.Text (Text)
 
 import           Conferer.Types
 
--- | Make a 'Provider' from a 'Map'
+-- | Make a 'ProviderCreator' from a 'Map'
 mkMapProvider' :: Map Key Text -> ProviderCreator
 mkMapProvider' configMap _config =
-  return $ Provider
+  return $ mkPureMapProvider configMap
+
+-- | Make a 'Provider' from a 'Map'
+mkPureMapProvider :: Map Key Text -> Provider
+mkPureMapProvider configMap =
+  Provider
     { getKeyInProvider =
       \k -> do
         return $ Map.lookup k configMap

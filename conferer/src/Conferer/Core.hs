@@ -2,8 +2,11 @@ module Conferer.Core where
 
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import           Data.Map (Map)
+import qualified Data.Map as Map
 import           Data.Either (either)
 
+import           Conferer.Provider.Simple
 import           Conferer.Types
 
 -- | Most Basic function to interact directly with a 'Config'. It always returns
@@ -11,7 +14,7 @@ import           Conferer.Types
 --   providers inside the 'Config'.
 getKey :: Key -> Config -> IO (Either Text Text)
 getKey k config =
-  go $ providers config
+  go $ providers config ++ [mkPureMapProvider (defaults config)]
   where
     go [] = return $ Left ("Key '" `Text.append` keyName k `Text.append` "' was not found")
     go (provider:providers) = do
@@ -36,7 +39,11 @@ parent /. child = Path (unKey parent ++ unKey child)
 -- | The empty configuration, this 'Config' is used as the base for
 --   most config creating functions.
 emptyConfig :: Config
-emptyConfig = Config []
+emptyConfig = Config [] Map.empty
+
+withDefaults :: [(Key, Text)] -> Config -> Config
+withDefaults configMap config =
+  config { defaults = Map.fromList configMap }
 
 -- | Instantiate a 'ProviderCreator' using the 'emptyConfig'
 mkStandaloneProvider :: ProviderCreator -> IO Provider
@@ -50,7 +57,7 @@ addProvider :: ProviderCreator -> Config -> IO Config
 addProvider mkProvider config = do
   newProvider <- mkProvider config
   return $
-    Config
+    config
     { providers = providers config ++ [ newProvider ]
     }
 

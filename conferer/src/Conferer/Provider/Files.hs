@@ -11,7 +11,7 @@ fromRight _ (Right a) = a
 
 getFilePathFromEnv :: Config -> String -> IO FilePath
 getFilePathFromEnv config extension = do
-  env <- fromRight "dev" <$> fetch "env" config
+  env <- fromRight "development" <$> fetch "env" config
   return $ mconcat
     [ "config/"
     , Text.unpack env

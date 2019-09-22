@@ -71,6 +71,7 @@ module Conferer
   module Conferer.Types
   , module Conferer.Core
   , defaultConfig
+  , defaultConfigWithDefaults
   , Key(..)
 
   -- * Providers
@@ -80,6 +81,7 @@ module Conferer
   , module Conferer.Provider.Mapping
   , module Conferer.Provider.CLIArgs
   , module Conferer.Provider.Null
+  , module Conferer.Provider.PropertiesFile
   -- * Re-Exports
   , (&)
   ) where
@@ -87,22 +89,30 @@ module Conferer
 import           Data.Text (Text)
 import           Data.Function ((&))
 
-import           Conferer.Core (emptyConfig, addProvider, getFromConfig, getKey, unsafeGetKey, (/.))
-import           Conferer.Types (Config, Key(..), ProviderCreator, Provider(..), FetchFromConfig)
+import           Conferer.Core (emptyConfig, addProvider, getFromConfig, getKey, unsafeGetKey, (/.), withDefaults)
+import           Conferer.Types (Config, Key(..), ProviderCreator, Provider(..), FetchFromConfig(..))
 import           Conferer.Provider.Env
 import           Conferer.Provider.Simple
 import           Conferer.Provider.Namespaced
 import           Conferer.Provider.Mapping
 import           Conferer.Provider.CLIArgs
 import           Conferer.Provider.Null
+import           Conferer.Provider.PropertiesFile
 
 
 
 -- | Default config which reads from command line arguments, env vars and
---   property files
+-- property files
 defaultConfig :: Text -> IO Config
-defaultConfig appName = do
-  pure emptyConfig
+defaultConfig appName =
+  defaultConfigWithDefaults appName []
+
+-- | Default config which reads from command line arguments, env vars,
+-- property files and some default key/values
+defaultConfigWithDefaults :: Text -> [(Key, Text)] -> IO Config
+defaultConfigWithDefaults appName configMap =
+  pure (emptyConfig & withDefaults configMap)
   >>= addProvider (mkCLIArgsProvider)
   >>= addProvider (mkEnvProvider appName)
+  >>= addProvider (mkPropertiesFileProvider)
 

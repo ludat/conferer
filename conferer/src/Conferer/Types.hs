@@ -4,6 +4,8 @@ module Conferer.Types where
 import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import           Data.Map (Map)
+import qualified Data.Map as Map
 
 -- | Core interface for library provided configuration, basically consists of
 --   getting a 'Key' and informing returning a maybe signaling the value and
@@ -28,6 +30,7 @@ keyName = Text.intercalate "." . unKey
 data Config =
   Config
   { providers :: [Provider]
+  , defaults :: Map Key Text
   }
 
 -- | The type for creating a provider given a 'Config', some providers require a
