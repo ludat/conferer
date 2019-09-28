@@ -9,6 +9,13 @@ ghc:
   - "7.6"
 env:
   - PACKAGEDIR="conferer"
+  - PACKAGEDIR="fetchFromConfig/warp"
+  - PACKAGEDIR="fetchFromConfig/hspec"
+  - PACKAGEDIR="fetchFromConfig/snap"
+  - PACKAGEDIR="providers/dhall"
+  - PACKAGEDIR="providers/yaml"
+  - PACKAGEDIR="providers/json"
+
 
 matrix:
   allow_failures:
