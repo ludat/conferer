@@ -1,5 +1,4 @@
 resolver: lts-13.24
-# resolver: lts-3.0
 
 packages:
   - ./conferer/

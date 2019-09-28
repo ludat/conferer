@@ -1,22 +1,26 @@
 language: haskell
-ghc:
-  - "8.6"
-  - "8.4"
-  - "8.2"
-  - "8.0"
-  - "7.10"
-  - "7.8"
-  - "7.6"
+
+git:
+  depth: 5
+
+cache:
+  directories:
+  - "$HOME/.stack"
+  - "$TRAVIS_BUILD_DIR/.stack-work"
 
 matrix:
-  fast_finish: true
-  allow_failures:
-    - ghc: "7.8"
-    - ghc: "7.6"
-before_install:
-  - curl -sSL https://github.com/sol/hpack/raw/master/get-hpack.sh | bash
-  - cd conferer
-  - hpack package.yaml
-  - cabal install Cabal cabal-install
-  - cabal --version
+  include:
+  - ghc: 8.2.2
+    env: STACK_RESOLVER="ghc-8.2.2"
+  - ghc: 8.4.4
+    env: STACK_RESOLVER="ghc-8.4.4"
+  - ghc: 8.6.5
+    env: STACK_RESOLVER="ghc-8.6.5"
 
+install:
+  - curl -sSL https://get.haskellstack.org/ | sh
+  - stack --version
+  - stack build --resolver "$STACK_RESOLVER" --system-ghc --test --bench --no-run-tests --no-run-benchmarks
+
+script:
+  - stack test --resolver "$STACK_RESOLVER" --system-ghc
