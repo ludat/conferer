@@ -7,4 +7,8 @@ ghc:
   - "7.10"
 env:
   - PACKAGEDIR="conferer"
-before_install: cd ${PACKAGEDIR}
+before_install:
+  - curl -sSL https://github.com/sol/hpack/raw/master/get-hpack.sh | bash
+  - cd ${PACKAGEDIR}
+  - hpack package.yaml
+
