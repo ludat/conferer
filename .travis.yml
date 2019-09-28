@@ -15,7 +15,7 @@ matrix:
     - ghc: "7.6"
 before_install:
   - curl -sSL https://github.com/sol/hpack/raw/master/get-hpack.sh | bash
-  - cd ${PACKAGEDIR}
+  - cd conferer
   - hpack package.yaml
   - cabal install Cabal cabal-install
   - cabal --version
