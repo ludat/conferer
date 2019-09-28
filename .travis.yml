@@ -5,8 +5,15 @@ ghc:
   - "8.2"
   - "8.0"
   - "7.10"
+  - "7.8"
+  - "7.6"
 env:
   - PACKAGEDIR="conferer"
+
+matrix:
+  allow_failures:
+    - ghc: "7.8"
+    - ghc: "7.6"
 before_install:
   - curl -sSL https://github.com/sol/hpack/raw/master/get-hpack.sh | bash
   - cd ${PACKAGEDIR}
