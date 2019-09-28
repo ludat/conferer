@@ -1,0 +1,10 @@
+language: haskell
+ghc:
+  - "8.6"
+  - "8.4"
+  - "8.2"
+  - "8.0"
+  - "7.10"
+env:
+  - PACKAGEDIR="conferer"
+before_install: cd ${PACKAGEDIR}
