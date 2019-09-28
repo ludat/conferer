@@ -7,15 +7,6 @@ ghc:
   - "7.10"
   - "7.8"
   - "7.6"
-env:
-  - PACKAGEDIR="conferer"
-  - PACKAGEDIR="fetchFromConfig/warp"
-  - PACKAGEDIR="fetchFromConfig/hspec"
-  - PACKAGEDIR="fetchFromConfig/snap"
-  - PACKAGEDIR="providers/dhall"
-  - PACKAGEDIR="providers/yaml"
-  - PACKAGEDIR="providers/json"
-
 
 matrix:
   fast_finish: true
@@ -26,4 +17,6 @@ before_install:
   - curl -sSL https://github.com/sol/hpack/raw/master/get-hpack.sh | bash
   - cd ${PACKAGEDIR}
   - hpack package.yaml
+  - cabal install Cabal cabal-install
+  - cabal --version
 
