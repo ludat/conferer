@@ -13,11 +13,9 @@
 
 ## what, why and a bit of how
 
-VERY UNSTABLE DON'T USE IN PRODUCTION JUST YET
-
-Conferer is a library that defines ways to get configuration for your Haskell
-application and the libraries it uses, which is at heart string keys which map
-to other strings.
+Conferer is a library that defines ways of getting configuration for your
+Haskell application and the libraries it uses, which is at heart string keys
+which map to other strings.
 
 To get this map we use `Providers` which define a way to get a key (eg.
 `db.username`) that may or may not exist, we then use a list of providers for
@@ -25,17 +23,17 @@ getting the value for that key (position on the list defines priority). This
 allows adding new providers easily (for example a dhall file provider,
 a git repo or a etcd database)
 
-The other side of this is that we have the `FromConfig` which gets some value
+The other side of this is that we have the `FetchFromConfig` which gets some value
 from a `Config` at a certain key possibly using only keys under some namespacing
 key
 
-## Example (not implemented)
+## Example
 
 Let's say I want to configure warp. Let's say we wrote this program.
 
 ```haskell
 main = do
-  -- by default gets cli parameters, envvars and json file
+  -- by default gets cli parameters, envvars and properties file
   config <- getDefaultConfigFor "awesomeapp"
   warpConfig :: Warp.Settings <- getKey "warp" config
 
@@ -44,12 +42,33 @@ main = do
 
 Now I need to chage the port of the app, I can change it by either:
 
-* Setting cli params like `./myApp -Cwarp.port=5555`
+* Setting cli params like `./myApp --warp.port=5555`
 * Setting an environment variable called `AWESOMEAPP_WARP_PORT=5555`
-* In a json file you can have `{"warp": {"port": 5555}}`
+* In a `config/dev.properties` file, you can have `warp.port=5555`
 
 And you may also get that value from different configuration providers like
-redis or etc or whichever you may need.
+redis, json file, dhall file or whichever you may need.
+
+## Existing providers
+
+Providers usually incur in many dependencies so they are split into different
+packages
+
+* *Json files*: You can use json files to configure your app (depends on
+  `aeson`)
+* *Dhall files*: You can use dhall files to configure your app (depends on
+  `dhall`)
+* *Yaml files*: You can use Yaml files to configure your app (depends on `yaml`)
+
+## Existing FetchFromConfig instances
+
+Default instances for fetching a values from a config (usually a config value
+for some library)
+
+* *snap-server*: You can fetch a config value for the snap library (which
+  configures how the server runs)
+* *warp*: You can fetch a config value for the warp library
+* *hspec*: You can fetch a config value for the hspec library
 
 ## Utilities
 
@@ -64,7 +83,6 @@ There are as well some utilities to change providers:
 ## Future maybe things
 
 * Interpolate keys with other keys: `{a: "db", b: "${a}_thing"}`, getting `b`
-  will give `"db_thing"` (maybe)
+  will give `"db_thing"` (maybe) even in different levels of configuration
 * A LOT of providers
-* A LOT of `FromConfig` implementations
-* Docs
+* A LOT of `FetchFromConfig` implementations
