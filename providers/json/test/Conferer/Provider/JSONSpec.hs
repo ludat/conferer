@@ -1,6 +1,6 @@
 module Conferer.Provider.JSONSpec where
 
-import Data.Aeson.QQ.Simple
+import Data.Aeson.QQ
 import Test.Hspec
 
 import Conferer

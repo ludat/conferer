@@ -1,10 +1,10 @@
-resolver: lts-13.24
+resolver: lts-11.20
 
 packages:
   - ./conferer/
   - ./providers/json/
   - ./providers/yaml/
-  - ./providers/dhall/
+  # - ./providers/dhall/
 
   - ./fetchFromConfig/warp/
   - ./fetchFromConfig/hspec/

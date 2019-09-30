@@ -1,7 +1,0 @@
-packages: conferer/
-          fetchFromConfig/hspec/
-          fetchFromConfig/snap/
-          fetchFromConfig/warp/
-          providers/dhall/
-          providers/json/
-          providers/yaml/
