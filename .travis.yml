@@ -15,7 +15,7 @@ cache:
   - "$TRAVIS_BUILD_DIR/.stack-work"
 
 install:
-  - mv -v -f "stack-${STACK_YAML_VERSION}.yml" ./stack.yaml
+  - mv -v -f "stack-${STACK_YAML_VERSION}.yaml" ./stack.yaml
   - curl -sSL https://get.haskellstack.org/ | sh
   - stack --version
   - stack setup
