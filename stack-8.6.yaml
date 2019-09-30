@@ -1,0 +1,11 @@
+resolver: lts-14.7
+
+packages:
+  - ./conferer/
+  - ./providers/json/
+  - ./providers/yaml/
+  - ./providers/dhall/
+
+  - ./fetchFromConfig/warp/
+  - ./fetchFromConfig/hspec/
+  - ./fetchFromConfig/snap/

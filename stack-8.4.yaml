@@ -1,0 +1,11 @@
+resolver: lts-12.11
+
+packages:
+  - ./conferer/
+  - ./providers/json/
+  - ./providers/yaml/
+  - ./providers/dhall/
+
+  - ./fetchFromConfig/warp/
+  - ./fetchFromConfig/hspec/
+  - ./fetchFromConfig/snap/
