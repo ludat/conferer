@@ -43,3 +43,4 @@ tests:
     - conferer-provider-json
     - conferer
     - hspec
+    - aeson-qq
