@@ -1,5 +1,5 @@
 name:                conferer-snap
-version:             0.1.0.3
+version:             0.1.0.4
 synopsis: |
   conferer's FromConfig instances for snap Config
 description: |

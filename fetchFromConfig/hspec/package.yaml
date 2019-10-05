@@ -1,5 +1,5 @@
 name:                conferer-hspec
-version:             0.1.0.1
+version:             0.1.0.2
 synopsis: |
   conferer's FromConfig instances for hspec Config
 description: |
