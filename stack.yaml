@@ -1,11 +1,1 @@
-resolver: lts-13.24
-
-packages:
-  - ./conferer/
-  - ./providers/json/
-  - ./providers/yaml/
-  - ./providers/dhall/
-
-  - ./fetchFromConfig/warp/
-  - ./fetchFromConfig/hspec/
-  - ./fetchFromConfig/snap/
+stack-8.6.yaml
