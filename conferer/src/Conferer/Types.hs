@@ -1,3 +1,9 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators #-}
 module Conferer.Types where
 
 
@@ -6,6 +12,7 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Map (Map)
 import qualified Data.Map as Map
+import           GHC.Generics
 
 -- | Core interface for library provided configuration, basically consists of
 --   getting a 'Key' and informing returning a maybe signaling the value and
@@ -45,6 +52,45 @@ type ProviderCreator = Config -> IO Provider
 -- default was not possible.
 class FetchFromConfig a where
   fetch :: Key -> Config -> IO (Either Text a)
+  default fetch :: (Generic a, GFetchFromConfig (Rep a)) => Key -> Config -> IO (Either Text a)
+  fetch a b = fmap to <$> fetch' a b
+
+class GFetchFromConfig f where
+  fetch' :: Key -> Config -> IO (Either Text (f a))
+
+instance GFetchFromConfig b => GFetchFromConfig (D1 a b) where
+  fetch' key config =
+    fmap M1 <$> fetch' @b key config
+
+instance GFetchFromConfig b => GFetchFromConfig (C1 a b) where
+  fetch' key config =
+    fmap M1 <$> fetch' @b key config
+
+instance (GFetchFromConfig b, Selector a) => GFetchFromConfig (S1 a b) where
+  fetch' key config =
+    let 
+      lele = selName @a undefined
+    in fmap M1 <$> fetch' @b (Path $ unKey key ++ [Text.pack lele]) config
+
+instance FetchFromConfig a => GFetchFromConfig (Rec0 a) where
+  fetch' key config =
+    fmap K1 <$> fetch @a key config
+
+instance (GFetchFromConfig a, GFetchFromConfig b) => GFetchFromConfig (a :*: b) where
+  fetch' key config =
+    fetch' @a key config
+      >>= \case
+        Left x -> return $ Left x
+        Right c1 ->
+          fetch' @b key config
+          >>= \case
+            Left x -> return $ Left x
+            Right c2 ->
+              return $ Right (c1 :*: c2)
+
+-- instance (FetchFromConfig b) => GFetchFromConfig (K1 a b) where
+--   fetch' key config =
+--     fmap K1 <$> fetch @b key config
 
 instance IsString Key where
   fromString s = Path $ filter (/= mempty) $ Text.split (== '.') $ fromString s
