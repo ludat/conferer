@@ -9,3 +9,9 @@ packages:
   - ./fetchFromConfig/warp/
   - ./fetchFromConfig/hspec/
   - ./fetchFromConfig/snap/
+
+extra-deps:
+  - dhall-1.29.0@sha256:2bb41a7c354a155f6e62b61dfee7474b7bb8c3b474c689e56c6a1f7af37881b9,32058
+  - dhall-json-1.6.1@sha256:77b3b6e92d82163a6a325c7a07e68132802d57cae4d6b83703117a2bf7984ac1,4088
+  - snap-core-1.0.4.1@sha256:c019ebfb2e0c97fbf41c5d4f931786c33e14f9ef5180aee6d795cfcb8d291ce2,9338
+  - snap-server-1.1.1.1@sha256:c5e1e4d89fbfb1d1f2cf4238a031c586a0461ca7e0ac85713a38f815f218aaf6,15089
