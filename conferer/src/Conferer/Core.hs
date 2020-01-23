@@ -4,7 +4,7 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Map (Map)
 import qualified Data.Map as Map
-import           Data.Either (either)
+import           Data.Maybe (fromMaybe)
 
 import           Conferer.Provider.Simple
 import           Conferer.Types
@@ -12,15 +12,15 @@ import           Conferer.Types
 -- | Most Basic function to interact directly with a 'Config'. It always returns
 --   'Text' in the case of success and implements the logic to traverse
 --   providers inside the 'Config'.
-getKey :: Key -> Config -> IO (Either Text Text)
+getKey :: Key -> Config -> IO (Maybe Text)
 getKey k config =
   go $ providers config ++ [mkPureMapProvider (defaults config)]
   where
-    go [] = return $ Left ("Key '" `Text.append` keyName k `Text.append` "' was not found")
+    go [] = return Nothing
     go (provider:providers) = do
       res <- getKeyInProvider provider k
       case res of
-        Just t -> return $ Right t
+        Just t -> return $ Just t
         Nothing -> go providers
 
 
@@ -30,7 +30,7 @@ getKey k config =
 --   This function throws an exception if the key is not found.
 getFromConfig :: FetchFromConfig a => Key -> Config -> IO a
 getFromConfig k config =
-  either (error . Text.unpack) id <$> fetch k config
+  fromMaybe (error "falleeee") <$> fetch k config
 
 -- | Create a new 'Key' by concatenating two existing keys.
 (/.) :: Key -> Key -> Key
@@ -64,4 +64,4 @@ addProvider mkProvider config = do
 -- | Same as 'getKey' but it throws if the 'Key' isn't found
 unsafeGetKey :: Key -> Config -> IO Text
 unsafeGetKey k config =
-  either (error . Text.unpack) id <$> getKey k config
+  fromMaybe (error "Key not found") <$> getKey k config

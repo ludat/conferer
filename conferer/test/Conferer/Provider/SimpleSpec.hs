@@ -14,9 +14,9 @@ spec = do
     it "getting a non existent key returns an empty config" $ do
       c <- creator
       res <- getKey "some.key" c
-      res `shouldBe` Left "Key 'some.key' was not found"
+      res `shouldBe` Nothing
 
     it "getting an existent key returns unwraps the original map" $ do
       c <- creator
       res <- getKey "postgres.url" c
-      res `shouldBe` Right "some url"
+      res `shouldBe` Just "some url"

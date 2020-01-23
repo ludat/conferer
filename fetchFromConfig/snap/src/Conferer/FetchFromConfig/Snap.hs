@@ -32,13 +32,16 @@ instance FetchFromConfig Snap.ConfigLog where
   fetch k config = do
     getKey k config
       >>= \case
-        Right "NoLog" -> return $ Right $ Snap.ConfigNoLog
-        Right t -> return $ Right $ Snap.ConfigFileLog $ unpack t
-        Left e -> return $ Left e
+        Just "NoLog" -> return $ Just $ Snap.ConfigNoLog
+        Just t -> return $ Just $ Snap.ConfigFileLog $ unpack t
+        Nothing -> return $ Nothing
+
+instance (Snap.MonadSnap m) => DefaultConfig (Snap.Config m a) where
+  defaultConfig = Snap.defaultConfig
 
 instance (FetchFromConfig a, Snap.MonadSnap m) => FetchFromConfig (Snap.Config m a) where
   fetch k config = do
-    pure (Right Snap.defaultConfig)
+    pure (defaultConfig)
       >>= findKeyAndApplyConfig config k "default-timeout" Snap.setDefaultTimeout
       >>= findKeyAndApplyConfig config k "access-log" Snap.setAccessLog
       >>= findKeyAndApplyConfig config k "bind" Snap.setBind
@@ -57,3 +60,4 @@ instance (FetchFromConfig a, Snap.MonadSnap m) => FetchFromConfig (Snap.Config m
       >>= findKeyAndApplyConfig config k "verbose" Snap.setVerbose
       >>= findKeyAndApplyConfig config k "unix-socket" Snap.setUnixSocket
       >>= findKeyAndApplyConfig config k "unix-socket-access-mode" Snap.setUnixSocketAccessMode
+      >>= (return . return)

@@ -25,6 +25,7 @@ import Conferer.FetchFromConfig.Basics
 import Data.Either (rights)
 import Data.String (fromString)
 import Data.Text (Text, unpack, toLower)
+import Data.Maybe (fromMaybe)
 
 import qualified Test.Hspec.Core.Runner as Hspec
 import qualified Test.Hspec.Core.Formatters as Hspec
@@ -50,9 +51,12 @@ instance FetchFromConfig Hspec.Formatter where
              _ -> Nothing
     )
 
+instance DefaultConfig Hspec.Config where
+  defaultConfig = Hspec.defaultConfig
+
 instance FetchFromConfig Hspec.Config where
   fetch k config = do
-    pure (Right Hspec.defaultConfig)
+    pure defaultConfig
       >>= findKeyAndApplyConfig config k "dry-run" (\v c -> c { Hspec.configDryRun = v })
       >>= findKeyAndApplyConfig config k "fast-fail" (\v c -> c { Hspec.configFastFail = v })
       >>= findKeyAndApplyConfig config k "rerun" (\v c -> c { Hspec.configRerun = v })
@@ -83,4 +87,5 @@ instance FetchFromConfig Hspec.Config where
       >>= findKeyAndApplyConfig config k "focused-only" (\v c -> c { Hspec.configFocusedOnly = v })
       >>= findKeyAndApplyConfig config k "fail-on-focused" (\v c -> c { Hspec.configFailOnFocused = v })
 #endif
+      >>= (return . return)
 

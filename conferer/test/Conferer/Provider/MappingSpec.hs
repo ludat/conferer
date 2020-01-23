@@ -15,7 +15,7 @@ spec = do
            & addProvider (mkMappingProvider Map.empty
                           $ mkMapProvider [("some.key", "some value")])
       res <- getKey "some.key" c
-      res `shouldBe` Left "Key 'some.key' was not found"
+      res `shouldBe` Nothing
 
     it "getting a non existent key isn't there" $ do
       c <- emptyConfig
@@ -23,7 +23,7 @@ spec = do
                           $ mkMapProvider [("key", "75")])
 
       res <- getKey "xxxx" c
-      res `shouldBe` Left "Key 'xxxx' was not found"
+      res `shouldBe` Nothing
 
     it "getting an existent key that's mapped but doesn't exist on the \
        \inner provider isn't there" $ do
@@ -32,7 +32,7 @@ spec = do
                           $ mkMapProvider [])
 
       res <- getKey "another.key" c
-      res `shouldBe` Left "Key 'another.key' was not found"
+      res `shouldBe` Nothing
 
     it "getting an existent key that's mapped properly gets it and exists on \
        \the inner provider gets it" $ do
@@ -40,4 +40,4 @@ spec = do
            & addProvider (mkMappingProvider (Map.fromList [("another.key", "some.key")])
                           $ mkMapProvider [("some.key", "some value")])
       res <- getKey "another.key" c
-      res `shouldBe` Right "some value"
+      res `shouldBe` Just "some value"

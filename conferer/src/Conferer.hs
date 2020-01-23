@@ -85,7 +85,6 @@ module Conferer
   , module Conferer.Provider.PropertiesFile
   -- * Re-Exports
   , (&)
-  , Coso(..)
   ) where
 
 import           Data.Text (Text)
@@ -100,16 +99,7 @@ import           Conferer.Provider.Mapping
 import           Conferer.Provider.CLIArgs
 import           Conferer.Provider.Null
 import           Conferer.Provider.PropertiesFile
-import GHC.Generics
 
-data Coso = Coso { a :: Int
-                 , b :: Int
-                 } deriving (Generic, Show)
-
-instance FetchFromConfig Coso
-
-
--- $> defaultConfigWithDefaults "coso" [("lele", "8"),("lele.b", "17"),("lele.a", "27")] >>= (getFromConfig "lele" :: Config -> IO Coso) >>= print
 -- | Default config which reads from command line arguments, env vars and
 -- property files
 defaultConfig :: Text -> IO Config

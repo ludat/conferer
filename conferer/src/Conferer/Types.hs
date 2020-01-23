@@ -48,49 +48,26 @@ type ProviderCreator = Config -> IO Provider
 -- | Main typeclass for defining the way to get values from config, hiding the
 -- 'Text' based nature of the 'Provider's
 --
--- Here an error means that the value couldn't be parsed and that a reasonable
--- default was not possible.
+-- Here a 'Nothing' means that the value didn't appear in the config, some
+-- instances never return a value since they have defaults that can never
+-- fail
 class FetchFromConfig a where
-  fetch :: Key -> Config -> IO (Either Text a)
-  default fetch :: (Generic a, GFetchFromConfig (Rep a)) => Key -> Config -> IO (Either Text a)
-  fetch a b = fmap to <$> fetch' a b
+  fetch :: Key -> Config -> IO (Maybe a)
+  default fetch :: (DefaultConfig a, UpdateFromConfig a) => Key -> Config -> IO (Maybe a)
+  fetch k config = Just <$> updateFromConfig k config defaultConfig
 
-class GFetchFromConfig f where
-  fetch' :: Key -> Config -> IO (Either Text (f a))
+class DefaultConfig a where
+  defaultConfig :: a
 
-instance GFetchFromConfig b => GFetchFromConfig (D1 a b) where
-  fetch' key config =
-    fmap M1 <$> fetch' @b key config
 
-instance GFetchFromConfig b => GFetchFromConfig (C1 a b) where
-  fetch' key config =
-    fmap M1 <$> fetch' @b key config
+class UpdateFromConfig a where
+  updateFromConfig :: Key -> Config -> a -> IO a
+  default updateFromConfig :: (Generic a, UpdateFromConfigG (Rep a), DefaultConfig a) => Key -> Config -> a -> IO a
+  updateFromConfig k c a = to <$> updateFromConfigG k c (from a)
 
-instance (GFetchFromConfig b, Selector a) => GFetchFromConfig (S1 a b) where
-  fetch' key config =
-    let 
-      lele = selName @a undefined
-    in fmap M1 <$> fetch' @b (Path $ unKey key ++ [Text.pack lele]) config
+class UpdateFromConfigG f where
+  updateFromConfigG :: Key -> Config -> f a -> IO (f a)
 
-instance FetchFromConfig a => GFetchFromConfig (Rec0 a) where
-  fetch' key config =
-    fmap K1 <$> fetch @a key config
-
-instance (GFetchFromConfig a, GFetchFromConfig b) => GFetchFromConfig (a :*: b) where
-  fetch' key config =
-    fetch' @a key config
-      >>= \case
-        Left x -> return $ Left x
-        Right c1 ->
-          fetch' @b key config
-          >>= \case
-            Left x -> return $ Left x
-            Right c2 ->
-              return $ Right (c1 :*: c2)
-
--- instance (FetchFromConfig b) => GFetchFromConfig (K1 a b) where
---   fetch' key config =
---     fmap K1 <$> fetch @b key config
 
 instance IsString Key where
   fromString s = Path $ filter (/= mempty) $ Text.split (== '.') $ fromString s
