@@ -14,6 +14,7 @@ import           Data.ByteString (ByteString)
 import           Data.Maybe (fromMaybe)
 import           Control.Exception
 import           Data.Char (toLower)
+import           Data.Typeable (Typeable, typeRep, Proxy(..))
 import           GHC.Generics
 
 import           Data.String (IsString, fromString)
@@ -51,18 +52,22 @@ instance FetchFromConfig Bool where
             "true" -> Just True
             _ -> Nothing
 
-fetchFromConfigByRead :: Read a => Key -> Config -> IO (Maybe a)
+fetchFromConfigByRead :: (Typeable a, Read a) => Key -> Config -> IO (Maybe a)
 fetchFromConfigByRead = fetchFromConfigWith (readMaybe . Text.unpack)
 
 fromValueWith :: (Text -> Maybe a) -> Text -> Maybe a
 fromValueWith parseValue valueAsText = parseValue valueAsText
 
-fetchFromConfigWith :: (Text -> Maybe a) -> Key -> Config -> IO (Maybe a)
+fetchFromConfigWith :: forall a. Typeable a => (Text -> Maybe a) -> Key -> Config -> IO (Maybe a)
 fetchFromConfigWith parseValue key config = do
-  value <- getKey key config
-  case value of
-    Just x -> return $ Just $ fromMaybe (error "muerte") $ fromValueWith parseValue x
-    Nothing -> return Nothing
+  getKey key config >>=
+    \case
+      Just value ->
+        return $
+          Just $
+          fromMaybe (throw $ ConfigParsingError key value (typeRep (Proxy :: Proxy a))) $
+          fromValueWith parseValue value
+      Nothing -> return Nothing
 
 -- | Concatenate many transformations to the config based on keys and functions
 findKeyAndApplyConfig ::
@@ -82,42 +87,47 @@ findKeyAndApplyConfig config k relativeKey f customConfig = do
     Nothing -> return customConfig
     Just a -> return $ f a customConfig
 
-instance UpdateFromConfigG b => UpdateFromConfigG (D1 a b) where
-  updateFromConfigG key config (M1 a) =
-    M1 <$> updateFromConfigG key config a
+instance UpdateFromConfigG inner =>
+    UpdateFromConfigG (D1 metadata inner) where
+  updateFromConfigG key config (M1 inner) =
+    M1 <$> updateFromConfigG key config inner
 
-instance (UpdateFromConfigWithConNameG b, Constructor a) => UpdateFromConfigG (C1 a b) where
-  updateFromConfigG key config (M1 a) =
-    M1 <$> updateFromConfigWithConNameG @b (conName @a undefined) key config a
+instance (UpdateFromConfigWithConNameG inner, Constructor constructor) =>
+    UpdateFromConfigG (C1 constructor inner) where
+  updateFromConfigG key config (M1 inner) =
+    M1 <$> updateFromConfigWithConNameG @inner (conName @constructor undefined) key config inner
 
 class UpdateFromConfigWithConNameG f where
   updateFromConfigWithConNameG :: String -> Key -> Config -> f a -> IO (f a)
 
-instance (UpdateFromConfigWithConNameG a, UpdateFromConfigWithConNameG b) => UpdateFromConfigWithConNameG (a :*: b) where
-  updateFromConfigWithConNameG s key config (a :*: b) = do
-    c1 <- updateFromConfigWithConNameG @a s key config a
-    c2 <- updateFromConfigWithConNameG @b s key config b
-    return (c1 :*: c2)
+instance (UpdateFromConfigWithConNameG left, UpdateFromConfigWithConNameG right) =>
+    UpdateFromConfigWithConNameG (left :*: right) where
+  updateFromConfigWithConNameG s key config (left :*: right) = do
+    leftValue <- updateFromConfigWithConNameG @left s key config left
+    rightValue <- updateFromConfigWithConNameG @right s key config right
+    return (leftValue :*: rightValue)
 
-applyFirst :: (Char -> Char) -> Text -> Text
-applyFirst f t = case Text.uncons t of
-  Just (c, ts) -> Text.cons (f c) ts
-  Nothing -> t
-
-instance (UpdateFromConfigG b, Selector a) => UpdateFromConfigWithConNameG (S1 a b) where
-  updateFromConfigWithConNameG s key config (M1 j) =
+instance (UpdateFromConfigG inner, Selector selector) =>
+    UpdateFromConfigWithConNameG (S1 selector inner) where
+  updateFromConfigWithConNameG s key config (M1 inner) =
     let
-      fieldName = Text.pack $ selName @a undefined
+      applyFirst :: (Char -> Char) -> Text -> Text
+      applyFirst f t = case Text.uncons t of
+        Just (c, ts) -> Text.cons (f c) ts
+        Nothing -> t
+
+      fieldName = Text.pack $ selName @selector undefined
       prefix = applyFirst toLower $ Text.pack  s
       scopedKey =
         case Text.stripPrefix prefix fieldName of
           Just stripped -> applyFirst toLower stripped
           Nothing -> fieldName
-    in M1 <$> updateFromConfigG @b (key /. Path [scopedKey]) config j
+    in M1 <$> updateFromConfigG @inner (key /. Path [scopedKey]) config inner
 
-instance (FetchFromConfig a, Show a) => UpdateFromConfigG (Rec0 a) where
-  updateFromConfigG key config (K1 j) = do
-    coso <- fetch @a key config
-    case coso of
-      Just a -> return $ K1 a
-      Nothing -> return $ K1 j
+-- | Purely 'Generics' machinery, ignore...
+instance (FetchFromConfig inner) => UpdateFromConfigG (Rec0 inner) where
+  updateFromConfigG key config (K1 inner) = do
+    fetch @inner key config
+      >>= \case
+            Just newInner -> return $ K1 newInner
+            Nothing -> return $ K1 inner

@@ -37,11 +37,11 @@ instance FetchFromConfig Snap.ConfigLog where
         Nothing -> return $ Nothing
 
 instance (Snap.MonadSnap m) => DefaultConfig (Snap.Config m a) where
-  defaultConfig = Snap.defaultConfig
+  configDef = Snap.defaultConfig
 
 instance (FetchFromConfig a, Snap.MonadSnap m) => FetchFromConfig (Snap.Config m a) where
   fetch k config = do
-    pure (defaultConfig)
+    pure (configDef)
       >>= findKeyAndApplyConfig config k "default-timeout" Snap.setDefaultTimeout
       >>= findKeyAndApplyConfig config k "access-log" Snap.setAccessLog
       >>= findKeyAndApplyConfig config k "bind" Snap.setBind

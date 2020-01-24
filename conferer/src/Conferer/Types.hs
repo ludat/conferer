@@ -6,12 +6,13 @@
 {-# LANGUAGE TypeOperators #-}
 module Conferer.Types where
 
-
 import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Map (Map)
 import qualified Data.Map as Map
+import           Control.Exception
+import           Data.Typeable
 import           GHC.Generics
 
 -- | Core interface for library provided configuration, basically consists of
@@ -27,6 +28,9 @@ data Provider =
 newtype Key
   = Path { unKey :: [Text] }
   deriving (Show, Eq, Ord)
+
+instance IsString Key where
+  fromString s = Path $ filter (/= mempty) $ Text.split (== '.') $ fromString s
 
 -- | Collapse a key into a textual representation
 keyName :: Key -> Text
@@ -54,20 +58,65 @@ type ProviderCreator = Config -> IO Provider
 class FetchFromConfig a where
   fetch :: Key -> Config -> IO (Maybe a)
   default fetch :: (DefaultConfig a, UpdateFromConfig a) => Key -> Config -> IO (Maybe a)
-  fetch k config = Just <$> updateFromConfig k config defaultConfig
+  fetch k config = Just <$> updateFromConfig k config configDef
 
+-- | Here implementing this typeclass means that this type has some kind of default
+-- that is both always valid and has always the same semantics, for example: Warp.Settings
+-- has a default since it's always use in the same way (to configure a warp server)
+-- but for example an Int could mean many things depending on the context so it doesn't
+-- really make sense to implement it for it
+--
+-- It's also used for the 'Generic' implementation, if you have a Record made up from
+-- types that implement 'FetchFromConfig' you can derive the 'FetchFromConfig' automatically
+-- by implementing 'DefaultConfig' and deriving (using 'Generic') 'UpdateFromConfig'
 class DefaultConfig a where
-  defaultConfig :: a
+  configDef :: a
 
-
-class UpdateFromConfig a where
+-- | This class only exist for the 'Generics' machinery, it means that a value can get
+-- updated using a config, so for example a Warp.Settings can get updated from a config,
+-- but that doesn't make much sense for something like an 'Int'
+--
+-- You'd normally would never implement this typeclass, if you want to implement
+-- 'FetchFromConfig' you should implement that directly, and if you want to use
+-- 'DefaultConfig' and 'UpdateFromConfig' to implement 'FetchFromConfig' you should let
+-- the default 'Generics' based implementation do it's thing
+class Typeable a => UpdateFromConfig a where
   updateFromConfig :: Key -> Config -> a -> IO a
   default updateFromConfig :: (Generic a, UpdateFromConfigG (Rep a), DefaultConfig a) => Key -> Config -> a -> IO a
   updateFromConfig k c a = to <$> updateFromConfigG k c (from a)
 
+-- | Purely 'Generics' machinery, ignore...
 class UpdateFromConfigG f where
   updateFromConfigG :: Key -> Config -> f a -> IO (f a)
 
+data ConfigParsingError =
+  ConfigParsingError Key Text TypeRep
+  deriving (Typeable, Eq)
 
-instance IsString Key where
-  fromString s = Path $ filter (/= mempty) $ Text.split (== '.') $ fromString s
+instance Show ConfigParsingError where
+  show (ConfigParsingError key value typeRep) =
+    concat
+    [ "Couldn't parse value '"
+    , Text.unpack value
+    , "' from key '"
+    , Text.unpack (keyName key)
+    , "' as "
+    , show typeRep
+    ]
+
+instance Exception ConfigParsingError
+
+data FailedToFetchError =
+  FailedToFetchError Key TypeRep
+  deriving (Typeable, Eq)
+
+instance Show FailedToFetchError where
+  show (FailedToFetchError key typeRep) =
+    concat
+    [ "Couldn't get a "
+    , show typeRep
+    , " from key '"
+    , Text.unpack (keyName key)
+    ]
+
+instance Exception FailedToFetchError

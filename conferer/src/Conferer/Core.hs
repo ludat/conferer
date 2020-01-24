@@ -5,6 +5,8 @@ import qualified Data.Text as Text
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
+import           Data.Typeable (Typeable, Proxy(..), typeRep)
+import           Control.Exception (throw)
 
 import           Conferer.Provider.Simple
 import           Conferer.Types
@@ -28,9 +30,10 @@ getKey k config =
 --   instance.
 --
 --   This function throws an exception if the key is not found.
-getFromConfig :: FetchFromConfig a => Key -> Config -> IO a
-getFromConfig k config =
-  fromMaybe (error "falleeee") <$> fetch k config
+getFromConfig :: forall a. (Typeable a, FetchFromConfig a) => Key -> Config -> IO a
+getFromConfig key config =
+  fromMaybe (throw $ FailedToFetchError key (typeRep (Proxy :: Proxy a)))
+    <$> fetch key config
 
 -- | Create a new 'Key' by concatenating two existing keys.
 (/.) :: Key -> Key -> Key
@@ -63,5 +66,6 @@ addProvider mkProvider config = do
 
 -- | Same as 'getKey' but it throws if the 'Key' isn't found
 unsafeGetKey :: Key -> Config -> IO Text
-unsafeGetKey k config =
-  fromMaybe (error "Key not found") <$> getKey k config
+unsafeGetKey key config =
+  fromMaybe (throw $ FailedToFetchError key (typeRep (Proxy :: Proxy Text)))
+    <$> getKey key config

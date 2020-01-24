@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 module Conferer.FetchFromConfig.BasicsSpec where
 
 import           Test.Hspec
@@ -7,10 +8,18 @@ import           Data.Text
 import           Conferer
 import           Conferer.FetchFromConfig.Basics ()
 import           Control.Exception (evaluate)
+import           Data.Typeable
 import           Control.DeepSeq
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
+
+configParserError_ :: ConfigParsingError -> Bool
+configParserError_ = const True
+
+configParserError :: Key -> ConfigParsingError -> Bool
+configParserError key (ConfigParsingError k _ _) =
+  key == k
 
 spec :: Spec
 spec = context "Basics" $ do
@@ -19,7 +28,8 @@ spec = context "Basics" $ do
       config <- configWith [ ("anInt", "50A") ]
       fetchedValue <- fetch @Int "anInt" config
 
-      evaluate (force fetchedValue) `shouldThrow` anyErrorCall
+      evaluate (force fetchedValue) `shouldThrow` configParserError_
+      -- evaluate (force fetchedValue) `shouldThrow` anyErrorCall
 
     it "getting a value that can be parsed correctly returns the int" $ do
       config <- configWith [ ("anInt", "50") ]
@@ -30,7 +40,7 @@ spec = context "Basics" $ do
     it "getting a value that can't be parsed as a bool returns an error message" $ do
       config <- configWith [ ("aBool", "nope") ]
       fetchedValue <- fetch @Bool "aBool" config
-      evaluate (force fetchedValue) `shouldThrow` anyErrorCall
+      evaluate (force fetchedValue) `shouldThrow` configParserError_
 
     it "getting a value that can be parsed as a bool returns the bool" $ do
       config <- configWith [ ("aBool", "True"), ("anotherBool", "False") ]
@@ -61,7 +71,7 @@ spec = context "Basics" $ do
     it "if the value cannot be parsed as float, it fails" $ do
       config <- configWith [ ("aFloat", "ASD") ]
       fetchedValue <- fetch @Float "aFloat" config
-      evaluate (force fetchedValue) `shouldThrow` anyErrorCall
+      evaluate (force fetchedValue) `shouldThrow` configParserError_
 
   describe "fetching a String from config" $ do
     it "getting a value returns the value as a Just" $ do
@@ -72,7 +82,7 @@ spec = context "Basics" $ do
       it "returns Nothing" $ do
         config <- configWith [ ("anInt", "Bleh") ]
         fetchedValue <- fetch @(Maybe Int) "anInt" config
-        evaluate (force fetchedValue) `shouldThrow` anyErrorCall
+        evaluate (force fetchedValue) `shouldThrow` configParserError_
     context "when the key is not there" $ do
       it "returns Nothing" $ do
         config <- configWith [ ]

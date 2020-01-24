@@ -52,11 +52,11 @@ instance FetchFromConfig Hspec.Formatter where
     )
 
 instance DefaultConfig Hspec.Config where
-  defaultConfig = Hspec.defaultConfig
+  configDef = Hspec.defaultConfig
 
 instance FetchFromConfig Hspec.Config where
   fetch k config = do
-    pure defaultConfig
+    pure configDef
       >>= findKeyAndApplyConfig config k "dry-run" (\v c -> c { Hspec.configDryRun = v })
       >>= findKeyAndApplyConfig config k "fast-fail" (\v c -> c { Hspec.configFastFail = v })
       >>= findKeyAndApplyConfig config k "rerun" (\v c -> c { Hspec.configRerun = v })

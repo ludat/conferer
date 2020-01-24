@@ -5,7 +5,7 @@ module Conferer.GenericsSpec where
 import Test.Hspec
 
 import Conferer
-import Conferer.Types (UpdateFromConfig, DefaultConfig, defaultConfig)
+import Conferer.Types (UpdateFromConfig, DefaultConfig, configDef)
 
 import GHC.Generics
 
@@ -16,7 +16,7 @@ data Thing = Thing
 
 instance UpdateFromConfig Thing
 instance DefaultConfig Thing where
-  defaultConfig = Thing 0 0
+  configDef = Thing 0 0
 instance FetchFromConfig Thing
 
 data Bigger = Bigger
@@ -26,9 +26,8 @@ data Bigger = Bigger
 
 instance UpdateFromConfig Bigger
 instance DefaultConfig Bigger where
-  defaultConfig = Bigger Conferer.Types.defaultConfig 1 
+  configDef = Bigger configDef 1
 instance FetchFromConfig Bigger
-
 
 spec :: Spec
 spec = do
