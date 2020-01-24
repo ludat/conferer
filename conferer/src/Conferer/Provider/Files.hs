@@ -1,6 +1,7 @@
 module Conferer.Provider.Files where
 
 import qualified Data.Text as Text
+import           Data.Maybe (fromMaybe)
 
 import           Conferer.Types
 import           Conferer.FetchFromConfig.Basics ()
@@ -11,7 +12,7 @@ fromRight _ (Right a) = a
 
 getFilePathFromEnv :: Config -> String -> IO FilePath
 getFilePathFromEnv config extension = do
-  env <- fromRight "development" <$> fetch "env" config
+  env <- fromMaybe "development" <$> fetch "env" config
   return $ mconcat
     [ "config/"
     , Text.unpack env

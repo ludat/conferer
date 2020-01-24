@@ -10,10 +10,10 @@ import           Network.Wai.Handler.Warp
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
 
-portAndHostShouldBe :: Either Text Settings -> (Port, HostPreference) -> Expectation
+portAndHostShouldBe :: Maybe Settings -> (Port, HostPreference) -> Expectation
 portAndHostShouldBe fetchedSettings (port, host) = do
-  getPort <$> fetchedSettings `shouldBe` Right port
-  getHost <$> fetchedSettings `shouldBe` Right host
+  getPort <$> fetchedSettings `shouldBe` Just port
+  getHost <$> fetchedSettings `shouldBe` Just host
 
 spec :: Spec
 spec = do

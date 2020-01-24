@@ -28,14 +28,14 @@ spec = do
        \children)" $ do
       c <- mkEnvConfig
       res <- getKey "." c
-      res `shouldBe` Right "/tmp/tmux-1000/default,2822,0"
+      res `shouldBe` Just "/tmp/tmux-1000/default,2822,0"
 
     it "getting an existent key for a child gets that value" $ do
       c <- mkEnvConfig
       res <- getKey "pane" c
-      res `shouldBe` Right "%1"
+      res `shouldBe` Just "%1"
 
     it "keys should always be consistent as to how the words are separated" $ do
       c <- mkEnvConfig
       res <- getKey "pane" c
-      res `shouldBe` Right "%1"
+      res `shouldBe` Just "%1"

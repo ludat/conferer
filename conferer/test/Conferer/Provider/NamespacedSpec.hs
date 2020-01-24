@@ -12,10 +12,10 @@ spec = do
            & addProvider (mkNamespacedProvider "postgres"
                           $ mkMapProvider [("url", "some url")])
       res <- getKey "url" c
-      res `shouldBe` Left "Key 'url' was not found"
+      res `shouldBe` Nothing
     it "returns the wrapped value" $ do
       c <- emptyConfig
            & addProvider (mkNamespacedProvider "postgres"
                           $ mkMapProvider [("url", "some url")])
       res <- getKey "postgres.url" c
-      res `shouldBe` Right "some url"
+      res `shouldBe` Just "some url"

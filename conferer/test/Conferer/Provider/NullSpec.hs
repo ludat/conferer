@@ -10,4 +10,4 @@ spec = do
     c <- emptyConfig
          & addProvider mkNullProvider
     res <- getKey "some.key" c
-    res `shouldBe` Left "Key 'some.key' was not found"
+    res `shouldBe` Nothing

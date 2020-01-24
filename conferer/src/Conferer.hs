@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 -- |
 -- Module:      Conferer
 -- Copyright:   (c) 2019 Lucas David Traverso
@@ -98,8 +99,6 @@ import           Conferer.Provider.Mapping
 import           Conferer.Provider.CLIArgs
 import           Conferer.Provider.Null
 import           Conferer.Provider.PropertiesFile
-
-
 
 -- | Default config which reads from command line arguments, env vars and
 -- property files

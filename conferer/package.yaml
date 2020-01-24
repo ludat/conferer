@@ -36,4 +36,5 @@ tests:
     dependencies:
       - conferer
       - hspec
+      - deepseq
 
