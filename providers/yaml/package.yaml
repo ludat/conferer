@@ -18,8 +18,8 @@ extra-doc-files:
 
 dependencies:
   - base >= 4.3 && < 5
-  - conferer >= 0.1.0.1 && < 0.2.0.0
-  - conferer-provider-json >= 0.1.0.1 && < 0.2.0.0
+  - conferer >= 0.2.0.0 && < 0.3.0.0
+  - conferer-provider-json >= 0.2.0.0 && < 0.3.0.0
   - yaml >= 0.8 && < 1.0
 
 default-extensions:
