@@ -9,6 +9,7 @@ packages:
   - ./fetchFromConfig/warp/
   - ./fetchFromConfig/hspec/
   - ./fetchFromConfig/snap/
+  - ./fetchFromConfig/hedis/
 
 extra-deps:
   - dhall-1.29.0@sha256:2bb41a7c354a155f6e62b61dfee7474b7bb8c3b474c689e56c6a1f7af37881b9,32058

@@ -9,3 +9,4 @@ packages:
   - ./fetchFromConfig/warp/
   - ./fetchFromConfig/hspec/
   - ./fetchFromConfig/snap/
+  - ./fetchFromConfig/hedis/
