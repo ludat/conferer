@@ -28,8 +28,9 @@ import Data.Proxy (Proxy(..))
 import Data.Typeable (typeRep)
 import Control.Exception (throwIO)
 
-instance FetchFromConfig Redis.PortID where
-  fetch = fetchFromConfigWith (\t -> do
+instance DefaultConfig Redis.PortID
+instance UpdateFromConfig Redis.PortID where
+  updateFromConfig = updateFromConfigWith (\t -> do
       case readMaybe $ unpack t of
         Just n -> return $ Redis.PortNumber n
         Nothing ->
@@ -39,8 +40,8 @@ instance FetchFromConfig Redis.PortID where
 instance DefaultConfig Redis.ConnectInfo where
   configDef = Redis.defaultConnectInfo
 
-instance FetchFromConfig Redis.ConnectInfo where
-  fetch key config = do
+instance UpdateFromConfig Redis.ConnectInfo where
+  updateFromConfig key config connectInfo = do
     redisConfig <- getKey key config
       >>= \case
         Just connectionString -> 
@@ -49,12 +50,12 @@ instance FetchFromConfig Redis.ConnectInfo where
             Left e -> 
                 throwIO $ ConfigParsingError key connectionString (typeRep (Proxy :: Proxy (Redis.ConnectInfo)))
         Nothing -> 
-          pure configDef
-            >>= findKeyAndApplyConfig config key "host" (\v c -> c { Redis.connectHost = v })
-            >>= findKeyAndApplyConfig config key "port" (\v c -> c { Redis.connectPort = v })
-            >>= findKeyAndApplyConfig config key "auth" (\v c -> c { Redis.connectAuth = v })
+          pure connectInfo
+            >>= findKeyAndApplyConfig config key "host" Redis.connectHost (\v c -> c { Redis.connectHost = v })
+            >>= findKeyAndApplyConfig config key "port" Redis.connectPort (\v c -> c { Redis.connectPort = v })
+            >>= findKeyAndApplyConfig config key "auth" Redis.connectAuth (\v c -> c { Redis.connectAuth = v })
 
     pure redisConfig
-      >>= findKeyAndApplyConfig config key "maxConnections" (\v c -> c { Redis.connectMaxConnections = v })
-      >>= findKeyAndApplyConfig config key "maxIdleTime" (\v c -> c { Redis.connectMaxConnections = v })
-      >>= (return . return)
+      >>= findKeyAndApplyConfig config key "maxConnections" Redis.connectMaxConnections (\v c -> c { Redis.connectMaxConnections = v })
+      -- >>= findKeyAndApplyConfig config key "maxIdleTime" Redis.connectMaxIdleTime (\v c -> c { Redis.connectMaxIdleTime = v })
+      >>= return

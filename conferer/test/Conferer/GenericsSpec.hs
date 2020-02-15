@@ -6,6 +6,8 @@ import Test.Hspec
 
 import Conferer
 import Conferer.Types (UpdateFromConfig, DefaultConfig, configDef)
+import           Conferer.FetchFromConfig.Basics (fetch)
+
 
 import GHC.Generics
 
@@ -26,7 +28,7 @@ data Bigger = Bigger
 
 instance UpdateFromConfig Bigger
 instance DefaultConfig Bigger where
-  configDef = Bigger configDef 1
+  configDef = Bigger (configDef { thingA = 27}) 1
 instance FetchFromConfig Bigger
 
 spec :: Spec
@@ -69,7 +71,7 @@ spec = do
                   [ ])
 
           res <- fetch @Bigger "somekey" c
-          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 0, thingB = 0 }, biggerB = 1}
+          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 27, thingB = 0 }, biggerB = 1}
 
       context "when some keys of the top record are set" $ do
         it "returns the default for the inner record" $ do
@@ -79,7 +81,7 @@ spec = do
                   ])
 
           res <- fetch @Bigger "somekey" c
-          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 0, thingB = 0 }, biggerB = 30}
+          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 27, thingB = 0 }, biggerB = 30}
 
       context "when some keys of the inner record are set" $ do
         it "returns the inner record updated" $ do

@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Conferer.Core where
 
 import           Data.Text (Text)
@@ -6,7 +8,7 @@ import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
 import           Data.Typeable (Typeable, Proxy(..), typeRep)
-import           Control.Exception (throw)
+import           Control.Exception (throw, evaluate)
 
 import           Conferer.Provider.Simple
 import           Conferer.Types
@@ -30,10 +32,9 @@ getKey k config =
 --   instance.
 --
 --   This function throws an exception if the key is not found.
-getFromConfig :: forall a. (Typeable a, FetchFromConfig a) => Key -> Config -> IO a
+getFromConfig :: forall a. (Typeable a, UpdateFromConfig a, DefaultConfig a) => Key -> Config -> IO a
 getFromConfig key config =
-  fromMaybe (throw $ FailedToFetchError key (typeRep (Proxy :: Proxy a)))
-    <$> fetch key config
+  updateFromConfig @a key config configDef
 
 -- | Create a new 'Key' by concatenating two existing keys.
 (/.) :: Key -> Key -> Key

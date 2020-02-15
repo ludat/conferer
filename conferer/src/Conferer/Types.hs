@@ -55,10 +55,12 @@ type ProviderCreator = Config -> IO Provider
 -- Here a 'Nothing' means that the value didn't appear in the config, some
 -- instances never return a value since they have defaults that can never
 -- fail
+
+-- TODO Rename UpdateFromConfig to FromConfig
 class FetchFromConfig a where
-  fetch :: Key -> Config -> IO (Maybe a)
-  default fetch :: (DefaultConfig a, UpdateFromConfig a) => Key -> Config -> IO (Maybe a)
-  fetch k config = Just <$> updateFromConfig k config configDef
+  -- fetch :: Key -> Config -> IO (Maybe a)
+  -- default fetch :: (DefaultConfig a, UpdateFromConfig a) => Key -> Config -> IO (Maybe a)
+  -- fetch k config = Just <$> updateFromConfig k config configDef
 
 -- | Here implementing this typeclass means that this type has some kind of default
 -- that is both always valid and has always the same semantics, for example: Warp.Settings
@@ -71,6 +73,8 @@ class FetchFromConfig a where
 -- by implementing 'DefaultConfig' and deriving (using 'Generic') 'UpdateFromConfig'
 class DefaultConfig a where
   configDef :: a
+  default configDef :: Typeable a => a
+  configDef = throw $ FailedToFetchError (Path []) (typeRep (Proxy :: Proxy a))
 
 -- | This class only exist for the 'Generics' machinery, it means that a value can get
 -- updated using a config, so for example a Warp.Settings can get updated from a config,
@@ -82,12 +86,17 @@ class DefaultConfig a where
 -- the default 'Generics' based implementation do it's thing
 class Typeable a => UpdateFromConfig a where
   updateFromConfig :: Key -> Config -> a -> IO a
-  default updateFromConfig :: (Generic a, UpdateFromConfigG (Rep a), DefaultConfig a) => Key -> Config -> a -> IO a
+  default updateFromConfig :: (Generic a, UpdateFromConfigG (Rep a)) => Key -> Config -> a -> IO a
   updateFromConfig k c a = to <$> updateFromConfigG k c (from a)
+
+  fetchFromConfig :: Key -> Config -> IO (Maybe a)
+  default fetchFromConfig :: (Generic a, UpdateFromConfigG (Rep a)) => Key -> Config -> IO (Maybe a) 
+  fetchFromConfig k c = fmap to <$> fetchFromConfigG k c
 
 -- | Purely 'Generics' machinery, ignore...
 class UpdateFromConfigG f where
   updateFromConfigG :: Key -> Config -> f a -> IO (f a)
+  fetchFromConfigG :: Key -> Config -> IO (Maybe (f a))
 
 data ConfigParsingError =
   ConfigParsingError Key Text TypeRep
@@ -117,6 +126,7 @@ instance Show FailedToFetchError where
     , show typeRep
     , " from key '"
     , Text.unpack (keyName key)
+    , "'"
     ]
 
 instance Exception FailedToFetchError

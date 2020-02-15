@@ -4,6 +4,7 @@ import           Test.Hspec
 import           Conferer.Types
 import           Data.Text
 import           Conferer
+import           Conferer.FetchFromConfig.Basics
 import           Conferer.FetchFromConfig.Warp ()
 import           Network.Wai.Handler.Warp
 
@@ -30,7 +31,7 @@ spec = do
       fetchedValue <- fetch "warp" config
       fetchedValue `portAndHostShouldBe` (9999, defaultHost)
   describe "fetching a warp configuration overriding its host" $ do
-    it "returns a warp config with its host set to the overriden one" $ do
+    fit "returns a warp config with its host set to the overriden one" $ do
       config <- configWith [("warp.host", "!6")]
       fetchedValue <- fetch "warp" config
       fetchedValue `portAndHostShouldBe` (defaultPort, "!6")
