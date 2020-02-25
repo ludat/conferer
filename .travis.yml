@@ -5,7 +5,8 @@ matrix:
   - env: RESOLVER=lts-11.20 # ghc 8.2
   - env: RESOLVER=lts-12.11 # ghc 8.4
   - env: RESOLVER=lts-14.18 # ghc 8.6
-  - env: RESOLVER=nightly # nightly
+  - env: RESOLVER=lts-15.1  # ghc 8.8
+  - env: RESOLVER=nightly   # nightly
   allow_failures:
   - env: RESOLVER=nightly # nightly
 

@@ -1,0 +1,12 @@
+resolver: lts-15.1
+
+packages:
+  - ./conferer/
+  - ./providers/json/
+  - ./providers/yaml/
+  - ./providers/dhall/
+
+  - ./fetchFromConfig/warp/
+  - ./fetchFromConfig/hspec/
+  - ./fetchFromConfig/snap/
+  - ./fetchFromConfig/hedis/
