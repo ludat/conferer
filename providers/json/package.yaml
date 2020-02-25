@@ -36,7 +36,7 @@ library:
   source-dirs: src
 
 tests:
-  conferer-provider-json-test:
+  specs:
     main:                Spec.hs
     source-dirs:         test
     dependencies:

@@ -5,29 +5,30 @@ module Conferer.GenericsSpec where
 import Test.Hspec
 
 import Conferer
-import Conferer.Types (UpdateFromConfig, DefaultConfig, configDef)
+import Conferer.Types (FromConfig, DefaultConfig, configDef)
 
 import GHC.Generics
+
+fetch :: (FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
+fetch = safeGetFromConfig
 
 data Thing = Thing
   { thingA :: Int
   , thingB :: Int
   } deriving (Generic, Show, Eq)
 
-instance UpdateFromConfig Thing
+instance FromConfig Thing
 instance DefaultConfig Thing where
   configDef = Thing 0 0
-instance FetchFromConfig Thing
 
 data Bigger = Bigger
   { biggerThing :: Thing
   , biggerB :: Int
   } deriving (Generic, Show, Eq)
 
-instance UpdateFromConfig Bigger
+instance FromConfig Bigger
 instance DefaultConfig Bigger where
-  configDef = Bigger configDef 1
-instance FetchFromConfig Bigger
+  configDef = Bigger (configDef { thingA = 27}) 1
 
 spec :: Spec
 spec = do
@@ -69,7 +70,7 @@ spec = do
                   [ ])
 
           res <- fetch @Bigger "somekey" c
-          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 0, thingB = 0 }, biggerB = 1}
+          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 27, thingB = 0 }, biggerB = 1}
 
       context "when some keys of the top record are set" $ do
         it "returns the default for the inner record" $ do
@@ -79,7 +80,7 @@ spec = do
                   ])
 
           res <- fetch @Bigger "somekey" c
-          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 0, thingB = 0 }, biggerB = 30}
+          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 27, thingB = 0 }, biggerB = 30}
 
       context "when some keys of the inner record are set" $ do
         it "returns the inner record updated" $ do

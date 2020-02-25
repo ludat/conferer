@@ -23,7 +23,7 @@ getting the value for that key (position on the list defines priority). This
 allows adding new providers easily (for example a dhall file provider,
 a git repo or a etcd database)
 
-The other side of this is that we have the `FetchFromConfig` which gets some value
+The other side of this is that we have the `FromConfig` which gets some value
 from a `Config` at a certain key possibly using only keys under some namespacing
 key
 
@@ -60,7 +60,7 @@ packages
   `dhall`)
 * *Yaml files*: You can use Yaml files to configure your app (depends on `yaml`)
 
-## Existing FetchFromConfig instances
+## Existing FromConfig instances
 
 Default instances for fetching a values from a config (usually a config value
 for some library)
@@ -85,4 +85,4 @@ There are as well some utilities to change providers:
 * Interpolate keys with other keys: `{a: "db", b: "${a}_thing"}`, getting `b`
   will give `"db_thing"` (maybe) even in different levels of configuration
 * A LOT of providers
-* A LOT of `FetchFromConfig` implementations
+* A LOT of `FromConfig` implementations

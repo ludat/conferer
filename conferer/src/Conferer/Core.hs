@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Conferer.Core where
 
 import           Data.Text (Text)
@@ -6,7 +8,7 @@ import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
 import           Data.Typeable (Typeable, Proxy(..), typeRep)
-import           Control.Exception (throw)
+import           Control.Exception (try, throw, throwIO, evaluate)
 
 import           Conferer.Provider.Simple
 import           Conferer.Types
@@ -26,14 +28,48 @@ getKey k config =
         Nothing -> go providers
 
 
--- | Fetch a value from a config key that's parsed using the FetchFromConfig
---   instance.
+-- | Fetch a value from a config under some specific key that's parsed using the 'FromConfig'
+--   instance, and as a default it uses the value from 'DefaultConfig'.
 --
---   This function throws an exception if the key is not found.
-getFromConfig :: forall a. (Typeable a, FetchFromConfig a) => Key -> Config -> IO a
+--   Notes:
+--     - This function may throw an exception if parsing fails for any subkey
+--     - We decided that default for primitive types like 'Int' which get much of it's semantics
+--       from the surroundings makes no sense so the default is throwing.
+getFromConfig :: forall a. (Typeable a, FromConfig a, DefaultConfig a) => Key -> Config -> IO a
 getFromConfig key config =
-  fromMaybe (throw $ FailedToFetchError key (typeRep (Proxy :: Proxy a)))
-    <$> fetch key config
+  getFromConfigWithDefault key config configDef
+
+-- | Same as 'getFromConfig' but with a user defined default (instead of 'DefaultConfig' instance)
+--
+--   Useful for fetching primitive types
+getFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Key -> Config -> a -> IO a
+getFromConfigWithDefault key config configDefault =
+  safeGetFromConfigWithDefault key config configDefault
+    >>= \case
+      Just value -> return value
+      Nothing ->
+        throwIO $ FailedToFetchError key (typeRep (Proxy :: Proxy a))
+
+-- | Fetch a value from a config key that's parsed using the FromConfig instance. 
+--
+--   Note: This function does not use default so the value must be fully defined by the config only,
+--   meaning using this function for many records will always result in 'Nothing' (if the record contains
+--   a value that can never be retrieved like a function)
+safeGetFromConfig :: forall a. (Typeable a, FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
+safeGetFromConfig key config = 
+  safeGetFromConfigWithDefault key config configDef
+
+-- | Same as 'safeGetFromConfig' but with a user defined default
+safeGetFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Key -> Config -> a -> IO (Maybe a)
+safeGetFromConfigWithDefault key config configDefault = do
+  totalValue <- evaluate =<< fetchFromConfig key config
+  case totalValue of
+    Just value -> Just <$> evaluate value
+    Nothing -> do
+      result :: Either FailedToFetchError a <- try . (evaluate =<<) . updateFromConfig key config $ configDefault
+      case result of
+        Right a -> return . Just $ a
+        Left e -> return Nothing
 
 -- | Create a new 'Key' by concatenating two existing keys.
 (/.) :: Key -> Key -> Key

@@ -1,13 +1,13 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeApplications #-}
-module Conferer.FetchFromConfig.Hedis
+module Conferer.FromConfig.Hedis
   (
   -- * How to use this
-  -- | FetchFromConfig instance for hedis server settings
+  -- | FromConfig instance for hedis server settings
   --
   -- @
   -- import Conferer
-  -- import Conferer.FetchFromConfig.Hedis ()
+  -- import Conferer.FromConfig.Hedis ()
   --
   -- main = do
   --   config <- 'defaultConfig' \"awesomeapp\"
@@ -17,7 +17,7 @@ module Conferer.FetchFromConfig.Hedis
 
 import Conferer.Core
 import Conferer.Types
-import Conferer.FetchFromConfig.Basics
+import Conferer.FromConfig.Basics
 import Data.Maybe (catMaybes)
 import qualified Database.Redis as Redis
 import Data.String (fromString)
@@ -28,8 +28,10 @@ import Data.Proxy (Proxy(..))
 import Data.Typeable (typeRep)
 import Control.Exception (throwIO)
 
-instance FetchFromConfig Redis.PortID where
-  fetch = fetchFromConfigWith (\t -> do
+instance DefaultConfig Redis.PortID
+instance FromConfig Redis.PortID where
+  updateFromConfig = updateAllAtOnceUsingFetch
+  fetchFromConfig = fetchFromConfigWith (\t -> do
       case readMaybe $ unpack t of
         Just n -> return $ Redis.PortNumber n
         Nothing ->
@@ -39,8 +41,11 @@ instance FetchFromConfig Redis.PortID where
 instance DefaultConfig Redis.ConnectInfo where
   configDef = Redis.defaultConnectInfo
 
-instance FetchFromConfig Redis.ConnectInfo where
-  fetch key config = do
+instance FromConfig Redis.ConnectInfo where
+  fetchFromConfig key config = do
+    return Nothing
+
+  updateFromConfig key config connectInfo = do
     redisConfig <- getKey key config
       >>= \case
         Just connectionString -> 
@@ -49,12 +54,12 @@ instance FetchFromConfig Redis.ConnectInfo where
             Left e -> 
                 throwIO $ ConfigParsingError key connectionString (typeRep (Proxy :: Proxy (Redis.ConnectInfo)))
         Nothing -> 
-          pure configDef
-            >>= findKeyAndApplyConfig config key "host" (\v c -> c { Redis.connectHost = v })
-            >>= findKeyAndApplyConfig config key "port" (\v c -> c { Redis.connectPort = v })
-            >>= findKeyAndApplyConfig config key "auth" (\v c -> c { Redis.connectAuth = v })
+          pure connectInfo
+            >>= findKeyAndApplyConfig config key "host" Redis.connectHost (\v c -> c { Redis.connectHost = v })
+            >>= findKeyAndApplyConfig config key "port" Redis.connectPort (\v c -> c { Redis.connectPort = v })
+            >>= findKeyAndApplyConfig config key "auth" Redis.connectAuth (\v c -> c { Redis.connectAuth = v })
 
     pure redisConfig
-      >>= findKeyAndApplyConfig config key "maxConnections" (\v c -> c { Redis.connectMaxConnections = v })
-      >>= findKeyAndApplyConfig config key "maxIdleTime" (\v c -> c { Redis.connectMaxConnections = v })
-      >>= (return . return)
+      >>= findKeyAndApplyConfig config key "maxConnections" Redis.connectMaxConnections (\v c -> c { Redis.connectMaxConnections = v })
+      -- >>= findKeyAndApplyConfig config key "maxIdleTime" Redis.connectMaxIdleTime (\v c -> c { Redis.connectMaxIdleTime = v })
+      >>= return

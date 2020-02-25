@@ -30,7 +30,7 @@ library:
   source-dirs: src
 
 tests:
-  conferer-hspec-test:
+  specs:
     main:                Spec.hs
     source-dirs:         test
     dependencies:
