@@ -4,7 +4,7 @@ import qualified Data.Text as Text
 import           Data.Maybe (fromMaybe)
 
 import           Conferer.Types
-import           Conferer.FetchFromConfig.Basics ()
+import           Conferer.FromConfig.Basics ()
 
 fromRight :: a -> Either e a -> a
 fromRight a (Left _) = a

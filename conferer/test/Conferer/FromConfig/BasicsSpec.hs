@@ -2,13 +2,12 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Conferer.FetchFromConfig.BasicsSpec where
+module Conferer.FromConfig.BasicsSpec where
 
 import           Test.Hspec
 import           Conferer.Types
 import           Data.Text
 import           Conferer
-import           Conferer.FetchFromConfig.Basics (fetch)
 import           Control.Exception (evaluate)
 import           Data.Typeable
 import           Control.DeepSeq
@@ -23,13 +22,15 @@ configParserError :: Key -> ConfigParsingError -> Bool
 configParserError key (ConfigParsingError k _ _) =
   key == k
 
+fetch :: (FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
+fetch = safeGetFromConfig
+
 spec :: Spec
 spec = context "Basics" $ do
   describe "fetching an Int from config" $ do
     it "getting a value that can't be parsed as an int returns an error message" $ do
       config <- configWith [ ("anInt", "50A") ]
       fetch @Int "anInt" config `shouldThrow` configParserError_
-      -- evaluate (force fetchedValue) `shouldThrow` anyErrorCall
 
     it "getting a value that can be parsed correctly returns the int" $ do
       config <- configWith [ ("anInt", "50") ]

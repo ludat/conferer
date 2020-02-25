@@ -1,7 +1,7 @@
 module Main where
 
 import Conferer
-import Conferer.FetchFromConfig.Warp ()
+import Conferer.FromConfig.Warp ()
 
 import Network.Wai
 import Network.HTTP.Types (status200)

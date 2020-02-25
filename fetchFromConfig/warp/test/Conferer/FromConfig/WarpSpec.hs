@@ -1,15 +1,18 @@
-module Conferer.FetchFromConfig.WarpSpec where
+module Conferer.FromConfig.WarpSpec where
 
 import           Test.Hspec
 import           Conferer.Types
 import           Data.Text
 import           Conferer
-import           Conferer.FetchFromConfig.Basics
-import           Conferer.FetchFromConfig.Warp ()
+import           Conferer.FromConfig.Basics
+import           Conferer.FromConfig.Warp ()
 import           Network.Wai.Handler.Warp
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
+
+fetch :: (FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
+fetch = safeGetFromConfig
 
 portAndHostShouldBe :: Maybe Settings -> (Port, HostPreference) -> Expectation
 portAndHostShouldBe fetchedSettings (port, host) = do

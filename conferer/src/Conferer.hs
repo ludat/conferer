@@ -18,7 +18,7 @@ module Conferer
   --
   -- @
   -- import Conferer
-  -- import Conferer.FetchFromConfig.Warp () -- from package conferer-warp
+  -- import Conferer.FromConfig.Warp () -- from package conferer-warp
   --
   -- main = do
   --   config <- 'defaultConfig' \"awesomeapp\"
@@ -37,7 +37,7 @@ module Conferer
   -- json files, properties files, env vars, etc.
 
   -- ** Getting configuration for existing libraries
-  -- | There is a typeclass 'FetchFromConfig' that defines how to get a type
+  -- | There is a typeclass 'FromConfig' that defines how to get a type
   --   from a config, they are implemented in different packages since the
   --   weight of the dependencies would be too high, the package is usually
   --   named as @conferer-DEPENDENCY@ where DEPENDENCY is the name of the dependency (
@@ -47,7 +47,7 @@ module Conferer
 
   -- ** Providing key value pairs for configuration
   -- | There is one important type in conferer: 'Config' from which, given a key
-  -- (eg: @warp@) you can get anything that implements 'FetchFromConfig' (like
+  -- (eg: @warp@) you can get anything that implements 'FromConfig' (like
   -- 'Warp.Settings')
   --
   -- Internally a 'Config' is made of many 'Provider's which have a simpler
@@ -90,8 +90,8 @@ module Conferer
 import           Data.Text (Text)
 import           Data.Function ((&))
 
-import           Conferer.Core (emptyConfig, addProvider, getFromConfig, getKey, unsafeGetKey, (/.), withDefaults)
-import           Conferer.Types (Config, Key(..), ProviderCreator, Provider(..), FetchFromConfig(..))
+import           Conferer.Core (emptyConfig, addProvider, getFromConfig, getFromConfigWithDefault, safeGetFromConfig, getKey, unsafeGetKey, (/.), withDefaults)
+import           Conferer.Types (Config, Key(..), ProviderCreator, Provider(..), FromConfig(..))
 import           Conferer.Provider.Env
 import           Conferer.Provider.Simple
 import           Conferer.Provider.Namespaced

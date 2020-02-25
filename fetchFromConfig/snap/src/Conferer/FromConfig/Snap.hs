@@ -1,11 +1,11 @@
-module Conferer.FetchFromConfig.Snap
+module Conferer.FromConfig.Snap
   (
   -- * How to use this
-  -- | FetchFromConfig instance for snap server configuration
+  -- | FromConfig instance for snap server configuration
   --
   -- @
   -- import Conferer
-  -- import Conferer.FetchFromConfig.Snap ()
+  -- import Conferer.FromConfig.Snap ()
   --
   -- main = do
   --   config <- 'defaultConfig' \"awesomeapp\"
@@ -19,7 +19,7 @@ module Conferer.FetchFromConfig.Snap
 
 import Conferer.Core
 import Conferer.Types
-import Conferer.FetchFromConfig.Basics
+import Conferer.FromConfig.Basics
 
 import Data.Either (rights)
 import Data.String (fromString)
@@ -29,14 +29,15 @@ import Data.Typeable
 import qualified Snap.Http.Server.Config as Snap
 import qualified Snap.Core as Snap
 
--- instance DefaultConfig Snap.ConfigLog
-instance UpdateFromConfig Snap.ConfigLog where
-  updateFromConfig k config a = do
+instance DefaultConfig Snap.ConfigLog
+instance FromConfig Snap.ConfigLog where
+  updateFromConfig = updateAllAtOnceUsingFetch
+  fetchFromConfig k config = do
     getKey k config
       >>= \case
-        Just "NoLog" -> return $ Snap.ConfigNoLog
-        Just t -> return $ Snap.ConfigFileLog $ unpack t
-        Nothing -> return $ a
+        Just "NoLog" -> return $ Just $ Snap.ConfigNoLog
+        Just t -> return $ Just $ Snap.ConfigFileLog $ unpack t
+        Nothing -> return $ Nothing
 
 instance (Snap.MonadSnap m, DefaultConfig a) => DefaultConfig (Snap.Config m a) where
   configDef = Snap.defaultConfig
@@ -44,7 +45,8 @@ instance (Snap.MonadSnap m, DefaultConfig a) => DefaultConfig (Snap.Config m a) 
 withMaybe f (Just a) c = f a c
 withMaybe f (Nothing) c = c
 
-instance forall a m. (Typeable m, UpdateFromConfig a, Snap.MonadSnap m) => UpdateFromConfig (Snap.Config m a) where
+instance forall a m. (Typeable m, FromConfig a, Snap.MonadSnap m) => FromConfig (Snap.Config m a) where
+  fetchFromConfig k config = return Nothing
   updateFromConfig k config snapConfig = do
     pure snapConfig
       >>= findKeyAndApplyConfig config k "defaultTimeout" Snap.getDefaultTimeout (withMaybe Snap.setDefaultTimeout)

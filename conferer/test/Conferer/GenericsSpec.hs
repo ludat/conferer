@@ -5,31 +5,30 @@ module Conferer.GenericsSpec where
 import Test.Hspec
 
 import Conferer
-import Conferer.Types (UpdateFromConfig, DefaultConfig, configDef)
-import           Conferer.FetchFromConfig.Basics (fetch)
-
+import Conferer.Types (FromConfig, DefaultConfig, configDef)
 
 import GHC.Generics
+
+fetch :: (FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
+fetch = safeGetFromConfig
 
 data Thing = Thing
   { thingA :: Int
   , thingB :: Int
   } deriving (Generic, Show, Eq)
 
-instance UpdateFromConfig Thing
+instance FromConfig Thing
 instance DefaultConfig Thing where
   configDef = Thing 0 0
-instance FetchFromConfig Thing
 
 data Bigger = Bigger
   { biggerThing :: Thing
   , biggerB :: Int
   } deriving (Generic, Show, Eq)
 
-instance UpdateFromConfig Bigger
+instance FromConfig Bigger
 instance DefaultConfig Bigger where
   configDef = Bigger (configDef { thingA = 27}) 1
-instance FetchFromConfig Bigger
 
 spec :: Spec
 spec = do
