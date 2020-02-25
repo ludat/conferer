@@ -34,7 +34,7 @@ spec = do
       fetchedValue <- fetch "warp" config
       fetchedValue `portAndHostShouldBe` (9999, defaultHost)
   describe "fetching a warp configuration overriding its host" $ do
-    fit "returns a warp config with its host set to the overriden one" $ do
+    it "returns a warp config with its host set to the overriden one" $ do
       config <- configWith [("warp.host", "!6")]
       fetchedValue <- fetch "warp" config
       fetchedValue `portAndHostShouldBe` (defaultPort, "!6")
