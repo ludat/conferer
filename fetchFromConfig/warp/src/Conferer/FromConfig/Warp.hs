@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE CPP #-}
 module Conferer.FromConfig.Warp
   (
   -- * How to use this
@@ -52,13 +53,31 @@ instance FromConfig Settings where
       >>= findKeyAndApplyConfig config key "timeout" settingsTimeout (\v c -> c { settingsTimeout = v })
       >>= findKeyAndApplyConfig config key "fdCacheDuration" settingsFdCacheDuration (\v c -> c { settingsFdCacheDuration = v })
       >>= findKeyAndApplyConfig config key "fileInfoCacheDuration" settingsFileInfoCacheDuration (\v c -> c { settingsFileInfoCacheDuration = v })
+#if MIN_VERSION_warp(2,0,3)
       >>= findKeyAndApplyConfig config key "noParsePath" settingsNoParsePath (\v c -> c { settingsNoParsePath = v })
+#endif
+#if MIN_VERSION_warp(3,0,2)
       >>= findKeyAndApplyConfig config key "serverName" settingsServerName (\v c -> c { settingsServerName = v })
+#endif
+#if MIN_VERSION_warp(3,0,3)
       >>= findKeyAndApplyConfig config key "maximumBodyFlush" settingsMaximumBodyFlush (\v c -> c { settingsMaximumBodyFlush = v })
+#endif
+#if MIN_VERSION_warp(3,0,5)
       >>= findKeyAndApplyConfig config key "proxyProtocol" settingsProxyProtocol (\v c -> c { settingsProxyProtocol = v })
+#endif
+#if MIN_VERSION_warp(3,1,2)
       >>= findKeyAndApplyConfig config key "slowlorisSize" settingsSlowlorisSize (\v c -> c { settingsSlowlorisSize = v })
+#endif
+#if MIN_VERSION_warp(3,1,7)
       >>= findKeyAndApplyConfig config key "http2Enabled" settingsHTTP2Enabled (\v c -> c { settingsHTTP2Enabled = v })
+#endif
+#if MIN_VERSION_warp(3,2,8)
       >>= findKeyAndApplyConfig config key "gracefulShutdownTimeout" settingsGracefulShutdownTimeout (\v c -> c { settingsGracefulShutdownTimeout = v })
+#endif
+#if MIN_VERSION_warp(3,3,5)
       >>= findKeyAndApplyConfig config key "gracefulCloseTimeout1" settingsGracefulCloseTimeout1 (\v c -> c { settingsGracefulCloseTimeout1 = v })
       >>= findKeyAndApplyConfig config key "gracefulCloseTimeout2" settingsGracefulCloseTimeout2 (\v c -> c { settingsGracefulCloseTimeout2 = v })
-      -- >>= findKeyAndApplyConfig config key "maxTotalHeaderLength" settingsMaxTotalHeaderLength (\v c -> c { settingsMaxTotalHeaderLength = v })
+#endif
+#if MIN_VERSION_warp(3,3,8)
+      >>= findKeyAndApplyConfig config key "maxTotalHeaderLength" settingsMaxTotalHeaderLength (\v c -> c { settingsMaxTotalHeaderLength = v })
+#endif
