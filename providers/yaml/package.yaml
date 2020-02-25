@@ -29,7 +29,7 @@ library:
   source-dirs: src
 
 tests:
-  conferer-provider-yaml-test:
+  specs:
     main:                Spec.hs
     source-dirs:         test
     dependencies:

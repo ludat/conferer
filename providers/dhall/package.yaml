@@ -33,7 +33,7 @@ library:
   source-dirs: src
 
 tests:
-  conferer-provider-dhall-test:
+  specs:
     main:                Spec.hs
     source-dirs:         test
     dependencies:

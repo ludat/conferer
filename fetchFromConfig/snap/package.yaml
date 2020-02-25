@@ -31,7 +31,7 @@ library:
   source-dirs: src
 
 tests:
-  conferer-snap-test:
+  specs:
     main:                Spec.hs
     source-dirs:         test
     dependencies:
