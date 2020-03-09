@@ -25,12 +25,10 @@ import Data.String (fromString)
 import Data.Text (unpack)
 import Data.Maybe (fromMaybe)
 
-instance DefaultConfig HostPreference
 instance FromConfig HostPreference where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigByIsString
 
-instance DefaultConfig ProxyProtocol
 instance FromConfig ProxyProtocol where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigWith

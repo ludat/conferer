@@ -46,17 +46,18 @@ getFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Key -> Confi
 getFromConfigWithDefault key config configDefault =
   safeGetFromConfigWithDefault key config configDefault
     >>= \case
-      Just value -> return value
+      Just value -> do
+        evaluate value
       Nothing ->
         throwIO $ FailedToFetchError key (typeRep (Proxy :: Proxy a))
 
--- | Fetch a value from a config key that's parsed using the FromConfig instance. 
+-- | Fetch a value from a config key that's parsed using the FromConfig instance.
 --
 --   Note: This function does not use default so the value must be fully defined by the config only,
 --   meaning using this function for many records will always result in 'Nothing' (if the record contains
 --   a value that can never be retrieved like a function)
 safeGetFromConfig :: forall a. (Typeable a, FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
-safeGetFromConfig key config = 
+safeGetFromConfig key config =
   safeGetFromConfigWithDefault key config configDef
 
 -- | Same as 'safeGetFromConfig' but with a user defined default
@@ -64,11 +65,12 @@ safeGetFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Key -> C
 safeGetFromConfigWithDefault key config configDefault = do
   totalValue <- evaluate =<< fetchFromConfig key config
   case totalValue of
-    Just value -> Just <$> evaluate value
+    Just value -> do
+      Just <$> evaluate value
     Nothing -> do
       result :: Either FailedToFetchError a <- try . (evaluate =<<) . updateFromConfig key config $ configDefault
       case result of
-        Right a -> return . Just $ a
+        Right a -> Just <$> evaluate a
         Left e -> return Nothing
 
 -- | Create a new 'Key' by concatenating two existing keys.

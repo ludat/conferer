@@ -18,19 +18,19 @@ configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
 configParserError_ :: ConfigParsingError -> Bool
 configParserError_ = const True
 
-configParserError :: Key -> ConfigParsingError -> Bool
-configParserError key (ConfigParsingError k _ _) =
-  key == k
+configParserError :: Key -> Text -> ConfigParsingError -> Bool
+configParserError key txt (ConfigParsingError k t _) =
+  key == k && t == txt
 
-fetch :: (FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
-fetch = safeGetFromConfig
+fetch :: (FromConfig a, Show a, Typeable a) => Key -> Config -> IO (Maybe a)
+fetch = getFromConfig
 
 spec :: Spec
 spec = context "Basics" $ do
   describe "fetching an Int from config" $ do
     it "getting a value that can't be parsed as an int returns an error message" $ do
       config <- configWith [ ("anInt", "50A") ]
-      fetch @Int "anInt" config `shouldThrow` configParserError_
+      fetch @Int "anInt" config `shouldThrow` configParserError "anInt" "50A"
 
     it "getting a value that can be parsed correctly returns the int" $ do
       config <- configWith [ ("anInt", "50") ]

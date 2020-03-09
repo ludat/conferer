@@ -7,10 +7,11 @@ import Test.Hspec
 import Conferer
 import Conferer.Types (FromConfig, DefaultConfig, configDef)
 
+import Data.Typeable
 import GHC.Generics
 
-fetch :: (FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
-fetch = safeGetFromConfig
+fetch :: (FromConfig a, Show a, Typeable a, DefaultConfig a) => Key -> Config -> IO a
+fetch k c = getFromConfig k c
 
 data Thing = Thing
   { thingA :: Int
@@ -40,66 +41,66 @@ spec = do
                 & addProvider (mkMapProvider [ ])
 
           res <- fetch @Thing "somekey" c
-          res `shouldBe` Just Thing { thingA = 0, thingB = 0 }
+          res `shouldBe` Thing { thingA = 0, thingB = 0 }
       context "when all keys are set" $ do
         it "return the keys set" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider 
+                & addProvider (mkMapProvider
                   [ ("somekey.a", "1")
                   , ("somekey.b", "2")
                   ])
 
           res <- fetch @Thing "somekey" c
-          res `shouldBe` Just Thing { thingA = 1, thingB = 2 }
+          res `shouldBe` Thing { thingA = 1, thingB = 2 }
 
       context "when some keys are set" $ do
         it "uses the default and returns the keys set" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider 
+                & addProvider (mkMapProvider
                   [ ("somekey.b", "2")
                   ])
 
           res <- fetch @Thing "somekey" c
-          res `shouldBe` Just Thing { thingA = 0, thingB = 2 }
+          res `shouldBe` Thing { thingA = 0, thingB = 2 }
 
     context "with a nested record" $ do
       context "when none of the keys are set" $ do
         it "returns the default of both records" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider 
+                & addProvider (mkMapProvider
                   [ ])
 
           res <- fetch @Bigger "somekey" c
-          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 27, thingB = 0 }, biggerB = 1}
+          res `shouldBe` Bigger { biggerThing = Thing { thingA = 27, thingB = 0 }, biggerB = 1}
 
       context "when some keys of the top record are set" $ do
         it "returns the default for the inner record" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider 
+                & addProvider (mkMapProvider
                   [ ("somekey.b", "30")
                   ])
 
           res <- fetch @Bigger "somekey" c
-          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 27, thingB = 0 }, biggerB = 30}
+          res `shouldBe` Bigger { biggerThing = Thing { thingA = 27, thingB = 0 }, biggerB = 30}
 
       context "when some keys of the inner record are set" $ do
         it "returns the inner record updated" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider 
+                & addProvider (mkMapProvider
                   [ ("somekey.thing.a", "30")
                   ])
 
           res <- fetch @Bigger "somekey" c
-          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 30, thingB = 0 }, biggerB = 1}
+          res `shouldBe` Bigger { biggerThing = Thing { thingA = 30, thingB = 0 }, biggerB = 1}
 
       context "when every key is set" $ do
         it "returns everything with the right values" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider 
+                & addProvider (mkMapProvider
                   [ ("somekey.thing.a", "10")
                   , ("somekey.thing.b", "20")
                   , ("somekey.b", "30")
                   ])
 
           res <- fetch @Bigger "somekey" c
-          res `shouldBe` Just Bigger { biggerThing = Thing { thingA = 10, thingB = 20 }, biggerB = 30}
+          res `shouldBe` Bigger { biggerThing = Thing { thingA = 10, thingB = 20 }, biggerB = 30}
