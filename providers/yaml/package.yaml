@@ -1,5 +1,5 @@
 name:                conferer-provider-yaml
-version:             0.2.0.0
+version:             0.3.0.0
 synopsis: |
   Configuration for reading yaml files
 description: |
@@ -18,8 +18,8 @@ extra-doc-files:
 
 dependencies:
   - base >= 4.3 && < 5
-  - conferer >= 0.2.0.0 && < 0.3.0.0
-  - conferer-provider-json >= 0.2.0.0 && < 0.3.0.0
+  - conferer >= 0.3.0.0 && < 0.4.0.0
+  - conferer-provider-json >= 0.3.0.0 && < 0.4.0.0
   - yaml >= 0.8 && < 1.0
 
 default-extensions:
