@@ -6,7 +6,7 @@ packages:
   - ./providers/yaml/
   - ./providers/dhall/
 
-  - ./fetchFromConfig/warp/
-  - ./fetchFromConfig/hspec/
-  - ./fetchFromConfig/snap/
-  - ./fetchFromConfig/hedis/
+  - ./fromConfig/warp/
+  - ./fromConfig/hspec/
+  - ./fromConfig/snap/
+  - ./fromConfig/hedis/
