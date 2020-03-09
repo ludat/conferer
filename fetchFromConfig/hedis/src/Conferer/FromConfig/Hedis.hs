@@ -28,7 +28,6 @@ import Data.Proxy (Proxy(..))
 import Data.Typeable (typeRep)
 import Control.Exception (throwIO)
 
-instance DefaultConfig Redis.PortID
 instance FromConfig Redis.PortID where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigWith (\t -> do

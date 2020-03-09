@@ -21,29 +21,26 @@ import           GHC.Generics
 import           Conferer.Types
 import           Conferer.Core (getKey, (/.), getFromConfig)
 
-updateAllAtOnceUsingFetch :: (FromConfig a) => Key -> Config -> a -> IO a
+updateAllAtOnceUsingFetch :: forall a. (FromConfig a, Typeable a) => Key -> Config -> a -> IO a
 updateAllAtOnceUsingFetch key config old = do
   fetchFromConfig key config
     >>= \case 
       Just new -> return new
-      Nothing -> return old
+      Nothing -> do
+        evaluate $ mapException (\(e :: FailedToFetchError) -> keyNotPresentError key (Proxy :: Proxy a)) $ old
 
-instance DefaultConfig Int
 instance FromConfig Int where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigByRead
 
-instance DefaultConfig Integer
 instance FromConfig Integer where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigByRead
 
-instance DefaultConfig Float
 instance FromConfig Float where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigByRead
 
-instance DefaultConfig ByteString
 instance FromConfig ByteString where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigWith (Just . Text.encodeUtf8)
@@ -51,26 +48,27 @@ instance FromConfig ByteString where
 instance DefaultConfig (Maybe a) where
   configDef = Nothing
 instance (FromConfig a) => FromConfig (Maybe a) where
-  updateFromConfig k config (Just a) =
-    Just <$> updateFromConfig k config a
-  updateFromConfig k config Nothing =
+  updateFromConfig k config (Just a) = do
+    res <- updateFromConfig k config a
+    Just <$> evaluate res
+  updateFromConfig k config Nothing = do
     fetchFromConfig k config
   fetchFromConfig k config = do
-    fmap Just <$> fetchFromConfig @a k config
+    fetchFromConfig @a k config
+      >>= \case
+        Just res -> Just <$> Just <$> evaluate res
+        Nothing -> return $ Just Nothing
 
 
-instance DefaultConfig String
 instance FromConfig String where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigWith (Just . Text.unpack)
 
-instance DefaultConfig Text
 instance FromConfig Text where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigWith Just
 
 
-instance DefaultConfig Bool
 instance FromConfig Bool where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigWith parseBool

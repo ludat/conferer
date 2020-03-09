@@ -49,29 +49,20 @@ data Config =
 -- needs connection info to connect to the server)
 type ProviderCreator = Config -> IO Provider
 
--- | Main typeclass for defining the way to get values from config, hiding the
--- 'Text' based nature of the 'Provider's
+keyNotPresentError :: forall a. (Typeable a) => Key -> Proxy a -> FailedToFetchError
+keyNotPresentError key =
+  throw $ FailedToFetchError key $ typeRep (Proxy :: Proxy a)
+
+-- | Default defining instance
 --
 -- Here a 'Nothing' means that the value didn't appear in the config, some
 -- instances never return a value since they have defaults that can never
 -- fail
-
-
--- | Here implementing this typeclass means that this type has some kind of default
--- that is both always valid and has always the same semantics, for example: Warp.Settings
--- has a default since it's always use in the same way (to configure a warp server)
--- but for example an Int could mean many things depending on the context so it doesn't
--- really make sense to implement it for it
---
--- It's also used for the 'Generic' implementation, if you have a Record made up from
--- types that implement 'FromConfig' you can derive the 'FromConfig' automatically
--- by implementing 'DefaultConfig' and deriving (using 'Generic') 'FromConfig'
 class DefaultConfig a where
   configDef :: a
-  default configDef :: Typeable a => a
-  configDef = throw $ FailedToFetchError (Path []) (typeRep (Proxy :: Proxy a))
 
--- | This class only exist for the 'Generics' machinery, it means that a value can get
+-- | Main typeclass for defining the way to get values from config, hiding the
+-- 'Text' based nature of the 'Provider's.
 -- updated using a config, so for example a Warp.Settings can get updated from a config,
 -- but that doesn't make much sense for something like an 'Int'
 --
@@ -79,9 +70,9 @@ class DefaultConfig a where
 -- 'FromConfig' you should implement that directly, and if you want to use
 -- 'DefaultConfig' and 'FromConfig' to implement 'FromConfig' you should let
 -- the default 'Generics' based implementation do it's thing
-class Typeable a => FromConfig a where
+class FromConfig a where
   updateFromConfig :: Key -> Config -> a -> IO a
-  default updateFromConfig :: (Generic a, FromConfigG (Rep a)) => Key -> Config -> a -> IO a
+  default updateFromConfig :: (Generic a, Typeable a, FromConfigG (Rep a)) => Key -> Config -> a -> IO a
   updateFromConfig k c a = to <$> updateFromConfigG k c (from a)
 
   fetchFromConfig :: Key -> Config -> IO (Maybe a)

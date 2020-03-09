@@ -7,11 +7,12 @@ import           Conferer
 import           Conferer.FromConfig.Basics
 import           Conferer.FromConfig.Warp ()
 import           Network.Wai.Handler.Warp
+import           Data.Typeable
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
 
-fetch :: (FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
+fetch :: (FromConfig a, Typeable a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
 fetch = safeGetFromConfig
 
 portAndHostShouldBe :: Maybe Settings -> (Port, HostPreference) -> Expectation

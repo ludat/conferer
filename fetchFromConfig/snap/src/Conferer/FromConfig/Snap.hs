@@ -29,7 +29,6 @@ import Data.Typeable
 import qualified Snap.Http.Server.Config as Snap
 import qualified Snap.Core as Snap
 
-instance DefaultConfig Snap.ConfigLog
 instance FromConfig Snap.ConfigLog where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig k config = do
