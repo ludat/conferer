@@ -90,7 +90,7 @@ module Conferer
 import           Data.Text (Text)
 import           Data.Function ((&))
 
-import           Conferer.Core (emptyConfig, addProvider, getFromConfig, getFromConfigWithDefault, safeGetFromConfig, safeGetFromConfigWithDefault, getKey, unsafeGetKey, (/.), withDefaults)
+import           Conferer.Core (emptyConfig, addProvider, getFromConfig, getFromRootConfig, getFromConfigWithDefault, safeGetFromConfig, safeGetFromConfigWithDefault, getKey, unsafeGetKey, (/.), withDefaults)
 import           Conferer.Types (Config, Key(..), ProviderCreator, Provider(..), DefaultConfig(..), FromConfig(..))
 import           Conferer.Provider.Env
 import           Conferer.Provider.Simple

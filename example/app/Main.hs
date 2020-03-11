@@ -23,7 +23,7 @@ instance DefaultConfig AppConfig where
 main :: IO ()
 main = do
   config <- defaultConfig "awesomeapp"
-  appConfig <- getFromConfig "" config
+  appConfig <- getFromRootConfig config
 
   putStrLn $ "Running on port: " ++ show (getPort $ appConfigWarp appConfig)
   runSettings (appConfigWarp appConfig) application

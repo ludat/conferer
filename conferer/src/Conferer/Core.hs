@@ -33,11 +33,18 @@ getKey k config =
 --
 --   Notes:
 --     - This function may throw an exception if parsing fails for any subkey
---     - We decided that default for primitive types like 'Int' which get much of it's semantics
---       from the surroundings makes no sense so the default is throwing.
 getFromConfig :: forall a. (Typeable a, FromConfig a, DefaultConfig a) => Key -> Config -> IO a
 getFromConfig key config =
   getFromConfigWithDefault key config configDef
+
+-- | Same as 'getFromConfig' using the root key
+--
+--   Notes:
+--     - This function may throw an exception if parsing fails for any subkey
+getFromRootConfig :: forall a. (Typeable a, FromConfig a, DefaultConfig a) => Config -> IO a
+getFromRootConfig config =
+  getFromConfig "" config
+
 
 -- | Same as 'getFromConfig' but with a user defined default (instead of 'DefaultConfig' instance)
 --
