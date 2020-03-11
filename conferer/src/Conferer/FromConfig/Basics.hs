@@ -24,10 +24,11 @@ import           Conferer.Core (getKey, (/.), getFromConfig)
 updateAllAtOnceUsingFetch :: forall a. (FromConfig a, Typeable a) => Key -> Config -> a -> IO a
 updateAllAtOnceUsingFetch key config old = do
   fetchFromConfig key config
-    >>= \case 
-      Just new -> return new
+    >>= \case
+      Just new -> do
+        evaluate new
       Nothing -> do
-        evaluate $ mapException (\(e :: FailedToFetchError) -> keyNotPresentError key (Proxy :: Proxy a)) $ old
+        evaluate old
 
 instance FromConfig Int where
   updateFromConfig = updateAllAtOnceUsingFetch
