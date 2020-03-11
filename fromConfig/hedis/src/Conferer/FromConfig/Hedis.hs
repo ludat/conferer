@@ -47,12 +47,12 @@ instance FromConfig Redis.ConnectInfo where
   updateFromConfig key config connectInfo = do
     redisConfig <- getKey key config
       >>= \case
-        Just connectionString -> 
+        Just connectionString ->
           case Redis.parseConnectInfo $ unpack connectionString of
             Right con -> return $ con
-            Left e -> 
+            Left e ->
                 throwIO $ ConfigParsingError key connectionString (typeRep (Proxy :: Proxy (Redis.ConnectInfo)))
-        Nothing -> 
+        Nothing ->
           pure connectInfo
             >>= findKeyAndApplyConfig config key "host" Redis.connectHost (\v c -> c { Redis.connectHost = v })
             >>= findKeyAndApplyConfig config key "port" Redis.connectPort (\v c -> c { Redis.connectPort = v })

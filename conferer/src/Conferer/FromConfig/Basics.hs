@@ -100,7 +100,7 @@ fetchFromConfigWith parseValue key config = do
   getKey key config >>=
     \case
       Just value ->
-        return $ Just $ 
+        return $ Just $
           fromMaybe (throw $ ConfigParsingError key value (typeRep (Proxy :: Proxy a))) $
           fromValueWith parseValue value
       Nothing ->
@@ -131,7 +131,7 @@ findKeyAndApplyConfig ::
   -> config -- ^ Result of the last config updating
   -> IO config -- ^ Updated config
 findKeyAndApplyConfig config k relativeKey get set customConfig = do
-  newValue <- updateFromConfig @newvalue (k /. relativeKey) config (get customConfig) 
+  newValue <- updateFromConfig @newvalue (k /. relativeKey) config (get customConfig)
   return $ set newValue customConfig
 
 instance FromConfigG inner =>

@@ -41,7 +41,7 @@ spec = do
       fetchedValue `portAndHostShouldBe` (Redis.PortNumber 42, defaultHost)
   describe "fetching a hedis configuration overriding its host" $ do
     it "returns a hedis config with its host set to the overriden one" $ do
-      config <- configWith 
+      config <- configWith
         [ ("hedis", "redis://username:password@host:42")
         , ("hedis.maxConnections", "70")
         ]
