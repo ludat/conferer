@@ -91,7 +91,7 @@ import           Data.Text (Text)
 import           Data.Function ((&))
 
 import           Conferer.Core (emptyConfig, addProvider, getFromConfig, getFromConfigWithDefault, safeGetFromConfig, safeGetFromConfigWithDefault, getKey, unsafeGetKey, (/.), withDefaults)
-import           Conferer.Types (Config, Key(..), ProviderCreator, Provider(..), FromConfig(..))
+import           Conferer.Types (Config, Key(..), ProviderCreator, Provider(..), DefaultConfig(..), FromConfig(..))
 import           Conferer.Provider.Env
 import           Conferer.Provider.Simple
 import           Conferer.Provider.Namespaced
