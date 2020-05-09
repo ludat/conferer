@@ -1,0 +1,57 @@
+cabal-version: 1.18
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 38ac739d423c0e28c7b8dd4d614f1092cbebb6371eef9f2dd9fa21f0c5c618a1
+
+name:           conferer-hedis
+version:        0.3.0.0
+synopsis:       conferer's FromConfig instances for hedis settings
+
+description:    Library to abstract the parsing of many haskell config values from different config sources
+category:       Configuration
+homepage:       https://github.com/ludat/conferer#readme
+author:         Lucas David Traverso
+maintainer:     lucas6246@gmail.com
+copyright:      MIT
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-doc-files:
+    README.md
+    LICENSE
+
+library
+  exposed-modules:
+      Conferer.FromConfig.Hedis
+  other-modules:
+      Paths_conferer_hedis
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  build-depends:
+      base >=4.3 && <5
+    , conferer >=0.3.0.0 && <0.5.0.0
+    , hedis >=0.7.0 && <1.0.0
+    , text >=1.1 && <1.3
+  default-language: Haskell2010
+
+test-suite specs
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Conferer.FromConfig.HedisSpec
+      Paths_conferer_hedis
+  hs-source-dirs:
+      test
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  build-depends:
+      base >=4.3 && <5
+    , conferer >=0.3.0.0 && <0.5.0.0
+    , conferer-hedis
+    , hedis >=0.7.0 && <1.0.0
+    , hspec
+    , text >=1.1 && <1.3
+  default-language: Haskell2010

@@ -1,0 +1,56 @@
+cabal-version: 1.18
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 23f94309bd33cc015e5a963e13e899bda40c3bebc3ed2a2eb3c5b9e8eda26f9a
+
+name:           conferer-hspec
+version:        0.3.0.0
+synopsis:       conferer's FromConfig instances for hspec Config
+
+description:    Library to abstract the parsing of many haskell config values from different config sources
+category:       Configuration
+homepage:       https://github.com/ludat/conferer#readme
+author:         Lucas David Traverso
+maintainer:     lucas6246@gmail.com
+copyright:      MIT
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-doc-files:
+    README.md
+    LICENSE
+
+library
+  exposed-modules:
+      Conferer.FromConfig.Hspec
+  other-modules:
+      Paths_conferer_hspec
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  build-depends:
+      base >=4.3 && <5
+    , conferer >=0.3.0.0 && <0.4.0.0
+    , hspec-core >=2.0.0 && <2.8.0
+    , text >=1.1 && <1.3
+  default-language: Haskell2010
+
+test-suite specs
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_conferer_hspec
+  hs-source-dirs:
+      test
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  build-depends:
+      base >=4.3 && <5
+    , conferer >=0.3.0.0 && <0.4.0.0
+    , conferer-hspec
+    , hspec
+    , hspec-core >=2.0.0 && <2.8.0
+    , text >=1.1 && <1.3
+  default-language: Haskell2010

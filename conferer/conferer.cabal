@@ -1,0 +1,80 @@
+cabal-version: 1.18
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: e9e6edef27397421e3ed20cd7b4269e086ded2fc7fd679dac79be16cf923d188
+
+name:           conferer
+version:        0.3.0.0
+synopsis:       Configuration management library
+
+description:    Library to abstract the parsing of many haskell config values from different config sources
+category:       Configuration
+homepage:       https://github.com/ludat/conferer#readme
+author:         Lucas David Traverso
+maintainer:     lucas6246@gmail.com
+copyright:      MIT
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-doc-files:
+    README.md
+    LICENSE
+
+library
+  exposed-modules:
+      Conferer
+      Conferer.Core
+      Conferer.FromConfig.Basics
+      Conferer.Provider.CLIArgs
+      Conferer.Provider.Env
+      Conferer.Provider.Files
+      Conferer.Provider.Mapping
+      Conferer.Provider.Namespaced
+      Conferer.Provider.Null
+      Conferer.Provider.PropertiesFile
+      Conferer.Provider.Simple
+      Conferer.Types
+  other-modules:
+      Paths_conferer
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  build-depends:
+      base >=4.3 && <5
+    , bytestring >=0.10 && <0.11
+    , containers >=0.5 && <0.7
+    , directory >=1.2 && <2.0
+    , text >=1.1 && <1.3
+  default-language: Haskell2010
+
+test-suite specs
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Conferer.FromConfig.BasicsSpec
+      Conferer.GenericsSpec
+      Conferer.Provider.ArgsSpec
+      Conferer.Provider.EnvSpec
+      Conferer.Provider.MappingSpec
+      Conferer.Provider.NamespacedSpec
+      Conferer.Provider.NullSpec
+      Conferer.Provider.PropertiesFileSpec
+      Conferer.Provider.SimpleSpec
+      ConfererSpec
+      Paths_conferer
+  hs-source-dirs:
+      test
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  build-depends:
+      base >=4.3 && <5
+    , bytestring >=0.10 && <0.11
+    , conferer
+    , containers >=0.5 && <0.7
+    , deepseq
+    , directory >=1.2 && <2.0
+    , hspec
+    , text >=1.1 && <1.3
+  default-language: Haskell2010
