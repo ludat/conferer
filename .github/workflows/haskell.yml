@@ -7,16 +7,11 @@ on:
 jobs:
   stack:
     name: stack / ghc ${{ matrix.ghc }} (${{ matrix.snapshot }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-        ghc:
-          - '8.2.2'
-          - '8.4.3' 
-          - '8.6.5'
-          - '8.8.3'
-          - '8.10.1'
+        os: [ubuntu-latest, macOS-latest, windows-latest]
         include:
           - ghc: '8.2.2'
             snapshot: 'lts-11.20'
@@ -27,19 +22,18 @@ jobs:
           - ghc: '8.8.3'
             snapshot: 'lts-15.1'
 
-          - ghc: '8.10.1'
+          - ghc: 'latest'
             snapshot: 'nightly'
-
 
     steps:
     - uses: actions/checkout@v2
-      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'
 
     - uses: actions/setup-haskell@v1.1
       name: Setup Haskell Stack
       with:
         ghc-version: ${{ matrix.ghc }}
         stack-version: latest
+        enable-stack: true
 
     - uses: actions/cache@v1
       name: Cache ~/.stack
@@ -48,10 +42,12 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.snapshot }}-${{ matrix.ghc }}-stack
 
     - name: Build
+      shell: bash
       run: |
         mv -v -f "stack-${{ matrix.snapshot }}.yaml" ./stack.yaml
         stack build --system-ghc --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks
 
     - name: Test
+      shell: bash
       run: |
         stack test --system-ghc --resolver=${{ matrix.snapshot }}
