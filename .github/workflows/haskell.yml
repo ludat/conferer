@@ -49,6 +49,7 @@ jobs:
 
     - name: Build
       run: |
+        mv -v -f "stack-${{ matrix.snapshot }}.yaml" ./stack.yaml
         stack build --system-ghc --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks
 
     - name: Test
