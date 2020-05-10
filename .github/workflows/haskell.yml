@@ -51,10 +51,17 @@ jobs:
         stack-version: latest
         enable-stack: true
 
+    - name: Get the stack root
+      shell: bash
+      run: |
+        if [ -z "$STACK_ROOT" ]; then
+          echo ::set-env name=STACK_ROOT::"$(stack path --stack-root)"
+        fi
+
     - uses: actions/cache@v1
-      name: Cache ~/.stack
+      name: Cache STACK_ROOT
       with:
-        path: ~/.stack
+        path: ${{ env.STACK_ROOT }}
         key: ${{ runner.os }}-${{ matrix.snapshot }}-${{ matrix.ghc }}-stack
 
     - name: Build
