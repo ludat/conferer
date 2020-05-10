@@ -1,0 +1,12 @@
+resolver: lts-9.21
+
+packages:
+  - ./conferer/
+  - ./providers/json/
+  - ./providers/yaml/
+  # - ./providers/dhall/
+
+  - ./fromConfig/warp/
+  - ./fromConfig/hspec/
+  - ./fromConfig/snap/
+  - ./fromConfig/hedis/
