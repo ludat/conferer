@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE CPP #-}
 module Conferer.FromConfig.Hedis
   (
   -- * How to use this
@@ -33,8 +34,12 @@ instance FromConfig Redis.PortID where
   fetchFromConfig = fetchFromConfigWith (\t -> do
       case readMaybe $ unpack t of
         Just n -> return $ Redis.PortNumber n
-        Nothing ->
+        Nothing -> do
+#ifdef mingw32_HOST_OS
+          Nothing
+#else
           return $ Redis.UnixSocket $ unpack t
+#endif
     )
 
 instance DefaultConfig Redis.ConnectInfo where
