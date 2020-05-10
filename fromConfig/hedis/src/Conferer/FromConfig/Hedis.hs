@@ -50,14 +50,19 @@ instance FromConfig Redis.ConnectInfo where
     return Nothing
 
   updateFromConfig key config connectInfo = do
-    redisConfig <- getKey key config
-      >>= \case
+    redisConfig <-
+-- For hedis < 0.10.0 `Redis.parseConnectInfo` doesn't exist so in that case
+-- we simply avoid reading the url directly from key, and instead we directly
+-- act as if it wasn't present
+#if MIN_VERSION_hedis(0,10,0)
+      getKey key config >>= \case
         Just connectionString ->
           case Redis.parseConnectInfo $ unpack connectionString of
             Right con -> return $ con
             Left e ->
                 throwIO $ ConfigParsingError key connectionString (typeRep (Proxy :: Proxy (Redis.ConnectInfo)))
         Nothing ->
+#endif
           pure connectInfo
             >>= findKeyAndApplyConfig config key "host" Redis.connectHost (\v c -> c { Redis.connectHost = v })
             >>= findKeyAndApplyConfig config key "port" Redis.connectPort (\v c -> c { Redis.connectPort = v })
