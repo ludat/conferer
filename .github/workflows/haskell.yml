@@ -8,12 +8,12 @@ on:
 
 jobs:
   stack:
-    name: stack / ghc ${{ matrix.ghc }} (${{ matrix.snapshot }})
-    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} / ${{ matrix.ghc }} / ${{ matrix.snapshot }}
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu, macOS, windows]
         ghc:
           - '8.0.2'
           - '8.2.2'
@@ -21,6 +21,7 @@ jobs:
           - '8.6.5'
           - '8.8.3'
           - 'latest'
+        experimental: [false]
         include:
           - ghc: '8.0.2'
             snapshot: 'lts-9.21'
@@ -35,11 +36,13 @@ jobs:
 
           - ghc: 'latest'
             snapshot: 'nightly'
-
+        exclude:
+          - ghc: '8.0.2'
+            os: macOS
+          - ghc: '8.8.3'
+            os: windows
           - ghc: 'latest'
-            snapshot: 'nightly'
-            os: windows-latest
-            experimental: true
+            os: windows
 
     steps:
     - uses: actions/checkout@v2
@@ -55,7 +58,7 @@ jobs:
       shell: bash
       run: |
         if [ -z "$STACK_ROOT" ]; then
-          echo ::set-env name=STACK_ROOT::"$(stack path --stack-root)"
+          echo ::set-env name=STACK_ROOT::"$HOME/.stack"
         fi
 
     - uses: actions/cache@v1
@@ -68,9 +71,9 @@ jobs:
       shell: bash
       run: |
         mv -v -f "stack-${{ matrix.snapshot }}.yaml" ./stack.yaml
-        stack build --system-ghc --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks
+        stack build --system-ghc -j 1 --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks
 
     - name: Test
       shell: bash
       run: |
-        stack test --system-ghc --resolver=${{ matrix.snapshot }}
+        stack test --system-ghc -j 1 --resolver=${{ matrix.snapshot }}
