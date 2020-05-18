@@ -1,0 +1,46 @@
+name:                conferer-source-json
+version:             0.3.0.0
+synopsis: |
+  conferer's source for reading json files
+description: |
+  Library to abstract the parsing of many haskell config values from different config sources
+homepage:            https://github.com/ludat/conferer#readme
+license:             BSD3
+author:              Lucas David Traverso
+maintainer:          lucas6246@gmail.com
+copyright:           MIT
+category:            Configuration
+license-file:        LICENSE
+
+extra-doc-files:
+  - README.md
+  - LICENSE
+
+dependencies:
+  - base >= 4.3 && < 5
+  - conferer >= 0.3.0.0 && < 0.4.0.0
+  - bytestring >= 0.10 && < 0.11
+  - text >= 1.1 && < 1.3
+  - directory >= 1.2 && < 2.0
+
+  # json
+  - aeson >= 0.10 && < 2.0
+  # These should be constrained by aeson right?
+  - vector
+  - unordered-containers
+
+default-extensions:
+  !include ../../utils/extensions.yaml
+
+library:
+  source-dirs: src
+
+tests:
+  specs:
+    main:                Spec.hs
+    source-dirs:         test
+    dependencies:
+    - conferer-source-json
+    - conferer
+    - hspec
+    - aeson-qq

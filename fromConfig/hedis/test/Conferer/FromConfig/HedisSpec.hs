@@ -9,7 +9,7 @@ import           Conferer.FromConfig.Hedis ()
 import qualified Database.Redis as Redis
 
 configWith :: [(Key, Text)] -> IO Config
-configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
+configWith keyValues = emptyConfig & addSource (mkMapSource keyValues)
 
 portAndHostShouldBe :: Redis.ConnectInfo -> (Redis.PortID, Int) -> Expectation
 portAndHostShouldBe fetchedSettings (port, host) = do

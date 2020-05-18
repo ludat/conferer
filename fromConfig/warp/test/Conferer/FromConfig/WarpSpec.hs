@@ -10,7 +10,7 @@ import           Network.Wai.Handler.Warp
 import           Data.Typeable
 
 configWith :: [(Key, Text)] -> IO Config
-configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
+configWith keyValues = emptyConfig & addSource (mkMapSource keyValues)
 
 fetch :: (FromConfig a, Typeable a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
 fetch = safeGetFromConfig

@@ -13,7 +13,7 @@ import           Data.Typeable
 import           Control.DeepSeq
 
 configWith :: [(Key, Text)] -> IO Config
-configWith keyValues = emptyConfig & addProvider (mkMapProvider keyValues)
+configWith keyValues = emptyConfig & addSource (mkMapSource keyValues)
 
 configParserError_ :: ConfigParsingError -> Bool
 configParserError_ = const True

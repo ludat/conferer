@@ -2,9 +2,9 @@ resolver: lts-14.18
 
 packages:
   - ./conferer/
-  - ./providers/json/
-  - ./providers/yaml/
-  - ./providers/dhall/
+  - ./sources/json/
+  - ./sources/yaml/
+  - ./sources/dhall/
 
   - ./fromConfig/warp/
   - ./fromConfig/hspec/

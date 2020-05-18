@@ -46,7 +46,7 @@ Now I need to chage the port of the app, I can change it by either:
 * Setting an environment variable called `AWESOMEAPP_SERVER_PORT=5555`
 * In a `config/dev.properties` file, you can have `server.port=5555`
 
-And you may also get that value from different configuration providers like
+And you may also get that value from different configuration sources like
 redis, json file, dhall file or whichever you may need.
 
 ## Example 2: many different values with defaults
@@ -110,14 +110,14 @@ files, etc) but using the following flags we can configure:
 * `--hedis.host=redis.example.com`: set hedis' connection host to `redis.example.com`
 
 
-## Existing providers
+## Existing sources
 
-Providers usually incur in many dependencies so they are split into different
+Sources usually incur in many dependencies so they are split into different
 packages
 
-* *[Json](https://hackage.haskell.org/package/conferer-provider-json)* (depends on `aeson`)
-* *[Dhall](https://hackage.haskell.org/package/conferer-provider-dhall)* (depends on `dhall`)
-* *[Yaml](https://hackage.haskell.org/package/conferer-provider-yaml)* (depends on `yaml`) 
+* *[Json](https://hackage.haskell.org/package/conferer-source-json)* (depends on `aeson`)
+* *[Dhall](https://hackage.haskell.org/package/conferer-source-dhall)* (depends on `dhall`)
+* *[Yaml](https://hackage.haskell.org/package/conferer-source-yaml)* (depends on `yaml`) 
 
 ## Existing FromConfig instances
 
@@ -131,17 +131,17 @@ for some library)
 
 ## Utilities
 
-There are as well some utilities to change providers:
+There are as well some utilities to change sources:
 
-* `Conferer.Provider.Namespace`: All keys must be namespaced and the namespace
+* `Conferer.Source.Namespace`: All keys must be namespaced and the namespace
   is striped for lookup
-* `Conferer.Provider.Mapped`: Using a map key to maybe key you can change the
+* `Conferer.Source.Mapped`: Using a map key to maybe key you can change the
   name of a key or even hiding some key
-* `Conferer.Provider.Simple`: Get keys from a hardcoded map key to string
+* `Conferer.Source.Simple`: Get keys from a hardcoded map key to string
 
 ## Future maybe things
 
 * Interpolate keys with other keys: `{a: "db", b: "${a}_thing"}`, getting `b`
   will give `"db_thing"` (maybe) even in different levels of configuration
-* A LOT of providers
+* A LOT of sources
 * A LOT of `FromConfig` implementations

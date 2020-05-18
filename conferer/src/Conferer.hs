@@ -50,23 +50,23 @@ module Conferer
   -- (eg: @warp@) you can get anything that implements 'FromConfig' (like
   -- 'Warp.Settings')
   --
-  -- Internally a 'Config' is made of many 'Provider's which have a simpler
+  -- Internally a 'Config' is made of many 'Source's which have a simpler
   -- interface:
   --
   -- @
-  -- 'getKeyInProvider' :: Provider -> Key -> IO (Maybe Text)
+  -- 'getKeyInSource' :: Source -> Key -> IO (Maybe Text)
   -- @
   --
-  -- Most configuration providers can be abstracted away as Map String String,
+  -- Most configuration sources can be abstracted away as Map String String,
   -- and they can use whatever logic they want to turn conferer keys (a list of
-  -- strings) into a place to look for a string, (for example the env provider
+  -- strings) into a place to look for a string, (for example the env source
   -- requires a string to namespace the env vars that can affect the
   -- configuration)
   --
-  -- Once you have your 'Provider' you can add it to a 'Config' using the
-  -- 'addProvider' function. One final note: each provider has a different
-  -- priority, which depends on when is was added to the config ('Provider's
-  -- added later have lower priority) so the config searches keys in providers
+  -- Once you have your 'Source' you can add it to a 'Config' using the
+  -- 'addSource' function. One final note: each source has a different
+  -- priority, which depends on when is was added to the config ('Source's
+  -- added later have lower priority) so the config searches keys in sources
   -- in the same order they were added.
 
   module Conferer.Types
@@ -75,14 +75,14 @@ module Conferer
   , defaultConfigWithDefaults
   , Key(..)
 
-  -- * Providers
-  , module Conferer.Provider.Env
-  , module Conferer.Provider.Simple
-  , module Conferer.Provider.Namespaced
-  , module Conferer.Provider.Mapping
-  , module Conferer.Provider.CLIArgs
-  , module Conferer.Provider.Null
-  , module Conferer.Provider.PropertiesFile
+  -- * Sources
+  , module Conferer.Source.Env
+  , module Conferer.Source.Simple
+  , module Conferer.Source.Namespaced
+  , module Conferer.Source.Mapping
+  , module Conferer.Source.CLIArgs
+  , module Conferer.Source.Null
+  , module Conferer.Source.PropertiesFile
   -- * Re-Exports
   , (&)
   ) where
@@ -90,15 +90,15 @@ module Conferer
 import           Data.Text (Text)
 import           Data.Function ((&))
 
-import           Conferer.Core (emptyConfig, addProvider, getFromConfig, getFromRootConfig, getFromConfigWithDefault, safeGetFromConfig, safeGetFromConfigWithDefault, getKey, unsafeGetKey, (/.), withDefaults)
-import           Conferer.Types (Config, Key(..), ProviderCreator, Provider(..), DefaultConfig(..), FromConfig(..))
-import           Conferer.Provider.Env
-import           Conferer.Provider.Simple
-import           Conferer.Provider.Namespaced
-import           Conferer.Provider.Mapping
-import           Conferer.Provider.CLIArgs
-import           Conferer.Provider.Null
-import           Conferer.Provider.PropertiesFile
+import           Conferer.Core (emptyConfig, addSource, getFromConfig, getFromRootConfig, getFromConfigWithDefault, safeGetFromConfig, safeGetFromConfigWithDefault, getKey, unsafeGetKey, (/.), withDefaults)
+import           Conferer.Types (Config, Key(..), SourceCreator, Source(..), DefaultConfig(..), FromConfig(..))
+import           Conferer.Source.Env
+import           Conferer.Source.Simple
+import           Conferer.Source.Namespaced
+import           Conferer.Source.Mapping
+import           Conferer.Source.CLIArgs
+import           Conferer.Source.Null
+import           Conferer.Source.PropertiesFile
 
 -- | Default config which reads from command line arguments, env vars and
 -- property files
@@ -111,7 +111,7 @@ defaultConfig appName =
 defaultConfigWithDefaults :: Text -> [(Key, Text)] -> IO Config
 defaultConfigWithDefaults appName configMap =
   pure (emptyConfig & withDefaults configMap)
-  >>= addProvider (mkCLIArgsProvider)
-  >>= addProvider (mkEnvProvider appName)
-  >>= addProvider (mkPropertiesFileProvider)
+  >>= addSource (mkCLIArgsSource)
+  >>= addSource (mkEnvSource appName)
+  >>= addSource (mkPropertiesFileSource)
 

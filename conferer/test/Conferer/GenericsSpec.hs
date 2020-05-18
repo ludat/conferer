@@ -38,14 +38,14 @@ spec = do
       context "when no keys are set" $ do
         it "returns the default" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider [ ])
+                & addSource (mkMapSource [ ])
 
           res <- fetch @Thing "somekey" c
           res `shouldBe` Thing { thingA = 0, thingB = 0 }
       context "when all keys are set" $ do
         it "return the keys set" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider
+                & addSource (mkMapSource
                   [ ("somekey.a", "1")
                   , ("somekey.b", "2")
                   ])
@@ -56,7 +56,7 @@ spec = do
       context "when some keys are set" $ do
         it "uses the default and returns the keys set" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider
+                & addSource (mkMapSource
                   [ ("somekey.b", "2")
                   ])
 
@@ -67,7 +67,7 @@ spec = do
       context "when none of the keys are set" $ do
         it "returns the default of both records" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider
+                & addSource (mkMapSource
                   [ ])
 
           res <- fetch @Bigger "somekey" c
@@ -76,7 +76,7 @@ spec = do
       context "when some keys of the top record are set" $ do
         it "returns the default for the inner record" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider
+                & addSource (mkMapSource
                   [ ("somekey.b", "30")
                   ])
 
@@ -86,7 +86,7 @@ spec = do
       context "when some keys of the inner record are set" $ do
         it "returns the inner record updated" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider
+                & addSource (mkMapSource
                   [ ("somekey.thing.a", "30")
                   ])
 
@@ -96,7 +96,7 @@ spec = do
       context "when every key is set" $ do
         it "returns everything with the right values" $ do
           c <- emptyConfig
-                & addProvider (mkMapProvider
+                & addSource (mkMapSource
                   [ ("somekey.thing.a", "10")
                   , ("somekey.thing.b", "20")
                   , ("somekey.b", "30")

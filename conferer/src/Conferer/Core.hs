@@ -10,22 +10,22 @@ import           Data.Maybe (fromMaybe)
 import           Data.Typeable (Typeable, Proxy(..), typeRep)
 import           Control.Exception (try, throw, throwIO, evaluate)
 
-import           Conferer.Provider.Simple
+import           Conferer.Source.Simple
 import           Conferer.Types
 
 -- | Most Basic function to interact directly with a 'Config'. It always returns
 --   'Text' in the case of success and implements the logic to traverse
---   providers inside the 'Config'.
+--   sources inside the 'Config'.
 getKey :: Key -> Config -> IO (Maybe Text)
 getKey k config =
-  go $ providers config ++ [mkPureMapProvider (defaults config)]
+  go $ sources config ++ [mkPureMapSource (defaults config)]
   where
     go [] = return Nothing
-    go (provider:providers) = do
-      res <- getKeyInProvider provider k
+    go (source:sources) = do
+      res <- getKeyInSource source k
       case res of
         Just t -> return $ Just t
-        Nothing -> go providers
+        Nothing -> go sources
 
 
 -- | Fetch a value from a config under some specific key that's parsed using the 'FromConfig'
@@ -93,20 +93,20 @@ withDefaults :: [(Key, Text)] -> Config -> Config
 withDefaults configMap config =
   config { defaults = Map.fromList configMap }
 
--- | Instantiate a 'ProviderCreator' using the 'emptyConfig'
-mkStandaloneProvider :: ProviderCreator -> IO Provider
-mkStandaloneProvider mkProvider =
-  mkProvider emptyConfig
+-- | Instantiate a 'SourceCreator' using the 'emptyConfig'
+mkStandaloneSource :: SourceCreator -> IO Source
+mkStandaloneSource mkSource =
+  mkSource emptyConfig
 
 
--- | Instantiate a 'Provider' using an 'ProviderCretor' and a 'Config' and add
+-- | Instantiate a 'Source' using an 'SourceCretor' and a 'Config' and add
 --   to the config
-addProvider :: ProviderCreator -> Config -> IO Config
-addProvider mkProvider config = do
-  newProvider <- mkProvider config
+addSource :: SourceCreator -> Config -> IO Config
+addSource mkSource config = do
+  newSource <- mkSource config
   return $
     config
-    { providers = providers config ++ [ newProvider ]
+    { sources = sources config ++ [ newSource ]
     }
 
 -- | Same as 'getKey' but it throws if the 'Key' isn't found

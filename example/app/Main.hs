@@ -10,13 +10,13 @@ import Network.Wai.Handler.Warp (Settings, runSettings, getPort, setPort)
 import GHC.Generics
 
 data AppConfig = AppConfig
-  { appConfigWarp :: Settings
+  { appConfigServer :: Settings
   , appConfigSeed :: Int
   } deriving (Generic)
 instance FromConfig AppConfig
 instance DefaultConfig AppConfig where
   configDef = AppConfig
-    { appConfigWarp = setPort 2222 configDef -- If you want to configure new default for internal libs this is the place
+    { appConfigServer = setPort 2222 configDef -- If you want to configure new default for internal libs this is the place
     , appConfigSeed = 17
     }
 
@@ -25,8 +25,8 @@ main = do
   config <- defaultConfig "awesomeapp"
   appConfig <- getFromRootConfig config
 
-  putStrLn $ "Running on port: " ++ show (getPort $ appConfigWarp appConfig)
-  runSettings (appConfigWarp appConfig) application
+  putStrLn $ "Running on port: " ++ show (getPort $ appConfigServer appConfig)
+  runSettings (appConfigServer appConfig) application
 
 application :: Application
 application _ respond = respond $

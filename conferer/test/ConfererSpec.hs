@@ -14,8 +14,8 @@ spec = do
   describe "with a config with a nested value" $ do
     let mkConfig =
           pure emptyConfig
-          >>= addProvider (mkMapProvider [ ("postgres.url", "some url")])
-          >>= addProvider (mkMapProvider [ ("postgres.url", "different url") , ("server.port", "4000")])
+          >>= addSource (mkMapSource [ ("postgres.url", "some url")])
+          >>= addSource (mkMapSource [ ("postgres.url", "different url") , ("server.port", "4000")])
 
     it "getting a non existent key returns an empty config" $ do
       c <- mkConfig
