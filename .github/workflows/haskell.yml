@@ -1,0 +1,79 @@
+name: CI
+
+# Trigger the workflow on push or pull request, but only for the master branch
+on:
+  push:
+  schedule:
+    - cron: '0 8 * * 3'
+
+jobs:
+  stack:
+    name: ${{ matrix.os }} / ${{ matrix.ghc }} / ${{ matrix.snapshot }}
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macOS, windows]
+        ghc:
+          - '8.0.2'
+          - '8.2.2'
+          - '8.4.3'
+          - '8.6.5'
+          - '8.8.3'
+          - 'latest'
+        experimental: [false]
+        include:
+          - ghc: '8.0.2'
+            snapshot: 'lts-9.21'
+          - ghc: '8.2.2'
+            snapshot: 'lts-11.20'
+          - ghc: '8.4.3'
+            snapshot: 'lts-12.11'
+          - ghc: '8.6.5'
+            snapshot: 'lts-14.18'
+          - ghc: '8.8.3'
+            snapshot: 'lts-15.1'
+
+          - ghc: 'latest'
+            snapshot: 'nightly'
+        exclude:
+          - ghc: '8.0.2'
+            os: macOS
+          - ghc: '8.8.3'
+            os: windows
+          - ghc: 'latest'
+            os: windows
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-haskell@v1.1
+      name: Setup Haskell Stack
+      with:
+        ghc-version: ${{ matrix.ghc }}
+        stack-version: latest
+        enable-stack: true
+
+    - name: Get the stack root
+      shell: bash
+      run: |
+        if [ -z "$STACK_ROOT" ]; then
+          echo ::set-env name=STACK_ROOT::"$HOME/.stack"
+        fi
+
+    - uses: actions/cache@v1
+      name: Cache STACK_ROOT
+      with:
+        path: ${{ env.STACK_ROOT }}
+        key: ${{ runner.os }}-${{ matrix.snapshot }}-${{ matrix.ghc }}-stack
+
+    - name: Build
+      shell: bash
+      run: |
+        mv -v -f "stack-${{ matrix.snapshot }}.yaml" ./stack.yaml
+        stack build --system-ghc -j 1 --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks
+
+    - name: Test
+      shell: bash
+      run: |
+        stack test --system-ghc -j 1 --resolver=${{ matrix.snapshot }}

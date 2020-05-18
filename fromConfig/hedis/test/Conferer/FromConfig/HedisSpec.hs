@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Conferer.FromConfig.HedisSpec where
 
 import           Test.Hspec
@@ -34,6 +35,8 @@ spec = do
       config <- configWith [("hedis.maxConnections", "6")]
       fetchedValue <- getFromConfig "hedis" config
       fetchedValue `portAndHostShouldBe` (defaultPort, 6)
+
+#if MIN_VERSION_hedis(0,10,0)
   describe "fetching a hedis configuration overriding its host" $ do
     it "returns a hedis config with its host set to the overriden one" $ do
       config <- configWith [("hedis", "redis://username:password@host:42")]
@@ -47,3 +50,4 @@ spec = do
         ]
       fetchedValue <- getFromConfig "hedis" config
       fetchedValue `portAndHostShouldBe` (Redis.PortNumber 42, 70)
+#endif

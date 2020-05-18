@@ -1,0 +1,66 @@
+cabal-version: 1.18
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 63c56b427f0ae256161d37f688a0ebde19f1482120b7dd0e120c047a4831cdbd
+
+name:           conferer-provider-json
+version:        0.3.0.0
+synopsis:       conferer's provider for reading json files
+
+description:    Library to abstract the parsing of many haskell config values from different config sources
+category:       Configuration
+homepage:       https://github.com/ludat/conferer#readme
+author:         Lucas David Traverso
+maintainer:     lucas6246@gmail.com
+copyright:      MIT
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-doc-files:
+    README.md
+    LICENSE
+
+library
+  exposed-modules:
+      Conferer.Provider.JSON
+  other-modules:
+      Paths_conferer_provider_json
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  build-depends:
+      aeson >=0.10 && <2.0
+    , base >=4.3 && <5
+    , bytestring >=0.10 && <0.11
+    , conferer >=0.3.0.0 && <0.4.0.0
+    , directory >=1.2 && <2.0
+    , text >=1.1 && <1.3
+    , unordered-containers
+    , vector
+  default-language: Haskell2010
+
+test-suite specs
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Conferer.Provider.JSONSpec
+      Paths_conferer_provider_json
+  hs-source-dirs:
+      test
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  build-depends:
+      aeson >=0.10 && <2.0
+    , aeson-qq
+    , base >=4.3 && <5
+    , bytestring >=0.10 && <0.11
+    , conferer
+    , conferer-provider-json
+    , directory >=1.2 && <2.0
+    , hspec
+    , text >=1.1 && <1.3
+    , unordered-containers
+    , vector
+  default-language: Haskell2010

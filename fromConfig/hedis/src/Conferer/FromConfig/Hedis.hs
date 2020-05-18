@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE CPP #-}
 module Conferer.FromConfig.Hedis
   (
   -- * How to use this
@@ -33,8 +34,12 @@ instance FromConfig Redis.PortID where
   fetchFromConfig = fetchFromConfigWith (\t -> do
       case readMaybe $ unpack t of
         Just n -> return $ Redis.PortNumber n
-        Nothing ->
+        Nothing -> do
+#ifdef mingw32_HOST_OS
+          Nothing
+#else
           return $ Redis.UnixSocket $ unpack t
+#endif
     )
 
 instance DefaultConfig Redis.ConnectInfo where
@@ -45,14 +50,19 @@ instance FromConfig Redis.ConnectInfo where
     return Nothing
 
   updateFromConfig key config connectInfo = do
-    redisConfig <- getKey key config
-      >>= \case
+    redisConfig <-
+-- For hedis < 0.10.0 `Redis.parseConnectInfo` doesn't exist so in that case
+-- we simply avoid reading the url directly from key, and instead we directly
+-- act as if it wasn't present
+#if MIN_VERSION_hedis(0,10,0)
+      getKey key config >>= \case
         Just connectionString ->
           case Redis.parseConnectInfo $ unpack connectionString of
             Right con -> return $ con
             Left e ->
                 throwIO $ ConfigParsingError key connectionString (typeRep (Proxy :: Proxy (Redis.ConnectInfo)))
         Nothing ->
+#endif
           pure connectInfo
             >>= findKeyAndApplyConfig config key "host" Redis.connectHost (\v c -> c { Redis.connectHost = v })
             >>= findKeyAndApplyConfig config key "port" Redis.connectPort (\v c -> c { Redis.connectPort = v })
