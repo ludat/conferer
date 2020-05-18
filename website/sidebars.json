@@ -1,0 +1,22 @@
+{
+  "docs": {
+    "Quickstart": ["getting-started"],
+    "Tutorial": ["tutorial", "tutorial-advanced"],
+    "Core concepts": [
+      "core-concepts",
+      "sources",
+      "from-config"
+    ],
+    "Sources": [
+      "sources/json",
+      "sources/dhall",
+      "sources/yaml"
+    ],
+    "FromConfig": [
+      "fromConfig/warp",
+      "fromConfig/snap",
+      "fromConfig/hspec",
+      "fromConfig/hedis"
+    ]
+  }
+}
