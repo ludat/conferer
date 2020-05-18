@@ -1,1 +1,13 @@
-stack-lts-14.18.yaml
+resolver: lts-14.18
+
+packages:
+  - ./conferer/
+  # - ./example/
+  - ./sources/json/
+  - ./sources/yaml/
+  - ./sources/dhall/
+
+  - ./fromConfig/warp/
+  - ./fromConfig/hspec/
+  - ./fromConfig/snap/
+  - ./fromConfig/hedis/

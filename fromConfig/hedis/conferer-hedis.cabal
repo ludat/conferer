@@ -1,13 +1,13 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 38ac739d423c0e28c7b8dd4d614f1092cbebb6371eef9f2dd9fa21f0c5c618a1
+-- hash: 6345ad1aaee5cd66b5e03045b64616ce78b7acacf039832f7468a96125a7d17e
 
 name:           conferer-hedis
-version:        0.3.0.0
+version:        0.4.0.0
 synopsis:       conferer's FromConfig instances for hedis settings
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
@@ -33,7 +33,7 @@ library
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
   build-depends:
       base >=4.3 && <5
-    , conferer >=0.3.0.0 && <0.5.0.0
+    , conferer >=0.4.0.0 && <0.5.0.0
     , hedis >=0.7.0 && <1.0.0
     , text >=1.1 && <1.3
   default-language: Haskell2010
@@ -49,7 +49,7 @@ test-suite specs
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
   build-depends:
       base >=4.3 && <5
-    , conferer >=0.3.0.0 && <0.5.0.0
+    , conferer >=0.4.0.0 && <0.5.0.0
     , conferer-hedis
     , hedis >=0.7.0 && <1.0.0
     , hspec

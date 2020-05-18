@@ -4,10 +4,10 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6676028fc40759012491d6ca043ae198f8b8bb3304494cdfcbfbb7011b8aca05
+-- hash: f448ffe1cc4edd2cd055d74961ad8df372bce5129dbc5063cc1c75b7e7011c2b
 
 name:           conferer-source-yaml
-version:        0.3.0.0
+version:        0.4.0.0
 synopsis:       Configuration for reading yaml files
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
@@ -33,8 +33,8 @@ library
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
   build-depends:
       base >=4.3 && <5
-    , conferer >=0.3.0.0 && <0.4.0.0
-    , conferer-source-json >=0.3.0.0 && <0.4.0.0
+    , conferer >=0.4.0.0 && <0.5.0.0
+    , conferer-source-json >=0.4.0.0 && <0.5.0.0
     , yaml >=0.8 && <1.0
   default-language: Haskell2010
 
@@ -48,8 +48,8 @@ test-suite specs
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
   build-depends:
       base >=4.3 && <5
-    , conferer >=0.3.0.0 && <0.4.0.0
-    , conferer-source-json >=0.3.0.0 && <0.4.0.0
+    , conferer >=0.4.0.0 && <0.5.0.0
+    , conferer-source-json >=0.4.0.0 && <0.5.0.0
     , conferer-source-yaml
     , hspec
     , yaml >=0.8 && <1.0
