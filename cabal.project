@@ -3,6 +3,6 @@ packages: ./conferer/
           ./fromConfig/hspec
           ./fromConfig/snap
           ./fromConfig/warp
-          ./providers/dhall
-          ./providers/json
-          ./providers/yaml
+          ./sources/dhall
+          ./sources/json
+          ./sources/yaml
