@@ -17,7 +17,7 @@ So those are a lot of words, lets put examples in there:
 
 * **Key**: This a hierarchical String list, which is represented as a dot separated value (e.g.
 `"server.port"`). They are used by **Sources** and implement `IsString` so they look like `String`s
-* **Sources**: This object could be abstracted as a `[String] -> Maybe String`. Its job is to get
+* **Sources**: This object could be abstracted as a `Key -> Maybe String`. Its job is to get
 values from any source that and make it match the key to string interface.
 * **Config**: This is very similar to **Source** , but with a couple added things like defaults and
 its usually made of many **Sources**. It's the object that the user will interact with directly.
@@ -27,5 +27,5 @@ them into some useful Haskell value (e.g. warp's `Settings`)
 that we get if we don't define anything, and what gets partially updated if the config is not
 complete
 
-More documentation on [fromConfig](/docs/fromConfig) and [sources](/docs/sources)
+More documentation on [fromConfig](/docs/from-config) and [sources](/docs/sources)
 

@@ -1,7 +1,7 @@
 {
   "docs": {
     "Quickstart": ["getting-started"],
-    "Tutorial": ["tutorial", "tutorial-advanced"],
+    "Tutorial": ["quick-tutorial", "multiple-tutorial"],
     "Core concepts": [
       "core-concepts",
       "sources",

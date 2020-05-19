@@ -1,6 +1,6 @@
 ---
-id: tutorial-advanced
-title: Advanced Tutorial
+id: multiple-tutorial
+title: Multiple configs and generics
 ---
 
 ## Multiple different configuration

@@ -1,6 +1,6 @@
 ---
-id: tutorial
-title: Tutorial
+id: quick-tutorial
+title: Quick tutorial
 ---
 
 ## Simple configuration
