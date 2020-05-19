@@ -3,12 +3,29 @@ id: core-concepts
 title: Core concepts
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In ac euismod odio, eu consequat dui. Nullam molestie consectetur risus id imperdiet. Proin sodales ornare turpis, non mollis massa ultricies id. Nam at nibh scelerisque, feugiat ante non, dapibus tortor. Vivamus volutpat diam quis tellus elementum bibendum. Praesent semper gravida velit quis aliquam. Etiam in cursus neque. Nam lectus ligula, malesuada et mauris a, bibendum faucibus mi. Phasellus ut interdum felis. Phasellus in odio pulvinar, porttitor urna eget, fringilla lectus. Aliquam sollicitudin est eros. Mauris consectetur quam vitae mauris interdum hendrerit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+## The great divide
 
-Duis et egestas libero, imperdiet faucibus ipsum. Sed posuere eget urna vel feugiat. Vivamus a arcu sagittis, fermentum urna dapibus, congue lectus. Fusce vulputate porttitor nisl, ac cursus elit volutpat vitae. Nullam vitae ipsum egestas, convallis quam non, porta nibh. Morbi gravida erat nec neque bibendum, eu pellentesque velit posuere. Fusce aliquam erat eu massa eleifend tristique.
+There are two important parts of this library, sources (which define the way you get configuration
+values) and fromConfig (that define how to interpret configuration values to create some settings
+object for certain library).
 
-Sed consequat sollicitudin ipsum eget tempus. Integer a aliquet velit. In justo nibh, pellentesque non suscipit eget, gravida vel lacus. Donec odio ante, malesuada in massa quis, pharetra tristique ligula. Donec eros est, tristique eget finibus quis, semper non nisl. Vivamus et elit nec enim ornare placerat. Sed posuere odio a elit cursus sagittis.
+Now the crucial part is what divides them: a map from keys to strings, here a key could be
+`"key.sub"`, and its value `"value"`. Keys may be defined at any level so having both
+`"key"` and `"key.sub"` at the same time, it's up to the fromConfig to interpret.
 
-Phasellus feugiat purus eu tortor ultrices finibus. Ut libero nibh, lobortis et libero nec, dapibus posuere eros. Sed sagittis euismod justo at consectetur. Nulla finibus libero placerat, cursus sapien at, eleifend ligula. Vivamus elit nisl, hendrerit ac nibh eu, ultrices tempus dui. Nam tellus neque, commodo non rhoncus eu, gravida in risus. Nullam id iaculis tortor.
+So those are a lot of words, lets put examples in there:
 
-Nullam at odio in sem varius tempor sit amet vel lorem. Etiam eu hendrerit nisl. Fusce nibh mauris, vulputate sit amet ex vitae, congue rhoncus nisl. Sed eget tellus purus. Nullam tempus commodo erat ut tristique. Cras accumsan massa sit amet justo consequat eleifend. Integer scelerisque vitae tellus id consectetur.
+* **Key**: This a hierarchical String list, which is represented as a dot separated value (e.g.
+`"server.port"`). They are used by **Sources** and implement `IsString` so they look like `String`s
+* **Sources**: This object could be abstracted as a `[String] -> Maybe String`. Its job is to get
+values from any source that and make it match the key to string interface.
+* **Config**: This is very similar to **Source** , but with a couple added things like defaults and
+its usually made of many **Sources**. It's the object that the user will interact with directly.
+* **FromConfig**: This is a typeclass that gives semantic to the Strings from **Sources** and turns
+them into some useful Haskell value (e.g. warp's `Settings`)
+* **DefaultConfig**: A program should work without configuration so this typeclass defines the value
+that we get if we don't define anything, and what gets partially updated if the config is not
+complete
+
+More documentation on [fromConfig](/docs/fromConfig) and [sources](/docs/sources)
+
