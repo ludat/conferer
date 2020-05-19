@@ -8,6 +8,8 @@
       "from-config"
     ],
     "Sources": [
+      "sources/basics",
+      "sources/utils",
       "sources/json",
       "sources/dhall",
       "sources/yaml"
