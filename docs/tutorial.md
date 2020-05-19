@@ -27,9 +27,8 @@ which provides some basic functions and typeclasses. To import conferer
 import Conferer
 ```
 
-Conferer is not coupled with any concrete library so we need to import 
-[conferer-warp](https://hackage.haskell.org/package/conferer-warp) which tells conferer how to
-deserialize warp's config 
+We also need to import [conferer-warp](https://hackage.haskell.org/package/conferer-warp)
+which tells conferer how to create warp's `Settings`.
 
 ```haskell
 import Conferer.FromConfig.Warp ()
@@ -75,9 +74,7 @@ external configurations but is more convenient)
 ```haskell
 main = do
   config <- defaultConfig "awesomeapp"
-  warpConfig :: Warp.Settings <- getFromConfig "server" config
-
-  -- Afterwards we use the Settings as usual
+  warpConfig <- getFromConfig "server" config
   Warp.runSettings warpConfig myApp
 ```
 
@@ -95,3 +92,7 @@ Now if I want to change the port of the app, I can change it by either:
 * Setting cli params like `./myApp --server.port=5555`
 * Setting an environment variable called `AWESOMEAPP_SERVER_PORT=5555`
 * In a `config/development.properties` file, you can have `server.port=5555`
+
+But also we get many configurations that we usually can not touch like `server.serverName` (`Server` header
+that warp reports), `server.timeout` (maximum time in seconds for inactive clients), and 15 other warp
+configurations. If you want to know the options for a package you can take a look at [its docs](/docs/fromConfig/warp)
