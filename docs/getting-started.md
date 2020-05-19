@@ -15,7 +15,7 @@ or error handling?
 ## One solution: Conferer
 
 Conferer is a library that defines ways of getting configuration for your
-Haskell application and the libraries it uses in a very ergonomical way.
+Haskell application and the libraries it uses in a very ergonomic way.
 
 ## Features
 
