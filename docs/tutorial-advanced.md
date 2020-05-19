@@ -39,7 +39,7 @@ For this example we know what we want to configure so let's create a record to h
 data AppConfig = AppConfig
   { appConfigWarp :: Warp.Settings
   , appConfigRedis :: Hedis.ConnectionInfo
-  , appConfigSeed :: Text
+  , appConfigSecret :: Text
   } deriving (Show)
 ```
 
@@ -156,7 +156,7 @@ import Conferer.FromConfig.Hedis ()
 data AppConfig = AppConfig
   { appConfigWarp :: Warp.Settings
   , appConfigRedis :: Hedis.ConnectionInfo
-  , appConfigSeed :: Text
+  , appConfigSecret :: Text
   } deriving (Show, Generic)
 
 instance FromConfig AppConfig
