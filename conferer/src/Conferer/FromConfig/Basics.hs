@@ -30,6 +30,15 @@ updateAllAtOnceUsingFetch key config old = do
       Nothing -> do
         evaluate old
 
+instance FromConfig () where
+  updateFromConfig key config _ = do
+    return ()
+  fetchFromConfig key config = do
+    return $ Just ()
+
+instance DefaultConfig () where
+  configDef = ()
+
 instance FromConfig Int where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigByRead

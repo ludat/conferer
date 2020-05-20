@@ -4,10 +4,10 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 27fd2a5bad0744bb410d47e23efe3ef9a76a0bb35bd073e397f8f5f6c5c9a796
+-- hash: e552d9d4fb2015426d2449faa43210effb8b691535d57dcfd6e027c4c4a8208b
 
 name:           conferer
-version:        0.4.0.0
+version:        0.4.1.0
 synopsis:       Configuration management library
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
