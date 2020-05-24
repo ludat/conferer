@@ -46,7 +46,7 @@ const siteConfig = {
   ],
 
   // If you have users set above, you add it here:
-  users,
+  // users,
 
   /* path to images for header/footer */
   headerIcon: 'img/favicon.ico',
@@ -95,17 +95,24 @@ const siteConfig = {
 
   // For sites with a sizable amount of content, set collapsible to true.
   // Expand/collapse the links and subcategories under categories.
-  // docsSideNavCollapsible: true,
+  docsSideNavCollapsible: true,
 
   // Show documentation's last contributor's name.
-  // enableUpdateBy: true,
+  enableUpdateBy: true,
 
   // Show documentation's last update time.
-  // enableUpdateTime: true,
+  enableUpdateTime: true,
 
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
-  //   repoUrl: 'https://github.com/facebook/test-site',
+  repoUrl: 'https://github.com/ludat/conferer',
+
+  // Twitter stuff
+  twitter: true,
+  twitterUsername: 'ludat_',
+
+  // Url for users to edit file in the conferer repo that create the website
+  editUrl: 'https://github.com/ludat/conferer/edit/master/docs/',
 };
 
 module.exports = siteConfig;

@@ -64,9 +64,8 @@ class HomeSplash extends React.Component {
         <div className="inner">
           <ProjectTitle tagline={siteConfig.tagline} title={siteConfig.title} />
           <PromoSection>
-            <Button href="#try">Try It Out</Button>
-            <Button href={docUrl('doc1.html')}>Example Link</Button>
-            <Button href={docUrl('doc2.html')}>Example Link 2</Button>
+            <Button href={docUrl('quick-tutorial')}>Quick Tutorial</Button>
+            <Button href={docUrl('getting-started')}>Docs</Button>
           </PromoSection>
         </div>
       </SplashContainer>
@@ -96,8 +95,12 @@ class Index extends React.Component {
       <div
         className="productShowcaseSection paddingBottom"
         style={{textAlign: 'center'}}>
-        <h2>Feature Callout</h2>
-        <MarkdownBlock>These are features of this project</MarkdownBlock>
+        <h2>Good defaults without compromising extensibility</h2>
+        <MarkdownBlock>
+          By default, the library is usable without writing too much code but many point of
+          extension are set in place to ease the adding of new configuration values and
+          sources.
+        </MarkdownBlock>
       </div>
     );
 
@@ -149,16 +152,16 @@ class Index extends React.Component {
       <Block layout="fourColumn">
         {[
           {
-            content: 'This is the content of my feature',
-            image: `${baseUrl}img/undraw_react.svg`,
+            title: 'Simple and Lightweight',
+            content: `Simple and easy to follow interfaces to ease extending and reduce the mainteinance costs.`,
+            /* image: `${baseUrl}img/undraw_react.svg`, */
             imageAlign: 'top',
-            title: 'Feature One',
           },
           {
-            content: 'The content of my second feature',
-            image: `${baseUrl}img/undraw_operating_system.svg`,
+            title: 'Low Boilerplate',
+            content: `We get a lot for free without having to write more code than the strictly necessary`,
+            /* image: `${baseUrl}img/undraw_operating_system.svg`, */
             imageAlign: 'top',
-            title: 'Feature Two',
           },
         ]}
       </Block>
@@ -199,10 +202,10 @@ class Index extends React.Component {
         <div className="mainContainer">
           <Features />
           <FeatureCallout />
-          <LearnHow />
-          <TryOut />
-          <Description />
-          <Showcase />
+          {/* <LearnHow /> */}
+          {/* <TryOut /> */}
+          {/* <Description /> */}
+          {/* <Showcase /> */}
         </div>
       </div>
     );
