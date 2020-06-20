@@ -4,19 +4,18 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e552d9d4fb2015426d2449faa43210effb8b691535d57dcfd6e027c4c4a8208b
+-- hash: 41b921ef11b0981ed712b7e72a531f123613815eb7b3ebe4f9e0778a998118c6
 
 name:           conferer
-version:        0.4.1.0
+version:        0.4.1.1
 synopsis:       Configuration management library
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
 category:       Configuration
-homepage:       https://github.com/ludat/conferer#readme
+homepage:       https://conferer.ludat.io
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
-copyright:      MIT
-license:        BSD3
+license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
 extra-doc-files:

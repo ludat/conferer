@@ -11,133 +11,64 @@
     </a>
 </p>
 
-## The problem
+Most user oriented information you can find in the website: [conferer.ludat.io](https://conferer.ludat.io/)
 
-Have you ever tried configuring a Haskell application? If you are not the author
-you are usually out of luck and the only way to configure it is recompiling, and
-even if you are the author you have to write that logic yourself (reading env vars,
-files or cli params), what about partial updates? and environments? or error handling?
+## Testing and CI
 
-## One solution: Conferer
+We have about 50 tests, mostly for the conferer package since it's the one with most of the logic
+both sources and FromConfig packages also have some tests but they are not tested as throughtly.
 
-Conferer is a library that defines ways of getting configuration for your
-Haskell application and the libraries it uses in a very ergonomical way.
+To run them do:
 
-## Example: one Settings
-
-Let's say I want to configure a warp server, then we'd do:
-
-```haskell
-main = do
-  -- First we create a Config, which defines which sources our config will be
-  -- reading, by default cli params, env vars and .properties files
-  config <- defaultConfig "awesomeapp"
-  -- Then we use getFromConfig with some arbitrary key (to scope the server
-  -- config) and we use our Config to generate a Warp Settings
-  warpConfig :: Warp.Settings <- getFromConfig "server" config
-
-  -- Afterwards we use the Settings as usual
-  Warp.runSettings warpConfig myApp
+```shell
+stack test # for everything
+stack test conferer # to run only core library tests
+stack test conferer-source-json # to run json source tests
+stack test conferer-warp # to run warp fromConfig tests
 ```
 
-Now I need to chage the port of the app, I can change it by either:
+Our ci is pretty intense as well we test with the last 5 versions of ghc (oldest being 8.0.2)
+and with the nightly provided by stack and on every platform (windows, linux and macOS).
 
-* Setting cli params like `./myApp --server.port=5555`
-* Setting an environment variable called `AWESOMEAPP_SERVER_PORT=5555`
-* In a `config/dev.properties` file, you can have `server.port=5555`
+So I'm pretty confident that if someone introduces a platform dependent bug we'll catch it.
 
-And you may also get that value from different configuration sources like
-redis, json file, dhall file or whichever you may need.
+## Licensing
 
-## Example 2: many different values with defaults
+This library is released under the Mozilla Public License 2.0 which is a weak copyleft license.
 
-Let's say I want to configure a warp server and a redis db (using hedis), To
-do that we'd do:
+As usual you can use this library for anything you want, the only difference is that **if you modify
+the source and distribute** you must publish your modifications.
 
-```haskell
+You can use it for privative software, GPL'd code, in house development and distribute
+it as much as you like.
 
--- First we create our configuration record which holds all the configurations
--- our app needs
-data AppConfig = AppConfig
-  { appConfigWarp :: Settings
-  -- ^- From Warp
-  , appConfigHedis :: ConnectionInfo
-  -- ^- From Hedis
-  , appConfigSecret :: Text
-  -- ^- Some custom value we need
-  } deriving (Generic)
-  -- ^- We need to derive Generic to derive FromConfig
+## Contributing
 
--- This typeclass defines how to create our type from a bunch of string based
--- key/values, (which our Config is), for records we can derive it using
--- Generics
-instance FromConfig AppConfig
+It's pretty simple, if you want to add a feature that already has a ticket just go ahead and create a PR
+referencing the ticket.
 
--- Now we need a default value for our app, all apps should be able to work
--- at least somewhat stupidly even if the user doens't supply configurations
--- at all
-instance DefaultConfig AppConfig where
-  configDef = AppConfig
-    { appConfigWarp = setPort 2222 configDef
-    -- ^- We want the default Warp config but the port should be 2222
-    --    if the config doesn't mention it
-    , appConfigHedis = configDef
-    -- ^- defaults for hedis are ok
-    , appConfigSecret = "very secret... shhh"
-    -- ^- we decide some random default, notice that Text has no default
-    --    so using configDef here won't compile
-    }
+If you want to add a new feature that doesn't have a ticket then you can add a ticket first to validate
+that the feature makes sense and then create a PR (you can create the PR without the ticket if you feel
+like it).
 
+## The website
 
-main = do
-  -- Like last time we create the config
-  config <- defaultConfig "awesomeapp"
-  -- Then we use getFromRootConfig without a key since Generics on AppConfig
-  -- already scoped everything inside itself and we use our Config to
-  -- generate an AppConfig
-  warpConfig :: AppConfig <- getFromRootConfig config
+The website is based on [docusaurus](https://docusaurus.io/) so it's mostly generated from the
+markdown stored in the [/docs](/docs) directory and built and deployed using
+[netlify](https://www.netlify.com/).
 
-  -- Afterwards we use the Settings as usual
-  Warp.runSettings warpConfig myApp
+## Publishing new versions
+
+Publishing a new version is done using stack and parallel, beware that packages in the
+examples directory shouldn't be published.
+
+But sadly versions need to be bumped by hand following PVP.
+
+So to actually publish a new version of packages:
+
+```shell
+find -name '*.cabal' | grep -v example | parallel --tty stack upload {//}
 ```
-
-Now to configure our app we can use the same sources as before (env vars, cli,
-files, etc) but using the following flags we can configure:
-
-* `--warp.port=5555`: set warp's server port to 5555
-* `--secret=real_secrets`: set our custom secret to `"real_secrets"`
-* `--hedis=redis://username:password@host:42/2`: set hedis' connection to that
-* `--hedis.host=redis.example.com`: set hedis' connection host to `redis.example.com`
-
-
-## Existing sources
-
-Sources usually incur in many dependencies so they are split into different
-packages
-
-* *[Json](https://hackage.haskell.org/package/conferer-source-json)* (depends on `aeson`)
-* *[Dhall](https://hackage.haskell.org/package/conferer-source-dhall)* (depends on `dhall`)
-* *[Yaml](https://hackage.haskell.org/package/conferer-source-yaml)* (depends on `yaml`)
-
-## Existing FromConfig instances
-
-Default instances for fetching a values from a config (usually a config value
-for some library)
-
-* *[snap-server](https://hackage.haskell.org/package/conferer-snap)*
-* *[warp](https://hackage.haskell.org/package/conferer-warp)*
-* *[hedis](https://hackage.haskell.org/package/conferer-hedis)*
-* *[hspec](https://hackage.haskell.org/package/conferer-hspec)*
-
-## Utilities
-
-There are as well some utilities to change sources:
-
-* `Conferer.Source.Namespace`: All keys must be namespaced and the namespace
-  is striped for lookup
-* `Conferer.Source.Mapped`: Using a map key to maybe key you can change the
-  name of a key or even hiding some key
-* `Conferer.Source.Simple`: Get keys from a hardcoded map key to string
 
 ## Future maybe things
 

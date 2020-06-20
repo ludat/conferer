@@ -1,16 +1,15 @@
-name:                conferer-source-json
-version:             0.4.0.0
+name: conferer-source-json
+version: 0.4.0.1
 synopsis: |
   conferer's source for reading json files
 description: |
   Library to abstract the parsing of many haskell config values from different config sources
-homepage:            https://github.com/ludat/conferer#readme
-license:             BSD3
-author:              Lucas David Traverso
-maintainer:          lucas6246@gmail.com
-copyright:           MIT
-category:            Configuration
-license-file:        LICENSE
+homepage: https://conferer.ludat.io
+author: Lucas David Traverso
+maintainer: lucas6246@gmail.com
+category: Configuration
+license: MPL-2.0
+license-file: LICENSE
 
 extra-doc-files:
   - README.md

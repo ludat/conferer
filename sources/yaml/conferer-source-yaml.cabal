@@ -4,19 +4,18 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f448ffe1cc4edd2cd055d74961ad8df372bce5129dbc5063cc1c75b7e7011c2b
+-- hash: cca05798b14f8aa605d1ea292ec276122cd1ece88b98151b4a1503af93be16bc
 
 name:           conferer-source-yaml
-version:        0.4.0.0
+version:        0.4.0.1
 synopsis:       Configuration for reading yaml files
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
 category:       Configuration
-homepage:       https://github.com/ludat/conferer#readme
+homepage:       https://conferer.ludat.io
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
-copyright:      MIT
-license:        BSD3
+license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
 extra-doc-files:

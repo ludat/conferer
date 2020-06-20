@@ -4,19 +4,18 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3a6324af0c2118691220e9cad23738fef03d28cb54a17e8994ff6d7149129731
+-- hash: 35fb8233c757161388ba8922f5b107597ec3dd8049d2da2ea74df632388c82f1
 
 name:           conferer-source-dhall
-version:        0.4.0.0
+version:        0.4.0.1
 synopsis:       Configuration for reading dhall files
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
 category:       Configuration
-homepage:       https://github.com/ludat/conferer#readme
+homepage:       https://conferer.ludat.io
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
-copyright:      MIT
-license:        BSD3
+license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
 extra-doc-files:

@@ -1,12 +1,7 @@
-name:                example
-version:             0.2.0.0
-github:              "githubuser/example"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2019 Author name here"
-
-description:         Please see the README on GitHub at <https://github.com/githubuser/example#readme>
+name: example
+description: This is an example
+author: Lucas David Traverso
+maintainer: lucas6246@gmail.com
 
 dependencies:
 - base >= 4.7 && < 5
