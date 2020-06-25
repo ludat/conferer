@@ -1,8 +1,7 @@
-resolver: lts-14.18
+resolver: none
 
 packages:
   - ./conferer/
-  - ./example/
   - ./sources/json/
   - ./sources/yaml/
   - ./sources/dhall/
