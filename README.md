@@ -1,15 +1,9 @@
-<h1 align="center">Conferer</h1>
-<p align="center">
-    <a href="https://img.shields.io/travis/ludat/conferer" alt="Travis CI">
-        <img src="https://img.shields.io/travis/ludat/conferer" />
-    </a>
-    <a href="https://img.shields.io/hackage/v/conferer" alt="Hackage version">
-        <img src="https://img.shields.io/hackage/v/conferer" />
-    </a>
-    <a href="https://img.shields.io/hackage-deps/v/conferer" alt="Hackage deps">
-        <img src="https://img.shields.io/hackage-deps/v/conferer" />
-    </a>
-</p>
+# Conferer
+
+![Hackage](https://img.shields.io/hackage/v/conferer)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ludat/conferer/CI)
+![Hackage-Deps](https://img.shields.io/hackage-deps/v/conferer)
+![License](https://img.shields.io/github/license/ludat/conferer)
 
 Most user oriented information you can find in the website: [conferer.ludat.io](https://conferer.ludat.io/)
 
