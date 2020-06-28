@@ -48,6 +48,7 @@ jobs:
     - name: Setup stack.yaml
       shell: bash
       run: |
+        mv -vf "stack-ci.yaml" ./stack.yaml || true
         mv -vf "stack-${{ matrix.snapshot }}.yaml" ./stack.yaml || true
         mv -vf "stack-${{ matrix.snapshot }}-${{ matrix.os }}.yaml" ./stack.yaml || true
 
