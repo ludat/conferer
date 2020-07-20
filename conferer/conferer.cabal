@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 41b921ef11b0981ed712b7e72a531f123613815eb7b3ebe4f9e0778a998118c6
+-- hash: 6b8dfe09d10fe0221b4d4e7e1fc95f6975b9ddeae9f1af869759d8962f064a45
 
 name:           conferer
 version:        0.4.1.1
@@ -20,6 +20,7 @@ license-file:   LICENSE
 build-type:     Simple
 extra-doc-files:
     README.md
+    CHANGELOG.md
     LICENSE
 
 library
@@ -51,7 +52,7 @@ library
 
 test-suite specs
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: ConfererSpecMain.hs
   other-modules:
       Conferer.FromConfig.BasicsSpec
       Conferer.GenericsSpec
@@ -63,10 +64,12 @@ test-suite specs
       Conferer.Source.PropertiesFileSpec
       Conferer.Source.SimpleSpec
       ConfererSpec
+      Spec
       Paths_conferer
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  ghc-options: -main-is ConfererSpecMain
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11

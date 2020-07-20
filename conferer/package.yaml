@@ -13,6 +13,7 @@ license-file: LICENSE
 
 extra-doc-files:
   - README.md
+  - CHANGELOG.md
   - LICENSE
 
 dependencies:
@@ -30,7 +31,7 @@ library:
 
 tests:
   specs:
-    main: Spec.hs
+    main: ConfererSpecMain
     source-dirs: test
     dependencies:
       - conferer
