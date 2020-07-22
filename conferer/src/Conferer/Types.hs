@@ -116,3 +116,19 @@ instance Show FailedToFetchError where
     ]
 
 instance Exception FailedToFetchError
+
+data MissingRequiredKey =
+  MissingRequiredKey Key TypeRep
+  deriving (Typeable, Eq)
+
+instance Show MissingRequiredKey where
+  show (MissingRequiredKey key typeRep) =
+    concat
+    [ "Couldn't get a required "
+    , show typeRep
+    , " from key '"
+    , Text.unpack (keyName key)
+    , "'"
+    ]
+
+instance Exception MissingRequiredKey

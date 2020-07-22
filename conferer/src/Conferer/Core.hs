@@ -2,16 +2,15 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Conferer.Core where
 
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import           Data.Map (Map)
-import qualified Data.Map as Map
-import           Data.Maybe (fromMaybe)
-import           Data.Typeable (Typeable, Proxy(..), typeRep)
-import           Control.Exception (try, throw, throwIO, evaluate)
-
 import           Conferer.Source.Simple
 import           Conferer.Types
+import           Control.Exception (mapException, try, throw, throwIO, evaluate)
+import qualified Data.Map as Map
+import           Data.Map (Map)
+import           Data.Maybe (fromMaybe)
+import qualified Data.Text as Text
+import           Data.Text (Text)
+import           Data.Typeable (Typeable, Proxy(..), typeRep)
 
 -- | Most Basic function to interact directly with a 'Config'. It always returns
 --   'Text' in the case of success and implements the logic to traverse
@@ -75,10 +74,19 @@ safeGetFromConfigWithDefault key config configDefault = do
     Just value -> do
       Just <$> evaluate value
     Nothing -> do
-      result :: Either FailedToFetchError a <- try . (evaluate =<<) . updateFromConfig key config $ configDefault
+      result :: Either FailedToFetchError a <-
+        try . (evaluate   =<<) . updateFromConfig key config $
+          mapException (\(MissingRequiredKey _ typ) -> MissingRequiredKey key typ) configDefault
       case result of
-        Right a -> Just <$> evaluate a
-        Left e -> return Nothing
+        Right a -> do
+          Just <$> evaluate a
+        Left e -> do
+          return Nothing
+
+-- | Use for placeholder for required values in default config values.
+requiredValue :: forall a. (Typeable a) => a
+requiredValue =
+  throw $ MissingRequiredKey "" (typeRep (Proxy :: Proxy a))
 
 -- | Create a new 'Key' by concatenating two existing keys.
 (/.) :: Key -> Key -> Key
