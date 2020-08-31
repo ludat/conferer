@@ -1,3 +1,0 @@
-SKIP
-# There is a bug in ghc 8.8.3 in windows D: https://gitlab.haskell.org/ghc/ghc/-/issues/17926
-# Looks like it will be fixed in 8.8.4 https://gitlab.haskell.org/ghc/ghc/-/issues/18366
