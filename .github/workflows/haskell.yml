@@ -63,5 +63,5 @@ jobs:
         echo stack_root: $STACK_ROOT
         stack --version
         stack --resolver=${{ matrix.snapshot }} ghc -- --version
-        stack build -j 1 --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks
+        while ! stack build -j 1 --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks; do echo RETRY; done
         stack test -j 1 --resolver=${{ matrix.snapshot }}
