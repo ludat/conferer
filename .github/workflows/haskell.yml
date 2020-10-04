@@ -55,6 +55,7 @@ jobs:
     - name: Build and test
       shell: bash
       run: |
+        grep . stack.yaml
         if grep SKIP stack.yaml; then
           echo Skipped because that snapshot is broken
           exit 0
@@ -63,5 +64,13 @@ jobs:
         echo stack_root: $STACK_ROOT
         stack --version
         stack --resolver=${{ matrix.snapshot }} ghc -- --version
-        while ! stack build -j 1 --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks; do echo RETRY; done
+        attempts=0
+        while ! stack build -j 1 --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks; do
+          if [ "$attempts" -gt 5 ]; then
+            echo "too many attempts ($attempts)"
+            exit 1
+          fi
+          echo Deps install failed, retrying
+          attempts=$(( $attempts + 1))
+        done
         stack test -j 1 --resolver=${{ matrix.snapshot }}
