@@ -4,10 +4,14 @@ packages:
   - ./conferer/
   - ./sources/json/
   - ./sources/yaml/
-  - ./sources/dhall/
-
-  - ./fromConfig/warp/
   - ./fromConfig/hspec/
+  # TODO: looks like there is a bug with the linker on 8.10.2 on windows that prevents
+  # ghc from building zlib so I disable the projects that use that
+  # https://gitlab.haskell.org/ghc/ghc/-/issues/18550
+  # NOTE this also affects snap since it uses zlib
+  # - ./sources/dhall/
+  # - ./fromConfig/warp/
+
   # TODO: snap is broken because the package regex-posix doesn't build on windows
   # https://github.com/haskell-hvr/regex-posix/issues/7 here is the reported issue
   # - ./fromConfig/snap/
