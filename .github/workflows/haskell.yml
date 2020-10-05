@@ -41,6 +41,8 @@ jobs:
 
     - uses: actions/cache@v1
       name: Cache STACK_ROOT
+      # aparently macOS can actually use the cached files from another run
+      if: ${{ matrix.os != 'macOS' }}
       with:
         path: ${{ env.STACK_ROOT }}
         key: ${{ runner.os }}-${{ matrix.snapshot }}-stack2
