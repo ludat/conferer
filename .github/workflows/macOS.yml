@@ -1,8 +1,8 @@
-name: CI
+name: macOS
 
 # Trigger the workflow on push or pull request, but only for the master branch
 on:
-  push:
+  workflow_dispatch:
   schedule:
     - cron: '0 8 * * 3'
 
@@ -15,9 +15,9 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu
-          # - macOS
-          - windows
+          # - ubuntu
+          - macOS
+          # - windows
         snapshot:
           - 'lts-10.10'
           - 'lts-11.20'
