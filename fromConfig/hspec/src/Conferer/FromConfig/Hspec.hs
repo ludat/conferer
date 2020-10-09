@@ -18,14 +18,10 @@ module Conferer.FromConfig.Hspec
   -- use with care
   ) where
 
-import Conferer.Core
 import Conferer.Types
 import Conferer.FromConfig.Basics
 
-import Data.Either (rights)
-import Data.String (fromString)
-import Data.Text (Text, unpack, toLower)
-import Data.Maybe (fromMaybe)
+import Data.Text (toLower)
 
 import qualified Test.Hspec.Core.Runner as Hspec
 import qualified Test.Hspec.Core.Formatters as Hspec
@@ -57,7 +53,7 @@ instance DefaultConfig Hspec.Config where
   configDef = Hspec.defaultConfig
 
 instance FromConfig Hspec.Config where
-  fetchFromConfig key config = return Nothing
+  fetchFromConfig _key _config = return Nothing
   updateFromConfig k config original = do
     pure original
       >>= findKeyAndApplyConfig config k "dryRun" Hspec.configDryRun (\v c -> c { Hspec.configDryRun = v })

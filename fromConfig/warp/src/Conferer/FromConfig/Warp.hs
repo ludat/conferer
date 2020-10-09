@@ -15,15 +15,10 @@ module Conferer.FromConfig.Warp
   -- @
   ) where
 
-import Conferer.Core
 import Conferer.Types
 import Conferer.FromConfig.Basics
-import Data.Maybe (catMaybes)
 import Network.Wai.Handler.Warp
 import Network.Wai.Handler.Warp.Internal
-import Data.String (fromString)
-import Data.Text (unpack)
-import Data.Maybe (fromMaybe)
 
 instance FromConfig HostPreference where
   updateFromConfig = updateAllAtOnceUsingFetch
@@ -43,7 +38,7 @@ instance DefaultConfig Settings where
   configDef = defaultSettings
 
 instance FromConfig Settings where
-  fetchFromConfig key config = return Nothing
+  fetchFromConfig _key _config = return Nothing
   updateFromConfig key config settings = do
     pure settings
       >>= findKeyAndApplyConfig config key "port" settingsPort (\v c -> c { settingsPort = v })

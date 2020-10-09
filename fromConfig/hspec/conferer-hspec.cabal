@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d2460b555266871dcd841c5f0ba8a5c5debe7085a5fc311bf534d9960f994eb5
+-- hash: 610127ae605764d9da346e5da0bf1d14d3aad8b8e6abc97e0368e41652cae15f
 
 name:           conferer-hspec
 version:        0.4.0.1
@@ -15,11 +15,13 @@ category:       Configuration
 homepage:       https://conferer.ludat.io
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
+copyright:      (c) 2020 Lucas David Traverso
 license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
 extra-doc-files:
     README.md
+    CHANGELOG.md
     LICENSE
 
 library
@@ -29,7 +31,8 @@ library
       Paths_conferer_hspec
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  ghc-options: -Wall -Werror=missing-fields -fno-warn-orphans -fno-warn-type-defaults -Wredundant-constraints -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-exported-signatures
   build-depends:
       base >=4.3 && <5
     , conferer >=0.4.0.0 && <0.5.0.0
@@ -44,7 +47,8 @@ test-suite specs
       Paths_conferer_hspec
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  ghc-options: -Wall -Werror=missing-fields -fno-warn-orphans -fno-warn-type-defaults -Wredundant-constraints -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-exported-signatures
   build-depends:
       base >=4.3 && <5
     , conferer >=0.4.0.0 && <0.5.0.0

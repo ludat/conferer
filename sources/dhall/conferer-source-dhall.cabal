@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 35fb8233c757161388ba8922f5b107597ec3dd8049d2da2ea74df632388c82f1
+-- hash: 96d95fc24cd7f42ad920c40a8a2f3fc432dfc263611e356b290dd0efe66e2964
 
 name:           conferer-source-dhall
 version:        0.4.0.1
@@ -15,11 +15,13 @@ category:       Configuration
 homepage:       https://conferer.ludat.io
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
+copyright:      (c) 2020 Lucas David Traverso
 license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
 extra-doc-files:
     README.md
+    CHANGELOG.md
     LICENSE
 
 library
@@ -29,7 +31,8 @@ library
       Paths_conferer_source_dhall
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  ghc-options: -Wall -Werror=missing-fields -fno-warn-orphans -fno-warn-type-defaults -Wredundant-constraints -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-exported-signatures
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11
@@ -48,7 +51,8 @@ test-suite specs
       Paths_conferer_source_dhall
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  ghc-options: -Wall -Werror=missing-fields -fno-warn-orphans -fno-warn-type-defaults -Wredundant-constraints -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-exported-signatures
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11

@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6b8dfe09d10fe0221b4d4e7e1fc95f6975b9ddeae9f1af869759d8962f064a45
+-- hash: 03dcf5286bc2e5c7f6a61d357fed5c574403f608834d465f932c1e95ee16fd1c
 
 name:           conferer
 version:        0.4.1.1
@@ -15,6 +15,7 @@ category:       Configuration
 homepage:       https://conferer.ludat.io
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
+copyright:      (c) 2020 Lucas David Traverso
 license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
@@ -41,7 +42,8 @@ library
       Paths_conferer
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  ghc-options: -Wall -Wmissing-fields -fno-warn-orphans -fno-warn-type-defaults -Wredundant-constraints -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-exported-signatures
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11
@@ -68,8 +70,8 @@ test-suite specs
       Paths_conferer
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
-  ghc-options: -main-is ConfererSpecMain
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  ghc-options: -Wall -Wmissing-fields -fno-warn-orphans -fno-warn-type-defaults -Wredundant-constraints -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-exported-signatures -main-is ConfererSpecMain
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11

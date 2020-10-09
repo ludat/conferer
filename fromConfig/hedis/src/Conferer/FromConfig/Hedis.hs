@@ -19,11 +19,8 @@ module Conferer.FromConfig.Hedis
 import Conferer.Core
 import Conferer.Types
 import Conferer.FromConfig.Basics
-import Data.Maybe (catMaybes)
 import qualified Database.Redis as Redis
-import Data.String (fromString)
 import Data.Text (unpack)
-import Data.Maybe (fromMaybe)
 import Text.Read (readMaybe)
 import Data.Proxy (Proxy(..))
 import Data.Typeable (typeRep)
@@ -46,7 +43,7 @@ instance DefaultConfig Redis.ConnectInfo where
   configDef = Redis.defaultConnectInfo
 
 instance FromConfig Redis.ConnectInfo where
-  fetchFromConfig key config = do
+  fetchFromConfig _key _config = do
     return Nothing
 
   updateFromConfig key config connectInfo = do
@@ -59,7 +56,7 @@ instance FromConfig Redis.ConnectInfo where
         Just connectionString ->
           case Redis.parseConnectInfo $ unpack connectionString of
             Right con -> return $ con
-            Left e ->
+            Left _e ->
                 throwIO $ ConfigParsingError key connectionString (typeRep (Proxy :: Proxy (Redis.ConnectInfo)))
         Nothing ->
 #endif

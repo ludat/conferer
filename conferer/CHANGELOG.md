@@ -14,5 +14,5 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 First release
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/conferer_v0.4.1.1...HEAD
-[0.4.1.1]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/conferer_v0.4.1.1
+[Unreleased]: https://github.com/ludat/conferer/compare/conferer_v0.4.1.1...HEAD
+[0.4.1.1]: https://github.com/ludat/conferer/releases/tag/v0.0.0.0...conferer_v0.4.1.1

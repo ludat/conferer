@@ -4,16 +4,10 @@ synopsis: |
   conferer's FromConfig instances for snap Config
 description: |
   Library to abstract the parsing of many haskell config values from different config sources
-homepage: https://conferer.ludat.io
-author: Lucas David Traverso
-maintainer: lucas6246@gmail.com
-category: Configuration
-license: MPL-2.0
-license-file: LICENSE
 
-extra-doc-files:
-  - README.md
-  - LICENSE
+_common/lib: !include ../../utils/package.common.yaml
+
+<<: *everything
 
 dependencies:
   - base >= 4.3 && < 5
@@ -21,12 +15,6 @@ dependencies:
   - text >= 1.1 && < 1.3
   - snap-server >= 1.0 && < 2.0
   - snap-core >= 1.0 && < 2.0
-
-default-extensions:
-  !include ../../utils/extensions.yaml
-
-library:
-  source-dirs: src
 
 tests:
   specs:
