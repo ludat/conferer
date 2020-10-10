@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE CPP #-}
 module Conferer.FromConfig.Hedis

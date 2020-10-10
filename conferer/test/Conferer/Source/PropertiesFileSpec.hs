@@ -6,7 +6,6 @@ import qualified Data.Map as Map
 
 import Conferer
 import Conferer.Core
-import Conferer.Types
 
 fakeLookupEnv :: [(String, String)] -> LookupEnvFunc
 fakeLookupEnv fakeEnv = \envName ->

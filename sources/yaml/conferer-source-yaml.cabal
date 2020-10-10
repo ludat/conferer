@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3aff2835e49acbe8ca34827b321cc088914d2f72483b1af8cb7209de3b4cd679
+-- hash: cf80f43d84d7ac70a59869ccf832e22fc552acefbfc96b2a60c6b66bc29c25b7
 
 name:           conferer-source-yaml
 version:        0.4.0.1
@@ -32,12 +32,14 @@ library
   hs-source-dirs:
       src
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
-  ghc-options: -Wall -Werror=missing-fields -fno-warn-orphans -fno-warn-type-defaults -Wredundant-constraints -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-exported-signatures
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
     , conferer >=0.4.0.0 && <0.5.0.0
     , conferer-source-json >=0.4.0.0 && <0.5.0.0
     , yaml >=0.8 && <1.0
+  if impl(ghc >= 8.4.1)
+    ghc-options: -Wpartial-fields
   default-language: Haskell2010
 
 test-suite specs
@@ -48,7 +50,7 @@ test-suite specs
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
-  ghc-options: -Wall -Werror=missing-fields -fno-warn-orphans -fno-warn-type-defaults -Wredundant-constraints -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-exported-signatures
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
     , conferer >=0.4.0.0 && <0.5.0.0
@@ -56,4 +58,6 @@ test-suite specs
     , conferer-source-yaml
     , hspec
     , yaml >=0.8 && <1.0
+  if impl(ghc >= 8.4.1)
+    ghc-options: -Wpartial-fields
   default-language: Haskell2010

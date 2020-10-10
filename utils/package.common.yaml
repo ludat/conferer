@@ -31,13 +31,14 @@
 - &ghcoptions
   ghc-options:
     - -Wall
-    - -Wmissing-fields
-    - -fno-warn-orphans
-    - -fno-warn-type-defaults
     - -Wredundant-constraints
+    - -Widentities
     - -Wincomplete-record-updates
     - -Wincomplete-uni-patterns
-    - -Wmissing-exported-signatures
+  when:
+    condition: impl(ghc >= 8.4.1)
+    ghc-options:
+      - -Wpartial-fields
 
 - &everything
   <<: *misc

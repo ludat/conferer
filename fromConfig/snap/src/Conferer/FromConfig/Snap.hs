@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE FlexibleInstances #-}
 module Conferer.FromConfig.Snap
   (
@@ -39,6 +40,7 @@ instance FromConfig Snap.ConfigLog where
 instance (Snap.MonadSnap m) => DefaultConfig (Snap.Config m a) where
   configDef = Snap.defaultConfig
 
+withMaybe :: (a -> c -> c) -> Maybe a -> c -> c
 withMaybe f (Just a) c = f a c
 withMaybe _f (Nothing) c = c
 
