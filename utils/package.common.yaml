@@ -1,0 +1,49 @@
+- &lib
+  library:
+    source-dirs: src
+
+- &misc
+  homepage: https://conferer.ludat.io
+  category: Configuration
+
+  extra-doc-files:
+    - README.md
+    - CHANGELOG.md
+    - LICENSE
+
+- &author
+  author: Lucas David Traverso
+  maintainer: lucas6246@gmail.com
+
+- &legal
+  copyright: (c) 2020 Lucas David Traverso
+  license: MPL-2.0
+  license-file: LICENSE
+
+- &extensions
+  default-extensions:
+    - OverloadedStrings
+    - LambdaCase
+    - QuasiQuotes
+    - ScopedTypeVariables
+    - RecordWildCards
+
+- &ghcoptions
+  ghc-options:
+    - -Wall
+    - -Wredundant-constraints
+    - -Widentities
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+  when:
+    condition: impl(ghc >= 8.4.1)
+    ghc-options:
+      - -Wpartial-fields
+
+- &everything
+  <<: *misc
+  <<: *author
+  <<: *legal
+  <<: *extensions
+  <<: *ghcoptions
+  <<: *lib

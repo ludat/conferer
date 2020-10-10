@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
@@ -5,7 +6,6 @@
 
 module Conferer.FromConfig.Basics where
 
-import           Control.Monad (join)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -19,9 +19,9 @@ import           Text.Read (readMaybe)
 import           GHC.Generics
 
 import           Conferer.Types
-import           Conferer.Core (getKey, (/.), getFromConfig)
+import           Conferer.Core (getKey, (/.))
 
-updateAllAtOnceUsingFetch :: forall a. (FromConfig a, Typeable a) => Key -> Config -> a -> IO a
+updateAllAtOnceUsingFetch :: forall a. (FromConfig a) => Key -> Config -> a -> IO a
 updateAllAtOnceUsingFetch key config old = do
   fetchFromConfig key config
     >>= \case
@@ -31,9 +31,9 @@ updateAllAtOnceUsingFetch key config old = do
         evaluate old
 
 instance FromConfig () where
-  updateFromConfig key config _ = do
+  updateFromConfig _key _config _ = do
     return ()
-  fetchFromConfig key config = do
+  fetchFromConfig _key _config = do
     return $ Just ()
 
 instance DefaultConfig () where
@@ -83,6 +83,7 @@ instance FromConfig Bool where
   updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigWith parseBool
 
+parseBool :: Text -> Maybe Bool
 parseBool text =
   case Text.toLower text of
     "false" -> Just False

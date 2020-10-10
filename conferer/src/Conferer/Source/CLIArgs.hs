@@ -37,7 +37,7 @@ mkCLIArgsSource = \config -> do
 parseArgsIntoKeyValue :: [String] -> [(Key, Text)]
 parseArgsIntoKeyValue =
   fmap (\(k, s) -> (fromString $ Text.unpack k, s)) .
-  fmap (\s -> fmap (Text.drop 1) $ Text.breakOn "=" s).
+  fmap (\s -> fmap (Text.drop 1) $ Text.breakOn "=" s) .
   mapMaybe (Text.stripPrefix "--") .
   takeWhile (/= "--") .
   fmap Text.pack

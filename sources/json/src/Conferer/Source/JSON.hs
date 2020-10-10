@@ -41,13 +41,11 @@ import qualified Data.HashMap.Strict as HashMap
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-import           Data.Vector
+import           Data.Vector hiding ((++))
 import           Text.Read (readMaybe)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
 import           System.Directory (doesFileExist)
-import           Data.Monoid
-
 
 import Conferer.Source.Files
 import Conferer.Source.Null
@@ -66,7 +64,7 @@ mkJsonSource config = do
       value <- decodeStrict' <$> B.readFile fileToParse
       case value of
         Nothing ->
-          error $ "Failed to decode file '" <> fileToParse <> "'"
+          error $ "Failed to decode file '" ++ fileToParse ++ "'"
         Just v -> do
           mkJsonSource' v config
     else do

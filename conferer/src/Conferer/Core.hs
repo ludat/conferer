@@ -6,9 +6,7 @@ import           Conferer.Source.Simple
 import           Conferer.Types
 import           Control.Exception (mapException, try, throw, throwIO, evaluate)
 import qualified Data.Map as Map
-import           Data.Map (Map)
 import           Data.Maybe (fromMaybe)
-import qualified Data.Text as Text
 import           Data.Text (Text)
 import           Data.Typeable (Typeable, Proxy(..), typeRep)
 
@@ -20,11 +18,11 @@ getKey k config =
   go $ sources config ++ [mkPureMapSource (defaults config)]
   where
     go [] = return Nothing
-    go (source:sources) = do
+    go (source:otherSources) = do
       res <- getKeyInSource source k
       case res of
         Just t -> return $ Just t
-        Nothing -> go sources
+        Nothing -> go otherSources
 
 
 -- | Fetch a value from a config under some specific key that's parsed using the 'FromConfig'
@@ -62,12 +60,12 @@ getFromConfigWithDefault key config configDefault =
 --   Note: This function does not use default so the value must be fully defined by the config only,
 --   meaning using this function for many records will always result in 'Nothing' (if the record contains
 --   a value that can never be retrieved like a function)
-safeGetFromConfig :: forall a. (Typeable a, FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
+safeGetFromConfig :: forall a. (FromConfig a, DefaultConfig a) => Key -> Config -> IO (Maybe a)
 safeGetFromConfig key config =
   safeGetFromConfigWithDefault key config configDef
 
 -- | Same as 'safeGetFromConfig' but with a user defined default
-safeGetFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Key -> Config -> a -> IO (Maybe a)
+safeGetFromConfigWithDefault :: forall a. (FromConfig a) => Key -> Config -> a -> IO (Maybe a)
 safeGetFromConfigWithDefault key config configDefault = do
   totalValue <- evaluate =<< fetchFromConfig key config
   case totalValue of
@@ -80,7 +78,7 @@ safeGetFromConfigWithDefault key config configDefault = do
       case result of
         Right a -> do
           Just <$> evaluate a
-        Left e -> do
+        Left _e -> do
           return Nothing
 
 -- | Use for placeholder for required values in default config values.

@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b5866f6e9cf78656fb80d30d6abaa2c0b5488864729ca95351175f8c57cc7e85
+-- hash: 60161736d676748cad61d6b82ae17d5c11e2549bbb9ee2c1eb8ffc87e530190f
 
 name:           conferer-source-json
 version:        0.4.0.1
@@ -15,11 +15,13 @@ category:       Configuration
 homepage:       https://conferer.ludat.io
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
+copyright:      (c) 2020 Lucas David Traverso
 license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
 extra-doc-files:
     README.md
+    CHANGELOG.md
     LICENSE
 
 library
@@ -29,7 +31,8 @@ library
       Paths_conferer_source_json
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       aeson >=0.10 && <2.0
     , base >=4.3 && <5
@@ -39,6 +42,8 @@ library
     , text >=1.1 && <1.3
     , unordered-containers
     , vector
+  if impl(ghc >= 8.4.1)
+    ghc-options: -Wpartial-fields
   default-language: Haskell2010
 
 test-suite specs
@@ -49,7 +54,8 @@ test-suite specs
       Paths_conferer_source_json
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       aeson >=0.10 && <2.0
     , aeson-qq
@@ -62,4 +68,6 @@ test-suite specs
     , text >=1.1 && <1.3
     , unordered-containers
     , vector
+  if impl(ghc >= 8.4.1)
+    ghc-options: -Wpartial-fields
   default-language: Haskell2010

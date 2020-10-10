@@ -78,4 +78,4 @@ jobs:
           echo Deps install failed, retrying
           attempts=$(( $attempts + 1))
         done
-        stack test -j 1 --resolver=${{ matrix.snapshot }}
+        stack test --ghc-options=-Werror -j 1 --resolver=${{ matrix.snapshot }}

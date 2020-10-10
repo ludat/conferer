@@ -10,7 +10,6 @@ import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Map (Map)
-import qualified Data.Map as Map
 import           Control.Exception
 import           Data.Typeable
 import           GHC.Generics
@@ -72,7 +71,7 @@ class DefaultConfig a where
 -- the default 'Generics' based implementation do it's thing
 class FromConfig a where
   updateFromConfig :: Key -> Config -> a -> IO a
-  default updateFromConfig :: (Generic a, Typeable a, FromConfigG (Rep a)) => Key -> Config -> a -> IO a
+  default updateFromConfig :: (Generic a, FromConfigG (Rep a)) => Key -> Config -> a -> IO a
   updateFromConfig k c a = to <$> updateFromConfigG k c (from a)
 
   fetchFromConfig :: Key -> Config -> IO (Maybe a)
@@ -89,14 +88,14 @@ data ConfigParsingError =
   deriving (Typeable, Eq)
 
 instance Show ConfigParsingError where
-  show (ConfigParsingError key value typeRep) =
+  show (ConfigParsingError key value aTypeRep) =
     concat
     [ "Couldn't parse value '"
     , Text.unpack value
     , "' from key '"
     , Text.unpack (keyName key)
     , "' as "
-    , show typeRep
+    , show aTypeRep
     ]
 
 instance Exception ConfigParsingError
@@ -106,10 +105,10 @@ data FailedToFetchError =
   deriving (Typeable, Eq)
 
 instance Show FailedToFetchError where
-  show (FailedToFetchError key typeRep) =
+  show (FailedToFetchError key aTypeRep) =
     concat
     [ "Couldn't get a "
-    , show typeRep
+    , show aTypeRep
     , " from key '"
     , Text.unpack (keyName key)
     , "'"
@@ -122,10 +121,10 @@ data MissingRequiredKey =
   deriving (Typeable, Eq)
 
 instance Show MissingRequiredKey where
-  show (MissingRequiredKey key typeRep) =
+  show (MissingRequiredKey key aTypeRep) =
     concat
     [ "Couldn't get a required "
-    , show typeRep
+    , show aTypeRep
     , " from key '"
     , Text.unpack (keyName key)
     , "'"

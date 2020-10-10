@@ -5,12 +5,11 @@ module Conferer.GenericsSpec where
 import Test.Hspec
 
 import Conferer
-import Conferer.Types (FromConfig, DefaultConfig, configDef)
 
 import Data.Typeable
 import GHC.Generics
 
-fetch :: (FromConfig a, Show a, Typeable a, DefaultConfig a) => Key -> Config -> IO a
+fetch :: (FromConfig a, Typeable a, DefaultConfig a) => Key -> Config -> IO a
 fetch k c = getFromConfig k c
 
 data Thing = Thing

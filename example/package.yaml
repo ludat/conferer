@@ -3,6 +3,12 @@ description: This is an example
 author: Lucas David Traverso
 maintainer: lucas6246@gmail.com
 
+_common/lib: !include ../utils/package.common.yaml
+
+<<: *lib
+<<: *extensions
+<<: *ghcoptions
+
 dependencies:
 - base >= 4.7 && < 5
 - warp
@@ -11,10 +17,7 @@ dependencies:
 - conferer
 - conferer-warp
 
-default-extensions:
-  !include ../utils/extensions.yaml
-
 executables:
   example-exe:
-    main:                Main.hs
-    source-dirs:         app
+    main: Main
+    source-dirs: src

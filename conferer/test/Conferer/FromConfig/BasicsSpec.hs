@@ -4,13 +4,11 @@
 
 module Conferer.FromConfig.BasicsSpec where
 
-import           Conferer
-import           Conferer.Types
-import           Control.DeepSeq
-import           Control.Exception (evaluate)
-import           Data.Text
-import           Data.Typeable
-import           Test.Hspec
+import Conferer
+import Conferer.Types
+import Data.Text
+import Data.Typeable
+import Test.Hspec
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues = emptyConfig & addSource (mkMapSource keyValues)

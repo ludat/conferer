@@ -1,7 +1,6 @@
 module Conferer.Source.Files where
 
 import qualified Data.Text as Text
-import           Data.Maybe (fromMaybe)
 
 import           Conferer.Types
 import           Conferer.FromConfig.Basics ()

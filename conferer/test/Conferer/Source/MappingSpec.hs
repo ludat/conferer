@@ -2,7 +2,6 @@ module Conferer.Source.MappingSpec where
 
 import           Test.Hspec
 import qualified Data.Map as Map
-import           Data.Function ((&))
 
 import           Conferer
 
