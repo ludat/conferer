@@ -33,6 +33,7 @@ jobs:
       name: Setup Haskell Stack
       with:
         enable-stack: true
+        stack-no-global: true
         stack-version: latest
 
     - name: Get the stack root
