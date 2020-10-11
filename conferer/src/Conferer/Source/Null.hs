@@ -8,11 +8,17 @@ where
 
 import           Conferer.Types
 
+data NullSource = 
+  NullSource
+  deriving (Show, Eq)
+
+instance IsSource NullSource where
+  getKeyInSource _source _key =
+    return Nothing
+  getSubkeysInSource _source _key =
+    return []
+
 -- | Create a null 'Source'
 mkNullSource :: SourceCreator
 mkNullSource _config =
-  return $ Source
-  { getKeyInSource =
-      \_k -> do
-        return Nothing
-  }
+  return $ Source $ NullSource

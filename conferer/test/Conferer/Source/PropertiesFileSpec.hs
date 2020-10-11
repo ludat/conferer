@@ -2,14 +2,8 @@ module Conferer.Source.PropertiesFileSpec where
 
 import           Test.Hspec
 import qualified Data.Text as Text
-import qualified Data.Map as Map
 
 import Conferer
-import Conferer.Core
-
-fakeLookupEnv :: [(String, String)] -> LookupEnvFunc
-fakeLookupEnv fakeEnv = \envName ->
-  return $ Map.lookup envName $ Map.fromList fakeEnv
 
 spec :: Spec
 spec = do

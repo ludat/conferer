@@ -1,3 +1,4 @@
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE DefaultSignatures #-}
@@ -13,14 +14,28 @@ import           Data.Map (Map)
 import           Control.Exception
 import           Data.Typeable
 import           GHC.Generics
+import Data.Function (on)
+import Data.List (isPrefixOf)
 
 -- | Core interface for library provided configuration, basically consists of
 --   getting a 'Key' and informing returning a maybe signaling the value and
 --   if it's present in that specific source
-data Source =
-  Source
-  { getKeyInSource :: Key -> IO (Maybe Text)
-  }
+
+data Source = forall s. (IsSource s, Show s) => Source s
+
+instance Show Source where
+  show (Source s) = "Source " ++ show s
+
+class IsSource s where
+  getKeyInSource :: s ->  Key -> IO (Maybe Text)
+  getSubkeysInSource :: s -> Key -> IO [Key]
+
+instance IsSource Source where
+  getKeyInSource (Source source) =
+    getKeyInSource source
+  getSubkeysInSource (Source source) =
+    getSubkeysInSource source
+
 
 -- | The way to index 'Source's, basically list of names that will be adapted
 --   to whatever the source needs
@@ -29,11 +44,20 @@ newtype Key
   deriving (Show, Eq, Ord)
 
 instance IsString Key where
-  fromString s = Path $ filter (/= mempty) $ Text.split (== '.') $ fromString s
+  fromString s =
+    Path .
+    fmap (Text.toLower) .
+    filter (/= mempty) .
+    Text.split (== '.') .
+    fromString
+    $ s
 
 -- | Collapse a key into a textual representation
 keyName :: Key -> Text
 keyName = Text.intercalate "." . unKey
+
+isKeyPrefixOf :: Key -> Key -> Bool
+isKeyPrefixOf = isPrefixOf `on` unKey
 
 -- | Core type that the user of this library interact with, in the future it may
 --   contain more this besides a list of sources

@@ -90,8 +90,30 @@ module Conferer
 import           Data.Text (Text)
 import           Data.Function ((&))
 
-import           Conferer.Core (emptyConfig, addSource, getFromConfig, getFromRootConfig, getFromConfigWithDefault, safeGetFromConfig, requiredValue, safeGetFromConfigWithDefault, getKey, unsafeGetKey, (/.), withDefaults)
-import           Conferer.Types (Config, Key(..), SourceCreator, Source(..), DefaultConfig(..), FromConfig(..))
+import           Conferer.Core
+  ( emptyConfig
+  , addSource
+  , getFromConfig
+  , getFromRootConfig
+  , getFromConfigWithDefault
+  , safeGetFromConfig
+  , mkStandaloneSource
+  , requiredValue
+  , safeGetFromConfigWithDefault
+  , getKey
+  , unsafeGetKey
+  , (/.)
+  , withDefaults
+  )
+import           Conferer.Types
+  ( Config
+  , Key(..)
+  , SourceCreator
+  , Source(..)
+  , IsSource(getKeyInSource, getSubkeysInSource)
+  , DefaultConfig(..)
+  , FromConfig(..)
+  )
 import           Conferer.Source.Env
 import           Conferer.Source.Simple
 import           Conferer.Source.Namespaced

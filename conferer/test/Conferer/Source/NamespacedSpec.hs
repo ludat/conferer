@@ -8,14 +8,21 @@ spec :: Spec
 spec = do
   describe "namespaced config" $ do
     it "return nothing if the key doesn't match" $ do
-      c <- emptyConfig
-           & addSource (mkNamespacedSource "postgres"
-                          $ mkMapSource [("url", "some url")])
-      res <- getKey "url" c
+      c <- mkStandaloneSource $
+        mkNamespacedSource "postgres" $
+          mkMapSource [("url", "some url")]
+      res <- getKeyInSource c "url"
       res `shouldBe` Nothing
     it "returns the wrapped value" $ do
-      c <- emptyConfig
-           & addSource (mkNamespacedSource "postgres"
-                          $ mkMapSource [("url", "some url")])
-      res <- getKey "postgres.url" c
+      c <- mkStandaloneSource $
+        mkNamespacedSource "postgres" $
+          mkMapSource [("url", "some url")]
+      res <- getKeyInSource c "postgres.url"
       res `shouldBe` Just "some url"
+    it "listing subkeys" $ do
+      c <- mkStandaloneSource $
+        mkNamespacedSource "postgres" $
+          mkMapSource [("url", "some url")]
+      res <- getSubkeysInSource c "postgres"
+      res `shouldBe` ["postgres.url"]
+

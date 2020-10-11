@@ -27,6 +27,13 @@ requiredKeyError key type_ (MissingRequiredKey k t) =
 spec :: Spec
 spec = do
   context "Basic fetching" $ do
+    -- describe "" $ do
+    --   it "cosa" $ do
+    --     config <- configWith
+    --       [ ("aList.0", "50")
+    --       ]
+    --     fetchedValue <- getFromConfig @([Int]) "aList" config
+    --     fetchedValue `shouldBe` [50]
     describe "fetching an Int from config" $ do
       it "getting a value that can't be parsed as an int returns an error message" $ do
         config <- configWith [ ("anInt", "50A") ]
