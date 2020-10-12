@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Conferer.Source.Simple
   (
     -- * Simple Source
@@ -7,6 +8,7 @@ module Conferer.Source.Simple
     mkMapSource
   , mkMapSource'
   , mkPureMapSource
+  , SimpleSource(..)
   ) where
 
 import           Data.Map (Map)
@@ -15,6 +17,17 @@ import           Data.Text (Text)
 
 import           Conferer.Types
 
+data SimpleSource = 
+  SimpleSource
+  { configMap :: Map Key Text
+  } deriving (Show, Eq)
+
+instance IsSource SimpleSource where
+  getKeyInSource (SimpleSource {..}) key =
+    return $ Map.lookup key configMap
+  getSubkeysInSource (SimpleSource {..}) key = do
+    return $ filter (key `isKeyPrefixOf`) $ Map.keys $ configMap
+
 -- | Make a 'SourceCreator' from a 'Map'
 mkMapSource' :: Map Key Text -> SourceCreator
 mkMapSource' configMap _config =
@@ -22,13 +35,10 @@ mkMapSource' configMap _config =
 
 -- | Make a 'Source' from a 'Map'
 mkPureMapSource :: Map Key Text -> Source
-mkPureMapSource configMap =
-  Source
-    { getKeyInSource =
-      \k -> do
-        return $ Map.lookup k configMap
-    }
+mkPureMapSource =
+  Source . SimpleSource
 
 -- | Make a 'Source' from 'List' of 'Key', 'Text' pairs
 mkMapSource :: [(Key, Text)] -> SourceCreator
-mkMapSource = mkMapSource' . Map.fromList
+mkMapSource =
+  mkMapSource' . Map.fromList

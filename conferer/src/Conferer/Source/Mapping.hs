@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Conferer.Source.Mapping
   (
     -- * Namespaced higher-order source
@@ -13,22 +14,40 @@ import           Data.Map (Map)
 import qualified Data.Map as Map
 
 import           Conferer.Types
+import Data.Maybe (mapMaybe)
+import Data.Tuple (swap)
+
+data MappingSource =
+  MappingSource
+  { innerSource :: Source
+  , keysMap :: Map Key Key
+  , invertedKeysMap :: Map Key Key
+  } deriving (Show)
+
+
+instance IsSource MappingSource where
+  getKeyInSource (MappingSource {..}) key = do
+    case Map.lookup key keysMap of
+      Just newKey -> getKeyInSource innerSource newKey
+      Nothing -> return Nothing
+  getSubkeysInSource (MappingSource {..}) key = do
+    case Map.lookup key keysMap of
+      Just newKey -> do
+        mapMaybe (`Map.lookup` invertedKeysMap) <$> getSubkeysInSource innerSource newKey
+      Nothing -> return []
 
 -- | Create a 'SourceCreator' using a function to transform the supplied keys
 -- and another 'SourceCreator'
-mkMappingSource' :: (Key -> Maybe Key) -> SourceCreator -> SourceCreator
-mkMappingSource' mapper sourceCreator config = do
-  configSource <- sourceCreator config
+mkMappingSource' :: Map Key Key -> SourceCreator -> SourceCreator
+mkMappingSource' keysMap sourceCreator config = do
+  innerSource <- sourceCreator config
+  let invertedKeysMap = Map.fromList $ fmap swap $ Map.toList $ keysMap
 
-  return $ Source
-    { getKeyInSource = \k -> do
-        case mapper k of
-          Just newKey -> getKeyInSource configSource newKey
-          Nothing -> return Nothing
-    }
+  return $ Source $ 
+    MappingSource {..}
 
 -- | Create a 'SourceCreator' using a 'Map' 'Key' 'Key' to transform the supplied keys
 -- and another 'SourceCreator'
 mkMappingSource :: Map Key Key -> SourceCreator -> SourceCreator
 mkMappingSource configMap configSource =
-  mkMappingSource' (`Map.lookup` configMap) configSource
+  mkMappingSource' configMap configSource

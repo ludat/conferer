@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Conferer.Source.Namespaced
   (
     -- * Namespaced higher-order source
@@ -9,15 +10,34 @@ module Conferer.Source.Namespaced
 
 import           Data.List (stripPrefix)
 
+import           Conferer.Core
 import           Conferer.Types
+
+data NamespacedSource =
+  NamespacedSource
+  { scopeKey :: Key
+  , innerSource :: Source
+  } deriving (Show)
+
+instance IsSource NamespacedSource where
+  getKeyInSource (NamespacedSource {..}) (Path key) = do
+    let Path scopeKeyPath = scopeKey
+    case stripPrefix scopeKeyPath key of
+      Just newKey -> getKeyInSource innerSource (Path newKey)
+      Nothing -> return Nothing
+  getSubkeysInSource (NamespacedSource {..}) (Path key) = do
+    let Path scopeKeyPath = scopeKey
+    case stripPrefix scopeKeyPath key of
+      Just newKey -> do
+        fmap (scopeKey /.) <$> getSubkeysInSource innerSource (Path newKey)
+      Nothing -> return []
+
 
 -- | Create a 'SourceCreator' from a prefix and another 'SourceCreator'
 mkNamespacedSource :: Key -> SourceCreator -> SourceCreator
-mkNamespacedSource (Path key) configCreator = \config -> do
-  configSource <- configCreator config
-  return $ Source
-    { getKeyInSource = \(Path k) -> do
-        case stripPrefix key k of
-          Just newKey -> getKeyInSource configSource (Path newKey)
-          Nothing -> return Nothing
-    }
+mkNamespacedSource scopeKey configCreator = \config -> do
+  innerSource <- configCreator config
+  return $
+   Source $
+   NamespacedSource
+   {..}

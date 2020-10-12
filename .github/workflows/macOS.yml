@@ -33,6 +33,7 @@ jobs:
       name: Setup Haskell Stack
       with:
         enable-stack: true
+        stack-no-global: true
         stack-version: latest
 
     - name: Get the stack root
@@ -70,6 +71,7 @@ jobs:
         stack --version
         stack --resolver=${{ matrix.snapshot }} ghc -- --version
         attempts=0
+        stack clean --resolver=${{ matrix.snapshot }}
         while ! stack build -j 1 --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks; do
           if [ "$attempts" -gt 5 ]; then
             echo "too many attempts ($attempts)"
