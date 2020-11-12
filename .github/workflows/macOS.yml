@@ -31,24 +31,17 @@ jobs:
 
     - uses: actions/setup-haskell@v1.1.3
       name: Setup Haskell Stack
+      id: setuphaskell
       with:
         enable-stack: true
         stack-no-global: true
         stack-version: latest
 
-    - name: Get the stack root
-      shell: bash
-      run: |
-        if [ -z "$STACK_ROOT" ]; then
-          echo ::set-env name=STACK_ROOT::"$HOME/.stack"
-        fi
-
     - uses: actions/cache@v1
-      name: Cache STACK_ROOT
-      # aparently macOS can actually use the cached files from another run
-      if: ${{ matrix.os != 'macOS' }}
+      name: Cache stack files on macOS
+      if: ${{ matrix.os == 'macOS' }}
       with:
-        path: ${{ env.STACK_ROOT }}
+        path: "~/.stack"
         key: ${{ runner.os }}-${{ matrix.snapshot }}-stack2
 
     - name: Setup stack.yaml
