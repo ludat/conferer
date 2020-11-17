@@ -2,11 +2,15 @@ module Conferer.Source.NamespacedSpec where
 
 import Test.Hspec
 
-import Conferer
+import Conferer.Source
+import Conferer.Config.Internal
+
+import Conferer.Source.Simple
+import Conferer.Source.Namespaced
 
 spec :: Spec
 spec = do
-  describe "namespaced config" $ do
+  xdescribe "namespaced config" $ do
     it "return nothing if the key doesn't match" $ do
       c <- mkStandaloneSource $
         mkNamespacedSource "postgres" $

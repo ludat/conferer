@@ -1,4 +1,6 @@
+{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# OPTIONS_GHC -Wno-name-shadowing #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE CPP #-}
 module Conferer.FromConfig.Warp
@@ -16,62 +18,81 @@ module Conferer.FromConfig.Warp
   -- @
   ) where
 
-import Conferer.Types
-import Conferer.FromConfig.Basics
+import Conferer.Config
+import Conferer.FromConfig.Internal
 import Network.Wai.Handler.Warp
 import Network.Wai.Handler.Warp.Internal
 
 instance FromConfig HostPreference where
-  updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigByIsString
 
 instance FromConfig ProxyProtocol where
-  updateFromConfig = updateAllAtOnceUsingFetch
   fetchFromConfig = fetchFromConfigWith
-    (\text -> case text of
-                "ProxyProtocolNone" -> Just ProxyProtocolNone
-                "ProxyProtocolRequired" -> Just ProxyProtocolRequired
-                "ProxyProtocolOptional" -> Just ProxyProtocolOptional
-                _ -> Nothing
+    (\case
+      "ProxyProtocolNone" -> Just ProxyProtocolNone
+      "ProxyProtocolRequired" -> Just ProxyProtocolRequired
+      "ProxyProtocolOptional" -> Just ProxyProtocolOptional
+      _ -> Nothing
     )
 
-instance DefaultConfig Settings where
-  configDef = defaultSettings
+-- instance DefaultConfig Settings where
+--   configDef = defaultSettings
 
 instance FromConfig Settings where
-  fetchFromConfig _key _config = return Nothing
-  updateFromConfig key config settings = do
-    pure settings
-      >>= findKeyAndApplyConfig config key "port" settingsPort (\v c -> c { settingsPort = v })
-      >>= findKeyAndApplyConfig config key "host" settingsHost (\v c -> c { settingsHost = v })
-      >>= findKeyAndApplyConfig config key "timeout" settingsTimeout (\v c -> c { settingsTimeout = v })
-      >>= findKeyAndApplyConfig config key "fdCacheDuration" settingsFdCacheDuration (\v c -> c { settingsFdCacheDuration = v })
-      >>= findKeyAndApplyConfig config key "fileInfoCacheDuration" settingsFileInfoCacheDuration (\v c -> c { settingsFileInfoCacheDuration = v })
+  fetchFromConfig key config = do
+    Settings{..} <- fetchFromDefaults key config
+    settingsPort <- getFromConfigWithDefault (key /. "port") config settingsPort
+    settingsHost <- getFromConfigWithDefault (key /. "host") config settingsHost
+    settingsOnException <- getFromConfigWithDefault (key /. "onException") config settingsOnException
+    settingsOnExceptionResponse <- getFromConfigWithDefault (key /. "onExceptionResponse") config settingsOnExceptionResponse
+    settingsOnOpen <- getFromConfigWithDefault (key /. "onOpen") config settingsOnOpen
+    settingsOnClose <- getFromConfigWithDefault (key /. "onClose") config settingsOnClose
+    settingsTimeout <- getFromConfigWithDefault (key /. "timeout") config settingsTimeout
+    settingsManager <- getFromConfigWithDefault (key /. "manager") config settingsManager
+    settingsFdCacheDuration <- getFromConfigWithDefault (key /. "fdCacheDuration") config settingsFdCacheDuration
+    settingsFileInfoCacheDuration <- getFromConfigWithDefault (key /. "fileInfoCacheDuration") config settingsFileInfoCacheDuration
+    settingsBeforeMainLoop <- getFromConfigWithDefault (key /. "beforeMainLoop") config settingsBeforeMainLoop
+#if MIN_VERSION_warp(3,0,4)
+    -- settingsFork <- getFromConfigWithDefault (key /. "fork") config settingsFork
+#endif
 #if MIN_VERSION_warp(2,0,3)
-      >>= findKeyAndApplyConfig config key "noParsePath" settingsNoParsePath (\v c -> c { settingsNoParsePath = v })
+    settingsNoParsePath <- getFromConfigWithDefault (key /. "noParsePath") config settingsNoParsePath
+#endif
+#if MIN_VERSION_warp(3,0,1)
+    settingsInstallShutdownHandler <- getFromConfigWithDefault (key /. "installShutdownHandler") config settingsInstallShutdownHandler
 #endif
 #if MIN_VERSION_warp(3,0,2)
-      >>= findKeyAndApplyConfig config key "serverName" settingsServerName (\v c -> c { settingsServerName = v })
+    settingsServerName <- getFromConfigWithDefault (key /. "serverName") config settingsServerName
 #endif
 #if MIN_VERSION_warp(3,0,3)
-      >>= findKeyAndApplyConfig config key "maximumBodyFlush" settingsMaximumBodyFlush (\v c -> c { settingsMaximumBodyFlush = v })
+    settingsMaximumBodyFlush <- getFromConfigWithDefault (key /. "maximumBodyFlush") config settingsMaximumBodyFlush
 #endif
 #if MIN_VERSION_warp(3,0,5)
-      >>= findKeyAndApplyConfig config key "proxyProtocol" settingsProxyProtocol (\v c -> c { settingsProxyProtocol = v })
+    settingsProxyProtocol <- getFromConfigWithDefault (key /. "proxyProtocol") config settingsProxyProtocol
 #endif
 #if MIN_VERSION_warp(3,1,2)
-      >>= findKeyAndApplyConfig config key "slowlorisSize" settingsSlowlorisSize (\v c -> c { settingsSlowlorisSize = v })
+    settingsSlowlorisSize <- getFromConfigWithDefault (key /. "slowlorisSize") config settingsSlowlorisSize
 #endif
 #if MIN_VERSION_warp(3,1,7)
-      >>= findKeyAndApplyConfig config key "http2Enabled" settingsHTTP2Enabled (\v c -> c { settingsHTTP2Enabled = v })
+    settingsHTTP2Enabled <- getFromConfigWithDefault (key /. "http2Enabled") config settingsHTTP2Enabled
+#endif
+#if MIN_VERSION_warp(3,1,10)
+    settingsLogger <- getFromConfigWithDefault (key /. "logger") config settingsLogger
+#endif
+#if MIN_VERSION_warp(3,2,7)
+    settingsServerPushLogger <- getFromConfigWithDefault (key /. "serverPushLogger") config settingsServerPushLogger
 #endif
 #if MIN_VERSION_warp(3,2,8)
-      >>= findKeyAndApplyConfig config key "gracefulShutdownTimeout" settingsGracefulShutdownTimeout (\v c -> c { settingsGracefulShutdownTimeout = v })
+    settingsGracefulShutdownTimeout <- getFromConfigWithDefault (key /. "gracefulShutdownTimeout") config settingsGracefulShutdownTimeout
 #endif
 #if MIN_VERSION_warp(3,3,5)
-      >>= findKeyAndApplyConfig config key "gracefulCloseTimeout1" settingsGracefulCloseTimeout1 (\v c -> c { settingsGracefulCloseTimeout1 = v })
-      >>= findKeyAndApplyConfig config key "gracefulCloseTimeout2" settingsGracefulCloseTimeout2 (\v c -> c { settingsGracefulCloseTimeout2 = v })
+    settingsGracefulCloseTimeout1 <- getFromConfigWithDefault (key /. "gracefulCloseTimeout1") config settingsGracefulCloseTimeout1
+    settingsGracefulCloseTimeout2 <- getFromConfigWithDefault (key /. "gracefulCloseTimeout2") config settingsGracefulCloseTimeout2
 #endif
 #if MIN_VERSION_warp(3,3,8)
-      >>= findKeyAndApplyConfig config key "maxTotalHeaderLength" settingsMaxTotalHeaderLength (\v c -> c { settingsMaxTotalHeaderLength = v })
+    settingsMaxTotalHeaderLength <- getFromConfigWithDefault (key /. "maxTotalHeaderLength") config settingsMaxTotalHeaderLength
 #endif
+#if MIN_VERSION_warp(3,3,11)
+    settingsAltSvc <- getFromConfigWithDefault (key /. "altSvc") config settingsAltSvc
+#endif
+    return Settings{..}

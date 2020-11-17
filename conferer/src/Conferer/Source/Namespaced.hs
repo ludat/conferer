@@ -10,8 +10,7 @@ module Conferer.Source.Namespaced
 
 import           Data.List (stripPrefix)
 
-import           Conferer.Core
-import           Conferer.Types
+import           Conferer.Source
 
 data NamespacedSource =
   NamespacedSource
@@ -20,12 +19,12 @@ data NamespacedSource =
   } deriving (Show)
 
 instance IsSource NamespacedSource where
-  getKeyInSource (NamespacedSource {..}) (Path key) = do
+  getKeyInSource NamespacedSource {..} (Path key) = do
     let Path scopeKeyPath = scopeKey
     case stripPrefix scopeKeyPath key of
       Just newKey -> getKeyInSource innerSource (Path newKey)
       Nothing -> return Nothing
-  getSubkeysInSource (NamespacedSource {..}) (Path key) = do
+  getSubkeysInSource NamespacedSource {..} (Path key) = do
     let Path scopeKeyPath = scopeKey
     case stripPrefix scopeKeyPath key of
       Just newKey -> do

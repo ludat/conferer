@@ -2,7 +2,10 @@ module Conferer.Source.EnvSpec where
 
 import           Test.Hspec
 
-import Conferer
+import           Conferer.Source
+import           Conferer.Config.Internal
+
+import           Conferer.Source.Env
 
 spec :: Spec
 spec = do

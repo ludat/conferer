@@ -2,12 +2,13 @@ module Conferer.Source.NullSpec where
 
 import           Test.Hspec
 
-import           Conferer
+import           Conferer.Source
+import           Conferer.Config.Internal
+import           Conferer.Source.Null
 
 spec :: Spec
 spec = do
   it "always fails to get a key" $ do
-    c <- emptyConfig
-         & addSource mkNullSource
-    res <- getKey "some.key" c
+    c <- mkStandaloneSource mkNullSource
+    res <- getKeyInSource c "some.key"
     res `shouldBe` Nothing

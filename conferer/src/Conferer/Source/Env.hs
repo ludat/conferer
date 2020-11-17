@@ -28,11 +28,11 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Map (Map)
 import qualified System.Environment as System
-
-import           Conferer.Types
-import Conferer.Source.Simple (mkMapSource)
 import Data.List (stripPrefix)
 import Data.Maybe (mapMaybe)
+
+import           Conferer.Source
+import           Conferer.Source.Simple (mkMapSource)
 
 data EnvSource =
   EnvSource

@@ -7,7 +7,7 @@ import           Data.Maybe (catMaybes)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 
-import           Conferer.Types
+import           Conferer.Source
 import           Conferer.Source.Files
 import           Conferer.Source.Null
 import           Conferer.Source.Simple

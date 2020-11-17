@@ -15,18 +15,18 @@ import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Text (Text)
 
-import           Conferer.Types
+import           Conferer.Source
 
-data SimpleSource = 
+newtype SimpleSource = 
   SimpleSource
   { configMap :: Map Key Text
   } deriving (Show, Eq)
 
 instance IsSource SimpleSource where
-  getKeyInSource (SimpleSource {..}) key =
+  getKeyInSource SimpleSource {..} key =
     return $ Map.lookup key configMap
-  getSubkeysInSource (SimpleSource {..}) key = do
-    return $ filter (key `isKeyPrefixOf`) $ Map.keys $ configMap
+  getSubkeysInSource SimpleSource {..} key = do
+    return $ filter (key `isKeyPrefixOf`) $ Map.keys configMap
 
 -- | Make a 'SourceCreator' from a 'Map'
 mkMapSource' :: Map Key Text -> SourceCreator

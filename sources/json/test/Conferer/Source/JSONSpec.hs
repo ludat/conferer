@@ -3,7 +3,8 @@ module Conferer.Source.JSONSpec where
 import Data.Aeson.QQ
 import Test.Hspec
 
-import Conferer
+import Conferer.Source
+import Conferer.Config.Internal (mkStandaloneSource)
 import Conferer.Source.JSON
 
 spec :: Spec

@@ -2,7 +2,9 @@ module Conferer.Source.SimpleSpec where
 
 import Test.Hspec
 
-import Conferer
+import Conferer.Source
+import Conferer.Config.Internal
+import Conferer.Source.Simple
 
 spec :: Spec
 spec = do

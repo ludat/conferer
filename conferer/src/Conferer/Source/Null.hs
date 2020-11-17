@@ -6,7 +6,7 @@ module Conferer.Source.Null
   )
 where
 
-import           Conferer.Types
+import           Conferer.Source
 
 data NullSource = 
   NullSource

@@ -4,7 +4,7 @@ import           Data.Yaml
 
 import           Conferer.Source.JSON
 import           Conferer.Source.Files
-import           Conferer.Types
+import           Conferer.Source
 
 mkYamlSource :: SourceCreator
 mkYamlSource config = do

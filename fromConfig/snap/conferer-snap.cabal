@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 68e587853de8b73a6b302c50528cccdfb771b2891b21c67256a964d9cabc8203
+-- hash: 3c1b861bbdfb2362bfc99c1511dedcb1e887610f81e78cc50c839cb064441c7c
 
 name:           conferer-snap
 version:        0.4.0.1
@@ -47,6 +47,7 @@ test-suite specs
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Conferer.FromConfig.SnapSpec
       Paths_conferer_snap
   hs-source-dirs:
       test

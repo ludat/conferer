@@ -3,7 +3,9 @@ module Conferer.Source.PropertiesFileSpec where
 import           Test.Hspec
 import qualified Data.Text as Text
 
-import Conferer
+import Conferer.Source
+import Conferer.Config.Internal
+import Conferer.Source.PropertiesFile
 
 spec :: Spec
 spec = do

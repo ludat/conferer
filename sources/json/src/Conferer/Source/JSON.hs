@@ -51,8 +51,7 @@ import           System.Directory (doesFileExist)
 
 import Conferer.Source.Files
 import Conferer.Source.Null
-import Conferer.Types
-import Conferer.Core
+import Conferer.Source
 
 data JsonSource =
   JsonSource

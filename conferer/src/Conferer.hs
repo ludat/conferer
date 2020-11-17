@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
 -- |
 -- Module:      Conferer
 -- Copyright:   (c) 2019 Lucas David Traverso
@@ -69,11 +68,20 @@ module Conferer
   -- added later have lower priority) so the config searches keys in sources
   -- in the same order they were added.
 
-  module Conferer.Types
-  , module Conferer.Core
-  , defaultConfig
+  defaultConfig
   , defaultConfigWithDefaults
-  , Key(..)
+  , Config
+  , FromConfig
+  , emptyConfig
+  , addDefault
+  , addSource
+  , getFromConfig
+  , getFromConfigWithDefault
+  , getFromRootConfig
+  , getFromRootConfigWithDefault
+  , Key
+
+
 
   -- * Sources
   , module Conferer.Source.Env
@@ -90,37 +98,17 @@ module Conferer
 import           Data.Text (Text)
 import           Data.Function ((&))
 
-import           Conferer.Core
-  ( emptyConfig
-  , addSource
-  , getFromConfig
-  , getFromRootConfig
-  , getFromConfigWithDefault
-  , safeGetFromConfig
-  , mkStandaloneSource
-  , requiredValue
-  , safeGetFromConfigWithDefault
-  , getKey
-  , unsafeGetKey
-  , (/.)
-  , withDefaults
-  )
-import           Conferer.Types
-  ( Config
-  , Key(..)
-  , SourceCreator
-  , Source(..)
-  , IsSource(getKeyInSource, getSubkeysInSource)
-  , DefaultConfig(..)
-  , FromConfig(..)
-  )
-import           Conferer.Source.Env
-import           Conferer.Source.Simple
-import           Conferer.Source.Namespaced
-import           Conferer.Source.Mapping
-import           Conferer.Source.CLIArgs
-import           Conferer.Source.Null
-import           Conferer.Source.PropertiesFile
+import Conferer.Config.Internal
+import Conferer.Config.Internal.Types
+import Conferer.FromConfig.Internal
+import Conferer.Key
+import Conferer.Source.Env
+import Conferer.Source.Simple
+import Conferer.Source.Namespaced
+import Conferer.Source.Mapping
+import Conferer.Source.CLIArgs
+import Conferer.Source.Null
+import Conferer.Source.PropertiesFile
 
 -- | Default config which reads from command line arguments, env vars and
 -- property files
@@ -133,7 +121,6 @@ defaultConfig appName =
 defaultConfigWithDefaults :: Text -> [(Key, Text)] -> IO Config
 defaultConfigWithDefaults appName configMap =
   pure (emptyConfig & withDefaults configMap)
-  >>= addSource (mkCLIArgsSource)
+  >>= addSource mkCLIArgsSource
   >>= addSource (mkEnvSource appName)
-  >>= addSource (mkPropertiesFileSource)
-
+  >>= addSource mkPropertiesFileSource

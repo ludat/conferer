@@ -12,10 +12,10 @@ where
 
 import           Data.Map (Map)
 import qualified Data.Map as Map
-
-import           Conferer.Types
 import Data.Maybe (mapMaybe)
 import Data.Tuple (swap)
+
+import           Conferer.Source
 
 data MappingSource =
   MappingSource
@@ -24,13 +24,12 @@ data MappingSource =
   , invertedKeysMap :: Map Key Key
   } deriving (Show)
 
-
 instance IsSource MappingSource where
-  getKeyInSource (MappingSource {..}) key = do
+  getKeyInSource MappingSource {..} key = do
     case Map.lookup key keysMap of
       Just newKey -> getKeyInSource innerSource newKey
       Nothing -> return Nothing
-  getSubkeysInSource (MappingSource {..}) key = do
+  getSubkeysInSource MappingSource{..} key = do
     case Map.lookup key keysMap of
       Just newKey -> do
         mapMaybe (`Map.lookup` invertedKeysMap) <$> getSubkeysInSource innerSource newKey

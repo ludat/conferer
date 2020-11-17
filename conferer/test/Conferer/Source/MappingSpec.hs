@@ -3,7 +3,11 @@ module Conferer.Source.MappingSpec where
 import           Test.Hspec
 import qualified Data.Map as Map
 
-import           Conferer
+import           Conferer.Source
+import           Conferer.Config.Internal
+
+import           Conferer.Source.Simple
+import           Conferer.Source.Mapping
 
 spec :: Spec
 spec = do

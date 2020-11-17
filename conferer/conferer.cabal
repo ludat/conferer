@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9f8030d97c3fa64f2359b93e0155611efbaa2617ab0f98b3902cdccaa39e4a74
+-- hash: 69683906914f168a7c22cfc9ba50e43270562bdc7a2d69a3cc030df19d4dfde9
 
 name:           conferer
 version:        0.4.1.1
@@ -27,17 +27,22 @@ extra-doc-files:
 library
   exposed-modules:
       Conferer
-      Conferer.Core
-      Conferer.FromConfig.Basics
+      Conferer.Config
+      Conferer.Config.Internal
+      Conferer.Config.Internal.Types
+      Conferer.FromConfig
+      Conferer.FromConfig.Internal
+      Conferer.Key
+      Conferer.Source
       Conferer.Source.CLIArgs
       Conferer.Source.Env
       Conferer.Source.Files
+      Conferer.Source.Internal
       Conferer.Source.Mapping
       Conferer.Source.Namespaced
       Conferer.Source.Null
       Conferer.Source.PropertiesFile
       Conferer.Source.Simple
-      Conferer.Types
   other-modules:
       Paths_conferer
   hs-source-dirs:
@@ -58,8 +63,16 @@ test-suite specs
   type: exitcode-stdio-1.0
   main-is: ConfererSpecMain.hs
   other-modules:
-      Conferer.FromConfig.BasicsSpec
+      Conferer.ConfigSpec
+      Conferer.FromConfig.BoolSpec
+      Conferer.FromConfig.Extended
+      Conferer.FromConfig.ListSpec
+      Conferer.FromConfig.MaybeSpec
+      Conferer.FromConfig.NumbersSpec
+      Conferer.FromConfig.StringLikeSpec
+      Conferer.FromConfigSpec
       Conferer.GenericsSpec
+      Conferer.KeySpec
       Conferer.Source.ArgsSpec
       Conferer.Source.EnvSpec
       Conferer.Source.MappingSpec
@@ -67,7 +80,6 @@ test-suite specs
       Conferer.Source.NullSpec
       Conferer.Source.PropertiesFileSpec
       Conferer.Source.SimpleSpec
-      ConfererSpec
       Spec
       Paths_conferer
   hs-source-dirs:

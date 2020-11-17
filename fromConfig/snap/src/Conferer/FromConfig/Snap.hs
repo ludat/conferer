@@ -1,4 +1,6 @@
+{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# OPTIONS_GHC -Wno-name-shadowing #-}
 {-# LANGUAGE FlexibleInstances #-}
 module Conferer.FromConfig.Snap
   (
@@ -19,51 +21,67 @@ module Conferer.FromConfig.Snap
   -- use with care
   ) where
 
-import Conferer.Core
-import Conferer.Types
-import Conferer.FromConfig.Basics
+import Conferer.FromConfig
 
-import Data.Text (unpack)
+import Data.Text (unpack, toLower)
 
 import qualified Snap.Http.Server.Config as Snap
+import qualified Snap.Internal.Http.Server.Config as Snap
 import qualified Snap.Core as Snap
+import Data.Data (Typeable)
 
 instance FromConfig Snap.ConfigLog where
-  updateFromConfig = updateAllAtOnceUsingFetch
-  fetchFromConfig k config = do
-    getKey k config
-      >>= \case
-        Just "NoLog" -> return $ Just $ Snap.ConfigNoLog
-        Just t -> return $ Just $ Snap.ConfigFileLog $ unpack t
-        Nothing -> return $ Nothing
+  fetchFromConfig =
+    fetchFromConfigWith $
+      (\case
+        "nolog" -> pure Snap.ConfigNoLog
+        "none" -> pure Snap.ConfigNoLog
+        "no" -> pure Snap.ConfigNoLog
+        "false" -> pure Snap.ConfigNoLog
+        t -> pure $ Snap.ConfigFileLog $ unpack t
+      ) . toLower
 
-instance (Snap.MonadSnap m) => DefaultConfig (Snap.Config m a) where
-  configDef = Snap.defaultConfig
+instance FromConfig Snap.ProxyType where
+  fetchFromConfig =
+    fetchFromConfigWith $
+      (\case
+        "noproxy" -> pure Snap.NoProxy
+        "none" -> pure Snap.NoProxy
+        "false" -> pure Snap.NoProxy
 
-withMaybe :: (a -> c -> c) -> Maybe a -> c -> c
-withMaybe f (Just a) c = f a c
-withMaybe _f (Nothing) c = c
+        "haproxy" -> pure Snap.HaProxy
+        "ha" -> pure Snap.HaProxy
 
-instance forall a m. (FromConfig a, Snap.MonadSnap m) => FromConfig (Snap.Config m a) where
-  fetchFromConfig _k _config = return Nothing
-  updateFromConfig k config snapConfig = do
-    pure snapConfig
-      >>= findKeyAndApplyConfig config k "defaultTimeout" Snap.getDefaultTimeout (withMaybe Snap.setDefaultTimeout)
-      >>= findKeyAndApplyConfig config k "accessLog" Snap.getAccessLog (withMaybe Snap.setAccessLog)
-      >>= findKeyAndApplyConfig config k "bind" Snap.getBind (withMaybe Snap.setBind)
-      >>= findKeyAndApplyConfig config k "compression" Snap.getCompression (withMaybe Snap.setCompression)
-      >>= findKeyAndApplyConfig config k "errorLog" Snap.getErrorLog (withMaybe Snap.setErrorLog)
-      >>= findKeyAndApplyConfig config k "hostname" Snap.getHostname (withMaybe Snap.setHostname)
-      >>= findKeyAndApplyConfig config k "locale" Snap.getLocale (withMaybe Snap.setLocale)
-      >>= findKeyAndApplyConfig config k "port" Snap.getPort (withMaybe Snap.setPort)
-      -- >>= findKeyAndApplyConfig config k "proxy-type" (withMaybe Snap.setProxyType)
-      >>= findKeyAndApplyConfig config k "sslBind" Snap.getSSLBind (withMaybe Snap.setSSLBind)
-      >>= findKeyAndApplyConfig config k "sslCert" Snap.getSSLCert (withMaybe Snap.setSSLCert)
-      >>= findKeyAndApplyConfig config k "sslKey" Snap.getSSLKey (withMaybe Snap.setSSLKey)
-      >>= findKeyAndApplyConfig config k "sslChain-cert" Snap.getSSLChainCert (withMaybe Snap.setSSLChainCert)
-      >>= findKeyAndApplyConfig config k "sslPort" Snap.getSSLPort (withMaybe Snap.setSSLPort)
-      >>= findKeyAndApplyConfig config k "verbose" Snap.getVerbose (withMaybe Snap.setVerbose)
-      >>= findKeyAndApplyConfig config k "unixSocket" Snap.getUnixSocket (withMaybe Snap.setUnixSocket)
-      >>= findKeyAndApplyConfig config k "unixSocketAccessMode" Snap.getUnixSocketAccessMode (withMaybe Snap.setUnixSocketAccessMode)
-      >>= findKeyAndApplyConfig config k "other" Snap.getOther (withMaybe Snap.setOther)
-      >>= return
+        "xforwardedfor" -> pure Snap.X_Forwarded_For
+        "forwarded" -> pure Snap.X_Forwarded_For
+        "x-forwarded-for" -> pure Snap.X_Forwarded_For
+        "x_forwarded_for" -> pure Snap.X_Forwarded_For
+        _ -> Nothing
+      ) . toLower
+
+-- instance (Snap.MonadSnap m) => DefaultConfig (Snap.Config m a) where
+--   configDef = Snap.defaultConfig
+
+instance forall a m. (FromConfig a, Typeable a, Snap.MonadSnap m, Typeable m) => FromConfig (Snap.Config m a) where
+  fetchFromConfig key config = do
+    Snap.Config{..} <- fetchFromDefaults key config
+    defaultTimeout <- getFromConfigWithDefault (key /. "defaultTimeout") config defaultTimeout
+    accessLog <- getFromConfigWithDefault (key /. "accessLog") config accessLog
+    bind <- getFromConfigWithDefault (key /. "bind") config bind
+    compression <- getFromConfigWithDefault (key /. "compression") config compression
+    errorLog <- getFromConfigWithDefault (key /. "errorLog") config errorLog
+    hostname <- getFromConfigWithDefault (key /. "hostname") config hostname
+    locale <- getFromConfigWithDefault (key /. "locale") config locale
+    port <- getFromConfigWithDefault (key /. "port") config port
+    proxyType <- getFromConfigWithDefault (key /. "proxyType") config proxyType
+    sslbind <- getFromConfigWithDefault (key /. "sslBind") config sslbind
+    sslcert <- getFromConfigWithDefault (key /. "sslCert") config sslcert
+    sslkey <- getFromConfigWithDefault (key /. "sslKey") config sslkey
+    sslchaincert <- getFromConfigWithDefault (key /. "sslChainCert") config sslchaincert
+    sslport <- getFromConfigWithDefault (key /. "sslPort") config sslport
+    verbose <- getFromConfigWithDefault (key /. "verbose") config verbose
+    unixsocket <- getFromConfigWithDefault (key /. "unixSocket") config unixsocket
+    unixaccessmode <- getFromConfigWithDefault (key /. "unixSocketAccessMode") config unixaccessmode
+    other <- getFromConfigWithDefault @(Maybe a) (key /. "other") config other
+
+    pure Snap.Config{..}

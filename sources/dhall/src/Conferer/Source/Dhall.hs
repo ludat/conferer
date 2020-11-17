@@ -8,7 +8,7 @@ import           Conferer.Source.JSON
 import           Conferer.Source.Files
 import           Conferer.Source.Null
 
-import           Conferer.Types
+import           Conferer.Source
 
 mkDhallSource :: SourceCreator
 mkDhallSource config = do

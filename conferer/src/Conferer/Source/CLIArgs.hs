@@ -16,8 +16,8 @@ import           Data.Maybe (mapMaybe)
 import           Data.String (fromString)
 import           System.Environment (getArgs)
 
-import Conferer.Types
-import Conferer.Source.Simple
+import           Conferer.Source
+import           Conferer.Source.Simple
 
 
 -- | Create a 'SourceCreator' for CLIArgs from a argument list
