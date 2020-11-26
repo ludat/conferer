@@ -62,6 +62,8 @@ instance FromConfig Redis.ConnectInfo where
     connectMaxConnections <- getFromConfigWithDefault (key /. "maxConnections") config connectMaxConnections
     connectMaxIdleTime <- getFromConfigWithDefault (key /. "maxIdleTime") config connectMaxIdleTime
     connectTimeout <- getFromConfigWithDefault (key /. "timeout") config connectTimeout
+#if MIN_VERSION_hedis(0,10,2)
     connectTLSParams <- getFromConfigWithDefault (key /. "tlsParams") config connectTLSParams
+#endif
 
     pure Redis.ConnInfo{..}
