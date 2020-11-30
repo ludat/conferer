@@ -12,7 +12,8 @@ module Conferer.FromConfig.Internal where
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-import           Data.ByteString (ByteString)
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Lazy as LBS
 import           Control.Exception
 import           Data.Typeable
 import           Data.String (IsString, fromString)
@@ -45,13 +46,13 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
     keysForItems <- getSubkeysForItems
     case keysForItems of
       Nothing -> do
-        fetchFromDefaults @[a] key config
+        fetchRequiredFromDefaults @[a] key config
       Just subkeys -> do
-        defaultsMay <- fetchFromDefaults' @[a] key config
+        defaultsMay <- fetchFromDefaults @[a] key config
         let configWithDefaults :: Config =
               case defaultsMay of
-                Just defaults -> 
-                  foldl' (\c (index, value) -> 
+                Just defaults ->
+                  foldl' (\c (index, value) ->
                     c & addDefault (key /. "defaults" /. fromString (show index)) value) config
                   $ zip [0 :: Integer ..] defaults
                 Nothing -> config
@@ -65,18 +66,18 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
     where
     getSubkeysForItems ::IO (Maybe [Key])
     getSubkeysForItems = do
-      getFromConfig @(Maybe Text) (key /. "keys") config
+      fetchFromConfig @(Maybe Text) (key /. "keys") config
         >>= \case
           Just rawKeys -> do
             return $
-              Just $ 
-              nub $ 
-              filter (/= "") $ 
+              Just $
+              nub $
+              filter (/= "") $
               fromString @Key .
               Text.unpack <$>
               Text.split (== ',') rawKeys
           Nothing -> do
-            subelements <- 
+            subelements <-
               sort
               . nub
               . filter (not . (`elem` ["prototype", "keys", "defaults"]))
@@ -96,22 +97,24 @@ instance FromConfig Integer where
 instance FromConfig Float where
   fetchFromConfig = fetchFromConfigByRead
 
-instance FromConfig ByteString where
+instance FromConfig BS.ByteString where
   fetchFromConfig = fetchFromConfigWith (Just . Text.encodeUtf8)
 
-instance (Typeable a, FromConfig a) => FromConfig (Maybe a) where
-  fetchFromConfig k config = do
-    let 
-      newConfig =
-        case getKeyFromDefaults k config >>= fromDynamic @(Maybe a) of
-        Just (Just defaultThing) ->
-          config & addDefault k defaultThing
-        Just Nothing ->
-          config & removeDefault k
-        _ ->
-          config
+instance FromConfig LBS.ByteString where
+  fetchFromConfig = fetchFromConfigWith (Just . LBS.fromStrict . Text.encodeUtf8)
 
-    (Just <$> fetchFromConfig @a k newConfig)
+instance forall a. (Typeable a, FromConfig a) => FromConfig (Maybe a) where
+  fetchFromConfig key config = do
+    let
+      newConfig =
+        case getKeyFromDefaults key config >>= fromDynamic @(Maybe a) of
+        Just (Just defaultThing) -> do
+          config & addDefault key defaultThing
+        Just Nothing -> do
+          config & removeDefault key
+        _ -> do
+          config
+    (Just <$> fetchFromConfig @a key newConfig)
       `catch` (\(_e :: MissingRequiredKey) -> return Nothing)
 
 instance FromConfig Text where
@@ -154,6 +157,24 @@ fetchFromConfigWith parseValue key config = do
           Nothing -> do
             throwTypeMismatchWithDefault @a k dynamic
 
+addDefaultsAfterDeconstructingToDefaults
+  :: forall a.
+  Typeable a =>
+  (a -> [(Key, Dynamic)]) ->
+  Key ->
+  Config ->
+  IO Config
+addDefaultsAfterDeconstructingToDefaults destructureValue key config = do
+  fetchFromDefaults @a key config
+    >>= \case
+    Just value -> do
+      let newDefaults =
+            ((\(k, d) -> (key /. k, d)) <$> destructureValue value)
+      return $
+        addDefaults newDefaults config
+    Nothing -> do
+      return config
+
 -- | Main typeclass for defining the way to get values from config, hiding the
 -- 'Text' based nature of the 'Source's.
 -- updated using a config, so for example a Warp.Settings can get updated from a config,
@@ -167,15 +188,14 @@ fetchFromConfigWith parseValue key config = do
 class DefaultConfig a where
   configDef :: a
 
-
 class FromConfig a where
   fetchFromConfig :: Key -> Config -> IO a
   default fetchFromConfig :: (Typeable a, Generic a, IntoDefaultsG (Rep a), FromConfigG (Rep a)) => Key -> Config -> IO a
   fetchFromConfig k c = do
-    defaultValue <- fetchFromDefaults' @a k c
-    let config = 
+    defaultValue <- fetchFromDefaults @a k c
+    let config =
           case defaultValue of
-            Just d -> c & withDefaults' (intoDefaultsG k $ from d)
+            Just d -> c & addDefaults (intoDefaultsG k $ from d)
             Nothing -> c
     to <$> fetchFromConfigG k config
 
@@ -224,11 +244,6 @@ instance (FromConfigG inner, Selector selector) =>
 instance (FromConfig inner) => FromConfigG (Rec0 inner) where
   fetchFromConfigG key config = do
     K1 <$> fetchFromConfig @inner key config
-
--- #############################################################################
--- #############################################################################
--- #############################################################################
--- #############################################################################
 
 class IntoDefaultsG f where
   intoDefaultsG :: Key -> f a -> [(Key, Dynamic)]
@@ -311,11 +326,11 @@ instance Show MissingRequiredKey where
     [ "Failed to get a '"
     , show aTypeRep
     , "' from keys: "
-    , Text.unpack 
-      $ Text.intercalate ", " 
+    , Text.unpack
+      $ Text.intercalate ", "
       $ fmap (Text.pack . show)
       $ keys
-    
+
     ]
 
 throwMissingRequiredKey :: forall t a. Typeable t => Key -> IO a
@@ -339,7 +354,7 @@ data TypeMismatchWithDefault =
   deriving (Typeable)
 
 instance Eq TypeMismatchWithDefault where
-  (==) = (==) `on` 
+  (==) = (==) `on`
     (\(TypeMismatchWithDefault k dyn t) -> (k, show dyn, t))
 instance Exception TypeMismatchWithDefault
 instance Show TypeMismatchWithDefault where
@@ -363,51 +378,41 @@ typeMismatchWithDefault :: forall a. (Typeable a) => Key -> Dynamic -> TypeMisma
 typeMismatchWithDefault key dynamic =
   TypeMismatchWithDefault key dynamic $ typeRep (Proxy :: Proxy a)
 
-fetchFromDefaults :: forall a. (Typeable a) => Key -> Config -> IO a
-fetchFromDefaults key config = 
-  fetchFromDefaults' key config >>=
+fetchRequiredFromDefaults :: forall a. (Typeable a) => Key -> Config -> IO a
+fetchRequiredFromDefaults key config =
+  fetchFromDefaults key config >>=
     \case
     Nothing -> do
       throwMissingRequiredKey @a key
-    Just a -> 
+    Just a ->
       return a
 
-fetchFromDefaults' :: forall a. (Typeable a) => Key -> Config -> IO (Maybe a)
-fetchFromDefaults' key config =
+fetchFromDefaults :: forall a. (Typeable a) => Key -> Config -> IO (Maybe a)
+fetchFromDefaults key config =
   case getKeyFromDefaults key config of
     Nothing -> do
       return Nothing
-    Just dyn -> 
+    Just dyn ->
       case fromDynamic @a dyn of
         Nothing ->
           throwTypeMismatchWithDefault @a key dyn
         Just a -> return $ Just a
 
--- | Fetch a value from a config under some specific key that's parsed using the 'FromConfig'
---   instance, and as a default it uses the value from 'DefaultConfig'.
+-- | Same as 'fetchFromConfig' using the root key
 --
 --   Notes:
 --     - This function may throw an exception if parsing fails for any subkey
-getFromConfig :: forall a. (FromConfig a) => Key -> Config -> IO a
-getFromConfig key config =
-  fetchFromConfig key config
+fetchFromRootConfig :: forall a. (FromConfig a) => Config -> IO a
+fetchFromRootConfig =
+  fetchFromConfig ""
 
--- | Same as 'getFromConfig' using the root key
---
---   Notes:
---     - This function may throw an exception if parsing fails for any subkey
-getFromRootConfig :: forall a. (FromConfig a) => Config -> IO a
-getFromRootConfig config =
-  getFromConfig "" config
-
-
--- | Same as 'getFromConfig' but with a user defined default (instead of 'DefaultConfig' instance)
+-- | Same as 'fetchFromConfig' but with a user defined default (instead of 'DefaultConfig' instance)
 --
 --   Useful for fetching primitive types
-getFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Key -> Config -> a -> IO a
-getFromConfigWithDefault key config configDefault =
-  getFromConfig key (config & addDefault key configDefault)
+fetchFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Key -> Config -> a -> IO a
+fetchFromConfigWithDefault key config configDefault =
+  fetchFromConfig key (config & addDefault key configDefault)
 
-getFromRootConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Config -> a -> IO a
-getFromRootConfigWithDefault config configDefault =
-  getFromRootConfig (config & addDefault "" configDefault)
+fetchFromRootConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Config -> a -> IO a
+fetchFromRootConfigWithDefault config configDefault =
+  fetchFromRootConfig (config & addDefault "" configDefault)

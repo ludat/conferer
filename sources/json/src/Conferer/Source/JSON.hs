@@ -15,7 +15,7 @@ module Conferer.Source.JSON
   --   config <-
   --     'defaultConfig' \"awesomeapp\"
   --     & 'addSource' 'mkJsonSource'
-  --   warpSettings <- 'getFromConfig' \"warp\" config
+  --   warpSettings <- 'fetchFromConfig' \"warp\" config
   --   runSettings warpSettings application
   -- @
   --

@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bf47157c218a51f683236c3beb9988e5e3172b967c8eaf97ea322da0a329de98
+-- hash: a568a7ea09bdad7a6e41f1e25185c1820a28372c142a23d2003e0a7827ce63ce
 
 name:           conferer-warp
 version:        0.4.0.1
@@ -31,7 +31,7 @@ library
       Paths_conferer_warp
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
@@ -52,7 +52,7 @@ test-suite specs
       Paths_conferer_warp
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5

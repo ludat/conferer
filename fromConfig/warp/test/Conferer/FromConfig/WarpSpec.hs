@@ -8,7 +8,7 @@ import           Conferer.FromConfig.Warp ()
 import           Network.Wai.Handler.Warp
 
 configWith :: [(Key, Text)] -> IO Config
-configWith keyValues = emptyConfig & addDefault "warp" defaultSettings & addSource (mkMapSource keyValues) 
+configWith keyValues = emptyConfig & addDefault "warp" (configDef @Settings) & addSource (mkMapSource keyValues)
 
 portAndHostShouldBe :: Settings -> (Port, HostPreference) -> Expectation
 portAndHostShouldBe fetchedSettings (port, host) = do
@@ -17,26 +17,26 @@ portAndHostShouldBe fetchedSettings (port, host) = do
 
 spec :: Spec
 spec = do
-  let defaultPort = getPort defaultSettings
-      defaultHost = getHost defaultSettings
+  let defaultPort = getPort configDef
+      defaultHost = getHost configDef
 
   describe "fetching a warp configuration from a totally empty config" $ do
-    it "throws an exception" $ do
+    xit "throws an exception" $ do
       let config = emptyConfig
-      getFromConfig @Settings "warp" config 
+      fetchKey @Settings "warp" config configDef
         `shouldThrow` anyException
   describe "fetching a warp configuration that has the default" $ do
     it "returns warp default config" $ do
       config <- configWith []
-      fetchedValue <- getFromConfig "warp" config
+      fetchedValue <- fetchKey "warp" config configDef
       fetchedValue `portAndHostShouldBe` (defaultPort, defaultHost)
   describe "fetching a warp configuration overridnig its port" $ do
     it "returns a warp config with its port set to the overriden one" $ do
       config <- configWith [("warp.port", "9999")]
-      fetchedValue <- getFromConfig "warp" config
+      fetchedValue <- fetchKey "warp" config configDef
       fetchedValue `portAndHostShouldBe` (9999, defaultHost)
   describe "fetching a warp configuration overriding its host" $ do
     it "returns a warp config with its host set to the overriden one" $ do
       config <- configWith [("warp.host", "!6")]
-      fetchedValue <- getFromConfig "warp" config
+      fetchedValue <- fetchKey "warp" config configDef
       fetchedValue `portAndHostShouldBe` (defaultPort, "!6")

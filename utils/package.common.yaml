@@ -27,6 +27,7 @@
     - QuasiQuotes
     - ScopedTypeVariables
     - RecordWildCards
+    - StrictData
 
 - &ghcoptions
   ghc-options:

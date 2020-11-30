@@ -151,16 +151,16 @@ withDefaults configMap config =
   { configDefaults =
     (Map.map toDyn . Map.fromList $ configMap)
       `Map.union`
-      (configDefaults config)
+      configDefaults config
   }
 
-withDefaults' :: [(Key, Dynamic)] -> Config -> Config
-withDefaults' configMap config =
+addDefaults :: [(Key, Dynamic)] -> Config -> Config
+addDefaults configMap config =
   config
   { configDefaults =
-    (Map.fromList configMap)
+    Map.fromList configMap
       `Map.union`
-      (configDefaults config)
+      configDefaults config
   }
 
 addDefault :: (Typeable a) => Key -> a -> Config -> Config

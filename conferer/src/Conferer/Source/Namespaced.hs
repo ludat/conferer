@@ -36,7 +36,4 @@ instance IsSource NamespacedSource where
 mkNamespacedSource :: Key -> SourceCreator -> SourceCreator
 mkNamespacedSource scopeKey configCreator = \config -> do
   innerSource <- configCreator config
-  return $
-   Source $
-   NamespacedSource
-   {..}
+  return $ Source $ NamespacedSource{..}

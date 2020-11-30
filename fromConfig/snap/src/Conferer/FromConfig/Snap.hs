@@ -13,7 +13,7 @@ module Conferer.FromConfig.Snap
   --
   -- main = do
   --   config <- 'defaultConfig' \"awesomeapp\"
-  --   snapConfig <- 'getFromConfig' \"snap\" config
+  --   snapConfig <- 'fetchFromConfig' \"snap\" config
   -- @
   --
   -- * Internal utility functions
@@ -29,6 +29,7 @@ import qualified Snap.Http.Server.Config as Snap
 import qualified Snap.Internal.Http.Server.Config as Snap
 import qualified Snap.Core as Snap
 import Data.Data (Typeable)
+import Data.Dynamic (toDyn, Dynamic)
 
 instance FromConfig Snap.ConfigLog where
   fetchFromConfig =
@@ -59,29 +60,56 @@ instance FromConfig Snap.ProxyType where
         _ -> Nothing
       ) . toLower
 
--- instance (Snap.MonadSnap m) => DefaultConfig (Snap.Config m a) where
---   configDef = Snap.defaultConfig
+instance (Snap.MonadSnap m) => DefaultConfig (Snap.Config m a) where
+  configDef = Snap.defaultConfig
+
+desconstructSnapConfigToDefaults :: (Typeable a, Typeable m) => Snap.Config m a -> [(Key, Dynamic)]
+desconstructSnapConfigToDefaults Snap.Config{..} =
+  [ ("defaultTimeout", toDyn defaultTimeout)
+  , ("accessLog", toDyn accessLog)
+  , ("bind", toDyn bind)
+  , ("compression", toDyn compression)
+  , ("errorLog", toDyn errorLog)
+  , ("hostname", toDyn hostname)
+  , ("locale", toDyn locale)
+  , ("port", toDyn port)
+  , ("proxyType", toDyn proxyType)
+  , ("sslBind", toDyn sslbind)
+  , ("sslCert", toDyn sslcert)
+  , ("sslKey", toDyn sslkey)
+  , ("sslChainCert", toDyn sslchaincert)
+  , ("sslPort", toDyn sslport)
+  , ("verbose", toDyn verbose)
+  , ("unixSocket", toDyn unixsocket)
+  , ("unixSocketAccessMode", toDyn unixaccessmode)
+  , ("errorHandler", toDyn errorHandler)
+  , ("startupHook", toDyn startupHook)
+  , ("other", toDyn other)
+  ]
 
 instance forall a m. (FromConfig a, Typeable a, Snap.MonadSnap m, Typeable m) => FromConfig (Snap.Config m a) where
-  fetchFromConfig key config = do
-    Snap.Config{..} <- fetchFromDefaults key config
-    defaultTimeout <- getFromConfigWithDefault (key /. "defaultTimeout") config defaultTimeout
-    accessLog <- getFromConfigWithDefault (key /. "accessLog") config accessLog
-    bind <- getFromConfigWithDefault (key /. "bind") config bind
-    compression <- getFromConfigWithDefault (key /. "compression") config compression
-    errorLog <- getFromConfigWithDefault (key /. "errorLog") config errorLog
-    hostname <- getFromConfigWithDefault (key /. "hostname") config hostname
-    locale <- getFromConfigWithDefault (key /. "locale") config locale
-    port <- getFromConfigWithDefault (key /. "port") config port
-    proxyType <- getFromConfigWithDefault (key /. "proxyType") config proxyType
-    sslbind <- getFromConfigWithDefault (key /. "sslBind") config sslbind
-    sslcert <- getFromConfigWithDefault (key /. "sslCert") config sslcert
-    sslkey <- getFromConfigWithDefault (key /. "sslKey") config sslkey
-    sslchaincert <- getFromConfigWithDefault (key /. "sslChainCert") config sslchaincert
-    sslport <- getFromConfigWithDefault (key /. "sslPort") config sslport
-    verbose <- getFromConfigWithDefault (key /. "verbose") config verbose
-    unixsocket <- getFromConfigWithDefault (key /. "unixSocket") config unixsocket
-    unixaccessmode <- getFromConfigWithDefault (key /. "unixSocketAccessMode") config unixaccessmode
-    other <- getFromConfigWithDefault @(Maybe a) (key /. "other") config other
-
+  fetchFromConfig key originalConfig = do
+    config <- addDefaultsAfterDeconstructingToDefaults
+      (desconstructSnapConfigToDefaults :: Snap.Config m a -> [(Key, Dynamic)])
+      key originalConfig
+    defaultTimeout <- fetchFromConfig (key /. "defaultTimeout") config
+    accessLog <- fetchFromConfig (key /. "accessLog") config
+    bind <- fetchFromConfig (key /. "bind") config
+    compression <- fetchFromConfig (key /. "compression") config
+    errorLog <- fetchFromConfig (key /. "errorLog") config
+    hostname <- fetchFromConfig (key /. "hostname") config
+    locale <- fetchFromConfig (key /. "locale") config
+    port <- fetchFromConfig (key /. "port") config
+    proxyType <- fetchFromConfig (key /. "proxyType") config
+    sslbind <- fetchFromConfig (key /. "sslBind") config
+    sslcert <- fetchFromConfig (key /. "sslCert") config
+    sslkey <- fetchFromConfig (key /. "sslKey") config
+    sslchaincert <- fetchFromConfig (key /. "sslChainCert") config
+    sslport <- fetchFromConfig (key /. "sslPort") config
+    verbose <- fetchFromConfig (key /. "verbose") config
+    unixsocket <- fetchFromConfig (key /. "unixSocket") config
+    unixaccessmode <- fetchFromConfig (key /. "unixSocketAccessMode") config
+    errorHandler <- fetchFromConfig (key /. "errorHandler") config
+    startupHook <- fetchFromConfig (key /. "startupHook") config
+    other <- fetchFromConfig @(Maybe a) (key /. "other") config
     pure Snap.Config{..}

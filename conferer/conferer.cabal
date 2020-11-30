@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 69683906914f168a7c22cfc9ba50e43270562bdc7a2d69a3cc030df19d4dfde9
+-- hash: 3fb2d96a003bf31a9d7eafff52970e077d48d59b08b0c44cb70cb5222cb8bc78
 
 name:           conferer
 version:        0.4.1.1
@@ -38,7 +38,6 @@ library
       Conferer.Source.Env
       Conferer.Source.Files
       Conferer.Source.Internal
-      Conferer.Source.Mapping
       Conferer.Source.Namespaced
       Conferer.Source.Null
       Conferer.Source.PropertiesFile
@@ -47,7 +46,7 @@ library
       Paths_conferer
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
@@ -75,7 +74,6 @@ test-suite specs
       Conferer.KeySpec
       Conferer.Source.ArgsSpec
       Conferer.Source.EnvSpec
-      Conferer.Source.MappingSpec
       Conferer.Source.NamespacedSpec
       Conferer.Source.NullSpec
       Conferer.Source.PropertiesFileSpec
@@ -84,7 +82,7 @@ test-suite specs
       Paths_conferer
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererSpecMain
   build-depends:
       base >=4.3 && <5

@@ -11,7 +11,7 @@ module Conferer.FromConfig.Hspec
   --
   -- main = do
   --   config <- 'defaultConfig' \"awesomeapp\"
-  --   snapConfig <- 'getFromConfig' \"snap\" config
+  --   snapConfig <- 'fetchFromConfig' \"snap\" config
   -- @
   --
   -- * Internal utility functions
@@ -25,6 +25,7 @@ import Data.Text (toLower)
 
 import qualified Test.Hspec.Core.Runner as Hspec
 import qualified Test.Hspec.Core.Formatters as Hspec
+import Data.Dynamic (toDyn, Dynamic)
 
 instance FromConfig Hspec.ColorMode where
   fetchFromConfig =
@@ -47,39 +48,78 @@ instance FromConfig Hspec.Formatter where
       _ -> Nothing
     ) . toLower
 
---   configDef = Hspec.defaultConfig
+instance DefaultConfig Hspec.Config where
+  configDef = Hspec.defaultConfig
 
-instance FromConfig Hspec.Config where
-  fetchFromConfig key config = do
-    Hspec.Config{..} <- fetchFromDefaults key config
-
-    configDryRun <- getFromConfigWithDefault (key /. "dryRun") config configDryRun
-    configFastFail <- getFromConfigWithDefault (key /. "fastFail") config configFastFail
-    configRerun <- getFromConfigWithDefault (key /. "rerun") config configRerun
-    configQuickCheckMaxSuccess <- getFromConfigWithDefault (key /. "quickCheckMaxSuccess") config configQuickCheckMaxSuccess
-    configQuickCheckMaxDiscardRatio <- getFromConfigWithDefault (key /. "quickCheckMaxDiscardRatio") config configQuickCheckMaxDiscardRatio
-    configQuickCheckMaxSize <- getFromConfigWithDefault (key /. "quickCheckMaxSize") config configQuickCheckMaxSize
-    configQuickCheckSeed <- getFromConfigWithDefault (key /. "quickCheckSeed") config configQuickCheckSeed
-    configSmallCheckDepth <- getFromConfigWithDefault (key /. "smallCheckDepth") config configSmallCheckDepth
-    configColorMode <- getFromConfigWithDefault (key /. "colorMode") config configColorMode
-    configHtmlOutput <- getFromConfigWithDefault (key /. "htmlOutput") config configHtmlOutput
-    configFormatter <- getFromConfigWithDefault (key /. "formatter") config configFormatter
+desconstructHspecConfigToDefaults :: Hspec.Config -> [(Key, Dynamic)]
+desconstructHspecConfigToDefaults Hspec.Config{..} =
+  [ ("dryRun", toDyn configDryRun)
+  , ("fastFail", toDyn configFastFail)
+  , ("rerun", toDyn configRerun)
+  , ("quickCheckMaxSuccess", toDyn configQuickCheckMaxSuccess)
+  , ("quickCheckMaxDiscardRatio", toDyn configQuickCheckMaxDiscardRatio)
+  , ("quickCheckMaxSize", toDyn configQuickCheckMaxSize)
+  , ("quickCheckSeed", toDyn configQuickCheckSeed)
+  , ("smallCheckDepth", toDyn configSmallCheckDepth)
+  , ("colorMode", toDyn configColorMode)
+  , ("htmlOutput", toDyn configHtmlOutput)
+  , ("formatter", toDyn configFormatter)
 #if MIN_VERSION_hspec_core(2,1,1)
-    configSkipPredicate <- getFromConfigWithDefault (key /. "skipPredicate") config configSkipPredicate
+  , ("skipPredicate", toDyn configSkipPredicate)
 #endif
 #if MIN_VERSION_hspec_core(2,1,9)
-    configConcurrentJobs <- getFromConfigWithDefault (key /. "concurrentJobs") config configConcurrentJobs
+  , ("concurrentJobs", toDyn configConcurrentJobs)
 #endif
 #if MIN_VERSION_hspec_core(2,4,0)
-    configIgnoreConfigFile <- getFromConfigWithDefault (key /. "ignoreConfigFile") config configIgnoreConfigFile
-    configPrintCpuTime <- getFromConfigWithDefault (key /. "printCpuTime") config configPrintCpuTime
-    configDiff <- getFromConfigWithDefault (key /. "diff") config configDiff
+  , ("ignoreConfigFile", toDyn configIgnoreConfigFile)
+  , ("printCpuTime", toDyn configPrintCpuTime)
+  , ("diff", toDyn configDiff)
 #endif
 #if MIN_VERSION_hspec_core(2,4,2)
-    configFailureReport <- getFromConfigWithDefault (key /. "failureReport") config configFailureReport
+  , ("failureReport", toDyn configFailureReport)
 #endif
 #if MIN_VERSION_hspec_core(2,7,0)
-    configFocusedOnly <- getFromConfigWithDefault (key /. "focusedOnly") config configFocusedOnly
-    configFailOnFocused <- getFromConfigWithDefault (key /. "failOnFocused") config configFailOnFocused
+  , ("focusedOnly", toDyn configFocusedOnly)
+  , ("failOnFocused", toDyn configFailOnFocused)
+#endif
+  ]
+
+instance FromConfig Hspec.Config where
+  fetchFromConfig key originalConfig = do
+    config <- addDefaultsAfterDeconstructingToDefaults
+      desconstructHspecConfigToDefaults
+      key originalConfig
+
+    configDryRun <- fetchFromConfig (key /. "dryRun") config
+    configFastFail <- fetchFromConfig (key /. "fastFail") config
+    configRerun <- fetchFromConfig (key /. "rerun") config
+    configQuickCheckMaxSuccess <- fetchFromConfig (key /. "quickCheckMaxSuccess") config
+    configQuickCheckMaxDiscardRatio <- fetchFromConfig (key /. "quickCheckMaxDiscardRatio") config
+    configQuickCheckMaxSize <- fetchFromConfig (key /. "quickCheckMaxSize") config
+    configQuickCheckSeed <- fetchFromConfig (key /. "quickCheckSeed") config
+    configSmallCheckDepth <- fetchFromConfig (key /. "smallCheckDepth") config
+    configColorMode <- fetchFromConfig (key /. "colorMode") config
+    configHtmlOutput <- fetchFromConfig (key /. "htmlOutput") config
+    configFormatter <- fetchFromConfig (key /. "formatter") config
+    configRerunAllOnSuccess <- fetchFromConfig (key /. "rerunAllOnSuccess") config
+    configFilterPredicate <- fetchFromConfig (key /. "filterPredicate") config
+    configOutputFile <- fetchFromConfig (key /. "outputFile") config
+#if MIN_VERSION_hspec_core(2,1,1)
+    configSkipPredicate <- fetchFromConfig (key /. "skipPredicate") config
+#endif
+#if MIN_VERSION_hspec_core(2,1,9)
+    configConcurrentJobs <- fetchFromConfig (key /. "concurrentJobs") config
+#endif
+#if MIN_VERSION_hspec_core(2,4,0)
+    configIgnoreConfigFile <- fetchFromConfig (key /. "ignoreConfigFile") config
+    configPrintCpuTime <- fetchFromConfig (key /. "printCpuTime") config
+    configDiff <- fetchFromConfig (key /. "diff") config
+#endif
+#if MIN_VERSION_hspec_core(2,4,2)
+    configFailureReport <- fetchFromConfig (key /. "failureReport") config
+#endif
+#if MIN_VERSION_hspec_core(2,7,0)
+    configFocusedOnly <- fetchFromConfig (key /. "focusedOnly") config
+    configFailOnFocused <- fetchFromConfig (key /. "failOnFocused") config
 #endif
     pure Hspec.Config{..}

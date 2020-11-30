@@ -1,7 +1,5 @@
-{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE CPP #-}
 module Conferer.FromConfig.Warp
   (
@@ -14,12 +12,15 @@ module Conferer.FromConfig.Warp
   --
   -- main = do
   --   config <- 'defaultConfig' \"awesomeapp\"
-  --   warpSettings <- 'getFromConfig' \"warp\" config
+  --   warpSettings <- 'fetchFromConfig' \"warp\" config
   -- @
   ) where
 
-import Conferer.Config
-import Conferer.FromConfig.Internal
+import qualified Data.Text as Text
+import Data.Dynamic
+
+import Conferer.FromConfig
+
 import Network.Wai.Handler.Warp
 import Network.Wai.Handler.Warp.Internal
 
@@ -27,72 +28,135 @@ instance FromConfig HostPreference where
   fetchFromConfig = fetchFromConfigByIsString
 
 instance FromConfig ProxyProtocol where
-  fetchFromConfig = fetchFromConfigWith
+  fetchFromConfig = fetchFromConfigWith $
     (\case
-      "ProxyProtocolNone" -> Just ProxyProtocolNone
-      "ProxyProtocolRequired" -> Just ProxyProtocolRequired
-      "ProxyProtocolOptional" -> Just ProxyProtocolOptional
+      "proxyprotocolnone" -> Just ProxyProtocolNone
+      "none" -> Just ProxyProtocolNone
+      "proxyprotocolrequired" -> Just ProxyProtocolRequired
+      "required" -> Just ProxyProtocolRequired
+      "proxyprotocoloptional" -> Just ProxyProtocolOptional
+      "optional" -> Just ProxyProtocolOptional
       _ -> Nothing
-    )
+    ) . Text.toLower
 
--- instance DefaultConfig Settings where
---   configDef = defaultSettings
+instance DefaultConfig Settings where
+  configDef = defaultSettings
 
-instance FromConfig Settings where
-  fetchFromConfig key config = do
-    Settings{..} <- fetchFromDefaults key config
-    settingsPort <- getFromConfigWithDefault (key /. "port") config settingsPort
-    settingsHost <- getFromConfigWithDefault (key /. "host") config settingsHost
-    settingsOnException <- getFromConfigWithDefault (key /. "onException") config settingsOnException
-    settingsOnExceptionResponse <- getFromConfigWithDefault (key /. "onExceptionResponse") config settingsOnExceptionResponse
-    settingsOnOpen <- getFromConfigWithDefault (key /. "onOpen") config settingsOnOpen
-    settingsOnClose <- getFromConfigWithDefault (key /. "onClose") config settingsOnClose
-    settingsTimeout <- getFromConfigWithDefault (key /. "timeout") config settingsTimeout
-    settingsManager <- getFromConfigWithDefault (key /. "manager") config settingsManager
-    settingsFdCacheDuration <- getFromConfigWithDefault (key /. "fdCacheDuration") config settingsFdCacheDuration
-    settingsFileInfoCacheDuration <- getFromConfigWithDefault (key /. "fileInfoCacheDuration") config settingsFileInfoCacheDuration
-    settingsBeforeMainLoop <- getFromConfigWithDefault (key /. "beforeMainLoop") config settingsBeforeMainLoop
+deconstructSettingsToDefaults :: Settings -> [(Key, Dynamic)]
+deconstructSettingsToDefaults Settings{..} =
+  [ ("port", toDyn settingsPort)
+  , ("host", toDyn settingsHost)
+  , ("onException", toDyn settingsOnException)
+  , ("onExceptionResponse", toDyn settingsOnExceptionResponse)
+  , ("onOpen", toDyn settingsOnOpen)
+  , ("onClose", toDyn settingsOnClose)
+  , ("timeout", toDyn settingsTimeout)
+  , ("manager", toDyn settingsManager)
+  , ("fdCacheDuration", toDyn settingsFdCacheDuration)
+  , ("fileInfoCacheDuration", toDyn settingsFileInfoCacheDuration)
+  , ("beforeMainLoop", toDyn settingsBeforeMainLoop)
 #if MIN_VERSION_warp(3,0,4)
-    -- settingsFork <- getFromConfigWithDefault (key /. "fork") config settingsFork
+  , ("fork", toDyn $ ForkSettings settingsFork)
 #endif
 #if MIN_VERSION_warp(2,0,3)
-    settingsNoParsePath <- getFromConfigWithDefault (key /. "noParsePath") config settingsNoParsePath
+  , ("noParsePath", toDyn settingsNoParsePath)
 #endif
 #if MIN_VERSION_warp(3,0,1)
-    settingsInstallShutdownHandler <- getFromConfigWithDefault (key /. "installShutdownHandler") config settingsInstallShutdownHandler
+  , ("installShutdownHandler", toDyn settingsInstallShutdownHandler)
 #endif
 #if MIN_VERSION_warp(3,0,2)
-    settingsServerName <- getFromConfigWithDefault (key /. "serverName") config settingsServerName
+  , ("serverName", toDyn settingsServerName)
 #endif
 #if MIN_VERSION_warp(3,0,3)
-    settingsMaximumBodyFlush <- getFromConfigWithDefault (key /. "maximumBodyFlush") config settingsMaximumBodyFlush
+  , ("maximumBodyFlush", toDyn settingsMaximumBodyFlush)
 #endif
 #if MIN_VERSION_warp(3,0,5)
-    settingsProxyProtocol <- getFromConfigWithDefault (key /. "proxyProtocol") config settingsProxyProtocol
+  , ("proxyProtocol", toDyn settingsProxyProtocol)
 #endif
 #if MIN_VERSION_warp(3,1,2)
-    settingsSlowlorisSize <- getFromConfigWithDefault (key /. "slowlorisSize") config settingsSlowlorisSize
+  , ("slowlorisSize", toDyn settingsSlowlorisSize)
 #endif
 #if MIN_VERSION_warp(3,1,7)
-    settingsHTTP2Enabled <- getFromConfigWithDefault (key /. "http2Enabled") config settingsHTTP2Enabled
+  , ("http2Enabled", toDyn settingsHTTP2Enabled)
 #endif
 #if MIN_VERSION_warp(3,1,10)
-    settingsLogger <- getFromConfigWithDefault (key /. "logger") config settingsLogger
+  , ("logger", toDyn settingsLogger)
 #endif
 #if MIN_VERSION_warp(3,2,7)
-    settingsServerPushLogger <- getFromConfigWithDefault (key /. "serverPushLogger") config settingsServerPushLogger
+  , ("serverPushLogger", toDyn settingsServerPushLogger)
 #endif
 #if MIN_VERSION_warp(3,2,8)
-    settingsGracefulShutdownTimeout <- getFromConfigWithDefault (key /. "gracefulShutdownTimeout") config settingsGracefulShutdownTimeout
+  , ("gracefulShutdownTimeout", toDyn settingsGracefulShutdownTimeout)
 #endif
 #if MIN_VERSION_warp(3,3,5)
-    settingsGracefulCloseTimeout1 <- getFromConfigWithDefault (key /. "gracefulCloseTimeout1") config settingsGracefulCloseTimeout1
-    settingsGracefulCloseTimeout2 <- getFromConfigWithDefault (key /. "gracefulCloseTimeout2") config settingsGracefulCloseTimeout2
+  , ("gracefulCloseTimeout1", toDyn settingsGracefulCloseTimeout1)
+  , ("gracefulCloseTimeout2", toDyn settingsGracefulCloseTimeout2)
 #endif
 #if MIN_VERSION_warp(3,3,8)
-    settingsMaxTotalHeaderLength <- getFromConfigWithDefault (key /. "maxTotalHeaderLength") config settingsMaxTotalHeaderLength
+  , ("maxTotalHeaderLength", toDyn settingsMaxTotalHeaderLength)
 #endif
 #if MIN_VERSION_warp(3,3,11)
-    settingsAltSvc <- getFromConfigWithDefault (key /. "altSvc") config settingsAltSvc
+  , ("altSvc", toDyn settingsAltSvc)
+#endif
+  ]
+
+newtype ForkSettings = ForkSettings (((forall a. IO a -> IO a) -> IO ()) -> IO ())
+
+instance FromConfig Settings where
+  fetchFromConfig key originalConfig = do
+    config <- addDefaultsAfterDeconstructingToDefaults deconstructSettingsToDefaults key originalConfig
+    settingsPort <- fetchFromConfig (key /. "port") config
+    settingsHost <- fetchFromConfig (key /. "host") config
+    settingsOnException <- fetchFromConfig (key /. "onException") config
+    settingsOnExceptionResponse <- fetchFromConfig (key /. "onExceptionResponse") config
+    settingsOnOpen <- fetchFromConfig (key /. "onOpen") config
+    settingsOnClose <- fetchFromConfig (key /. "onClose") config
+    settingsTimeout <- fetchFromConfig (key /. "timeout") config
+    settingsManager <- fetchFromConfig (key /. "manager") config
+    settingsFdCacheDuration <- fetchFromConfig (key /. "fdCacheDuration") config
+    settingsFileInfoCacheDuration <- fetchFromConfig (key /. "fileInfoCacheDuration") config
+    settingsBeforeMainLoop <- fetchFromConfig (key /. "beforeMainLoop") config
+#if MIN_VERSION_warp(3,0,4)
+    (ForkSettings settingsFork) <- fetchFromConfig (key /. "fork") config
+#endif
+#if MIN_VERSION_warp(2,0,3)
+    settingsNoParsePath <- fetchFromConfig (key /. "noParsePath") config
+#endif
+#if MIN_VERSION_warp(3,0,1)
+    settingsInstallShutdownHandler <- fetchFromConfig (key /. "installShutdownHandler") config
+#endif
+#if MIN_VERSION_warp(3,0,2)
+    settingsServerName <- fetchFromConfig (key /. "serverName") config
+#endif
+#if MIN_VERSION_warp(3,0,3)
+    settingsMaximumBodyFlush <- fetchFromConfig (key /. "maximumBodyFlush") config
+#endif
+#if MIN_VERSION_warp(3,0,5)
+    settingsProxyProtocol <- fetchFromConfig (key /. "proxyProtocol") config
+#endif
+#if MIN_VERSION_warp(3,1,2)
+    settingsSlowlorisSize <- fetchFromConfig (key /. "slowlorisSize") config
+#endif
+#if MIN_VERSION_warp(3,1,7)
+    settingsHTTP2Enabled <- fetchFromConfig (key /. "http2Enabled") config
+#endif
+#if MIN_VERSION_warp(3,1,10)
+    settingsLogger <- fetchFromConfig (key /. "logger") config
+#endif
+#if MIN_VERSION_warp(3,2,7)
+    settingsServerPushLogger <- fetchFromConfig (key /. "serverPushLogger") config
+#endif
+#if MIN_VERSION_warp(3,2,8)
+    settingsGracefulShutdownTimeout <- fetchFromConfig (key /. "gracefulShutdownTimeout") config
+#endif
+#if MIN_VERSION_warp(3,3,5)
+    settingsGracefulCloseTimeout1 <- fetchFromConfig (key /. "gracefulCloseTimeout1") config
+    settingsGracefulCloseTimeout2 <- fetchFromConfig (key /. "gracefulCloseTimeout2") config
+#endif
+#if MIN_VERSION_warp(3,3,8)
+    settingsMaxTotalHeaderLength <- fetchFromConfig (key /. "maxTotalHeaderLength") config
+#endif
+#if MIN_VERSION_warp(3,3,11)
+    settingsAltSvc <- fetchFromConfig (key /. "altSvc") config
 #endif
     return Settings{..}

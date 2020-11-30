@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3c1b861bbdfb2362bfc99c1511dedcb1e887610f81e78cc50c839cb064441c7c
+-- hash: 547435e2f42cd8425c5037a7d62acb6b615eb0195ad5cb02677d0a0fc4ef9cbc
 
 name:           conferer-snap
 version:        0.4.0.1
@@ -31,7 +31,7 @@ library
       Paths_conferer_snap
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
@@ -51,7 +51,7 @@ test-suite specs
       Paths_conferer_snap
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5

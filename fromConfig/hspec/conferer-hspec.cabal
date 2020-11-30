@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9b3a98440864dd7c0c8588034fbc20a6b448a6626d2fc90b445a14a7cb8a3e68
+-- hash: d1d62716e475146d4347714001ba9677a34964139beee0351b66f86063d46fb8
 
 name:           conferer-hspec
 version:        0.4.0.1
@@ -31,7 +31,7 @@ library
       Paths_conferer_hspec
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
@@ -49,7 +49,7 @@ test-suite specs
       Paths_conferer_hspec
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards
+  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5

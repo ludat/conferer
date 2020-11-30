@@ -33,7 +33,7 @@ spec = do
     let mkConfig keyMappings defaults content = 
           pure (emptyConfig
                   & withKeyMappings keyMappings
-                  & withDefaults' defaults)
+                  & addDefaults defaults)
               >>= addSource (mkMapSource content)
     describe "#getKey" $ do
       it "getting a non existent key returns missing key" $ do
@@ -49,7 +49,7 @@ spec = do
       context "with multiple sources and defaults" $ do
         let mkConfig' defaults sourceWithPriority otherSource =
               pure (emptyConfig
-                & withDefaults' defaults)
+                & addDefaults defaults)
               >>= addSource (mkMapSource sourceWithPriority)
               >>= addSource (mkMapSource otherSource)
 
@@ -179,7 +179,7 @@ spec = do
                   ]
             res <- listSubkeys "a" c
             res `shouldBe` ["a.k"]
-        context "dwadwahdwa" $ do
+        context "with reducing mappings" $ do
           xit "returns the right keys" $ do
             c <- mkConfig
                   [ ("a.k", "a")

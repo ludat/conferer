@@ -1,13 +1,14 @@
 module Conferer.FromConfig 
   ( FromConfig(fetchFromConfig)
-  , getFromConfig
-  , getFromConfigWithDefault
-  , getFromRootConfig
-  , getFromRootConfigWithDefault
+  , DefaultConfig(configDef)
+  , fetchFromConfigWithDefault
+  , fetchFromRootConfig
+  , fetchFromRootConfigWithDefault
 
   , fetchFromConfigByIsString
   , fetchFromConfigByRead
   , fetchFromConfigWith
+  , addDefaultsAfterDeconstructingToDefaults
 
   , MissingRequiredKey
   , throwMissingRequiredKey
@@ -25,6 +26,7 @@ module Conferer.FromConfig
   , KeyLookupResult(..)
 
   , fetchFromDefaults
+  , fetchRequiredFromDefaults
   ) where
 
 import Conferer.FromConfig.Internal

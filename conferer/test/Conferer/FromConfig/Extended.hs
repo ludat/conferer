@@ -3,7 +3,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Conferer.FromConfig.Extended 
+module Conferer.FromConfig.Extended
   ( module Conferer.FromConfig
   , module GHC.Generics
   , configWith
@@ -71,7 +71,7 @@ ensureEmptyConfigThrows =
   context "with empty config"  $ do
     it "throws an exception" $ do
       config <- configWith []
-      getFromConfig @a "some.key" config
+      fetchFromConfig @a "some.key" config
         `shouldThrow` aMissingRequiredKey @a "some.key"
 
 ensureWrongTypeDefaultThrows :: forall a. (Typeable a, FromConfig a) => SpecWith ()
@@ -79,18 +79,18 @@ ensureWrongTypeDefaultThrows =
   context "with invalid types in the defaults"  $ do
     it "throws an exception" $ do
       config <- configWith []
-      getFromConfig @a "some.key" 
+      fetchFromConfig @a "some.key"
           (config & addDefault "some.key" InvalidThing)
         `shouldThrow` aTypeMismatchWithDefaultError @a "some.key" InvalidThing
 
 ensureSingleConfigThrowsParserError ::
-    forall a. (FromConfig a) => 
+    forall a. (FromConfig a) =>
     Text -> SpecWith ()
 ensureSingleConfigThrowsParserError keyContent =
   context "with invalid types in the defaults"  $ do
     it "throws an exception" $ do
       config <- configWith [("some.key", keyContent)]
-      getFromConfig @a "some.key" config
+      fetchFromConfig @a "some.key" config
         `shouldThrow` aConfigParserError "some.key" keyContent
 
 ensureUsingDefaultReturnsSameValue ::
@@ -100,27 +100,27 @@ ensureUsingDefaultReturnsSameValue value =
   context ("with a default of '" ++ show value ++ "'") $ do
     it "gets that same value" $ do
       config <- configWith []
-      fetchedValue <- getFromConfig @a "some.key" 
+      fetchedValue <- fetchFromConfig @a "some.key"
         (config & addDefault "some.key" value)
       fetchedValue `shouldBe` value
 
-ensureSingleConfigParsesTheRightThing :: 
+ensureSingleConfigParsesTheRightThing ::
     forall a. (Eq a, Show a, FromConfig a) =>
     Text -> a -> SpecWith ()
 ensureSingleConfigParsesTheRightThing keyContent value =
   context ("with a config value of '" ++ unpack keyContent ++ "'" ) $ do
     it "gets the right value" $ do
       config <- configWith [("some.key", keyContent)]
-      fetchedValue <- getFromConfig @a "some.key" config
+      fetchedValue <- fetchFromConfig @a "some.key" config
       fetchedValue `shouldBe` value
 
-ensureSingleConfigThrows :: 
+ensureSingleConfigThrows ::
     forall a e. (FromConfig a, Exception e) =>
     Text -> (e -> Bool) -> SpecWith ()
 ensureSingleConfigThrows keyContent checkException =
   it "gets the right value" $ do
     config <- configWith [("some.key", keyContent)]
-    getFromConfig @a "some.key" config
+    fetchFromConfig @a "some.key" config
       `shouldThrow` checkException
 
 ensureFetchParses ::
@@ -133,10 +133,11 @@ ensureFetchParses ::
     -> [(Key, Dynamic)]
     -> a
     -> SpecWith ()
-ensureFetchParses coso coso2 coso3 = it "gets the right value" $ do
-  config <- withDefaults' (mapKeys coso2) <$> configWith (mapKeys coso)
-  fetchedValue <- getFromConfig @a "some.key" config
-  fetchedValue `shouldBe` coso3
+ensureFetchParses configs defaults expectedValue =
+  it "gets the right value" $ do
+    config <- addDefaults (mapKeys defaults) <$> configWith (mapKeys configs)
+    fetchedValue <- fetchFromConfig @a "some.key" config
+    fetchedValue `shouldBe` expectedValue
   where
     mapKeys :: [(Key, any)] -> [(Key, any)]
     mapKeys = fmap (\(k, x) -> ("some.key" /. k, x))
@@ -148,12 +149,13 @@ ensureFetchThrows ::
     )
     => [(Key, Text)]
     -> [(Key, Dynamic)]
-    -> (e -> Bool) 
+    -> (e -> Bool)
     -> SpecWith ()
-ensureFetchThrows coso coso2 coso3 = it "throws an exception" $ do
-  config <- withDefaults' (mapKeys coso2) <$> configWith (mapKeys coso)
-  getFromConfig @a "some.key" config
-    `shouldThrow` coso3
+ensureFetchThrows configs defaults exceptionCheck =
+  it "throws an exception" $ do
+    config <- addDefaults (mapKeys defaults) <$> configWith (mapKeys configs)
+    fetchFromConfig @a "some.key" config
+      `shouldThrow` exceptionCheck
   where
     mapKeys :: forall x. [(Key, x)] -> [(Key, x)]
     mapKeys = fmap (\(k, x) -> ("some.key" /. k, x))

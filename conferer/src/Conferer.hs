@@ -21,7 +21,7 @@ module Conferer
   --
   -- main = do
   --   config <- 'defaultConfig' \"awesomeapp\"
-  --   warpSettings <- 'getFromConfig' \"warp\" config
+  --   warpSettings <- 'fetchFromConfig' \"warp\" config
   --   runSettings warpSettings application
   -- @
   --
@@ -68,17 +68,18 @@ module Conferer
   -- added later have lower priority) so the config searches keys in sources
   -- in the same order they were added.
 
-  defaultConfig
-  , defaultConfigWithDefaults
+  mkConfig
   , Config
-  , FromConfig
+  , DefaultConfig(configDef)
   , emptyConfig
   , addDefault
   , addSource
-  , getFromConfig
-  , getFromConfigWithDefault
-  , getFromRootConfig
-  , getFromRootConfigWithDefault
+  , FromConfig
+  , fetch
+  , fetchKey
+  -- , fetchFromConfigWithDefault
+  -- , fetchFromRootConfig
+  -- , fetchFromRootConfigWithDefault
   , Key
 
 
@@ -87,7 +88,7 @@ module Conferer
   , module Conferer.Source.Env
   , module Conferer.Source.Simple
   , module Conferer.Source.Namespaced
-  , module Conferer.Source.Mapping
+  -- , module Conferer.Source.Mapping
   , module Conferer.Source.CLIArgs
   , module Conferer.Source.Null
   , module Conferer.Source.PropertiesFile
@@ -105,22 +106,23 @@ import Conferer.Key
 import Conferer.Source.Env
 import Conferer.Source.Simple
 import Conferer.Source.Namespaced
-import Conferer.Source.Mapping
+-- import Conferer.Source.Mapping
 import Conferer.Source.CLIArgs
 import Conferer.Source.Null
 import Conferer.Source.PropertiesFile
+import Data.Typeable (Typeable)
+
+fetch :: (FromConfig a, Typeable a) => Config -> a -> IO a
+fetch = fetchFromRootConfigWithDefault
+
+fetchKey :: (FromConfig a, Typeable a) => Key -> Config -> a -> IO a
+fetchKey = fetchFromConfigWithDefault
 
 -- | Default config which reads from command line arguments, env vars and
 -- property files
-defaultConfig :: Text -> IO Config
-defaultConfig appName =
-  defaultConfigWithDefaults appName []
-
--- | Default config which reads from command line arguments, env vars,
--- property files and some default key/values
-defaultConfigWithDefaults :: Text -> [(Key, Text)] -> IO Config
-defaultConfigWithDefaults appName configMap =
-  pure (emptyConfig & withDefaults configMap)
+mkConfig :: Text -> IO Config
+mkConfig appName =
+  pure emptyConfig
   >>= addSource mkCLIArgsSource
   >>= addSource (mkEnvSource appName)
   >>= addSource mkPropertiesFileSource

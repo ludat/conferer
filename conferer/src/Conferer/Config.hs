@@ -2,8 +2,7 @@ module Conferer.Config
   ( Config
   , addSource
   , addDefault
-  , withDefaults
-  , withDefaults'
+  , addDefaults
   , withKeyMappings
   , addKeyMappings
   , emptyConfig
