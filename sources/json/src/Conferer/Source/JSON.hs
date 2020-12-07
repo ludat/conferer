@@ -37,33 +37,32 @@ module Conferer.Source.JSON
   )
 where
 
-import           Data.Aeson
+import Data.Aeson
 import qualified Data.HashMap.Strict as HashMap
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-import           Data.Vector ((!?))
+import Data.Vector ((!?))
 import qualified Data.Vector as Vector
-import           Text.Read (readMaybe)
+import Text.Read (readMaybe)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
-import           System.Directory (doesFileExist)
+import System.Directory (doesFileExist)
 
 import Conferer.Source.Files
 import Conferer.Source.Null
 import Conferer.Source
+import Data.List (intersperse)
 
-data JsonSource =
-  JsonSource
+data JsonSource = JsonSource
   { value :: Value
-  }
-  deriving (Show, Eq)
+  } deriving (Show, Eq)
 
 instance IsSource JsonSource where
-  getKeyInSource (JsonSource {..}) key = do
+  getKeyInSource JsonSource {..} key = do
     return $ valueToText =<< traverseJSON key value
-  getSubkeysInSource (JsonSource {..}) key = do
-    return $ fmap (key /.) $ listKeysInJSON $ traverseJSON key value
+  getSubkeysInSource JsonSource {..} key = do
+    return $ fmap (key /.) $ maybe [] (listKeysInJSON "") $ traverseJSON key value
 
 -- | Default 'SourceCreator' which usese files with @config/{env}.json@
 -- template, if the file is not present it will behave like the null source
@@ -102,26 +101,46 @@ mkJsonSource' value = \_config ->
 -- 'traverseJSON' "0" [] == Nothing
 -- @
 traverseJSON :: Key -> Value -> Maybe Value
-traverseJSON (Path []) v = Just v
-traverseJSON (Path (k:ks)) (Object o) =
-  HashMap.lookup k o >>= traverseJSON (Path ks)
-traverseJSON (Path (k:ks)) (Array vs) = do
-  n :: Int <- readMaybe $ Text.unpack k
-  value <- vs !? n
-  traverseJSON (Path ks) value
-traverseJSON (Path _) _ = Nothing
+traverseJSON key value =
+ case (unconsKey key, value) of
+   (Nothing, v) ->
+     Just v
+   (Just ("keys", ""), Object o) ->
+      Just $
+        String $
+        mconcat $
+        intersperse "," $
+        HashMap.keys o
+   (Just (c, ks), Object o) ->
+     HashMap.lookup c o >>= traverseJSON ks
+   (Just ("keys", ""), Array vs) ->
+      Just $
+        String $
+        mconcat $
+        intersperse "," $
+        fmap (Text.pack . show)
+        [0..length vs - 1]
+   (Just (c, ks), Array vs) -> do
+     n :: Int <- readMaybe $ Text.unpack c
+     v <- vs !? n
+     traverseJSON ks v
+   (Just _, _) ->
+     Nothing
 
-listKeysInJSON :: Maybe Value -> [Key]
-listKeysInJSON (Nothing) = []
-listKeysInJSON (Just (Object o)) = do
-  (key, value) <- HashMap.toList o
-  fmap (Path [key] /.) $
-    listKeysInJSON (Just value)
-listKeysInJSON (Just (Array as)) = do
-  (index :: Integer, value) <- zip [0..] $ Vector.toList as
-  fmap (Path [Text.pack $ show index] /.) $
-    listKeysInJSON (Just value)
-listKeysInJSON (Just (_)) = [""]
+listKeysInJSON :: Key -> Value -> [Key]
+listKeysInJSON = go
+  where
+  go :: Key -> Value -> [Key]
+  go key value =
+    case (unconsKey key, value) of
+      (_, Object o) -> key /. "keys" : do
+        (k, v) <- HashMap.toList o
+        go (key /. fromText k) v
+      (_, Array as) -> key /. "keys" : do
+        (index :: Integer, v) <- zip [0..] $ Vector.toList as
+        go (key /. fromString (show index)) v
+      (Nothing, _) -> []
+      (_, _) -> [key]
 
 valueToText :: Value -> Maybe Text
 valueToText (String t) = Just t

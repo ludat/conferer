@@ -13,7 +13,6 @@ where
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Maybe (mapMaybe)
-import           Data.String (fromString)
 import           System.Environment (getArgs)
 
 import           Conferer.Source
@@ -36,8 +35,20 @@ mkCLIArgsSource = \config -> do
 -- | Parse an argument list into a dictionary suitable for a 'Source'
 parseArgsIntoKeyValue :: [String] -> [(Key, Text)]
 parseArgsIntoKeyValue =
-  fmap (\(k, s) -> (fromString $ Text.unpack k, s)) .
-  fmap (\s -> fmap (Text.drop 1) $ Text.breakOn "=" s) .
+  fmap (\s ->
+    let (k, rawValue) = Text.breakOn "=" s
+    in case Text.uncons rawValue of
+         Nothing -> (fromText k, "true")
+         (Just ('=', v)) -> (fromText k, v)
+         -- Since rawValue comes from breaking on "=" the first character
+         -- should always be '=' or none at all
+         (Just (_, _)) ->
+            error $ unlines
+              [ "'"
+              , Text.unpack rawValue
+              , "' should always start with '='"
+              ]
+    ) .
   mapMaybe (Text.stripPrefix "--") .
   takeWhile (/= "--") .
   fmap Text.pack

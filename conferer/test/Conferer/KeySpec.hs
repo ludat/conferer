@@ -3,6 +3,7 @@ module Conferer.KeySpec where
 import Test.Hspec
 
 import Conferer.Key
+import Conferer.Key.Internal
 
 spec :: Spec
 spec = do

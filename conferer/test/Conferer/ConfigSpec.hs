@@ -4,7 +4,6 @@ module Conferer.ConfigSpec where
 import Test.Hspec
 import Data.Text (Text)
 import Data.Dynamic
-import Data.Function ((&))
 
 import Conferer.Config
 import Conferer.Source.Simple
@@ -129,7 +128,7 @@ spec = do
         it "returns that key in the list of subkeys" $ do
           c <- mkConfig [] [] [("some", "")]
           res <- listSubkeys "some" c
-          res `shouldBe` ["some"]
+          res `shouldBe` []
       context "with a config that has a value configured but \
               \we get a different value" $ do
         it "returns an empty list" $ do

@@ -70,53 +70,37 @@ module Conferer
 
   mkConfig
   , Config
-  , DefaultConfig(configDef)
-  , emptyConfig
-  , addDefault
-  , addSource
-  , FromConfig
+  , DefaultConfig(..)
+  , FromConfig(..)
   , fetch
   , fetchKey
-  -- , fetchFromConfigWithDefault
-  -- , fetchFromRootConfig
-  -- , fetchFromRootConfigWithDefault
+  , unsafeFetch
+  , unsafeFetchKey
   , Key
-
-
-
-  -- * Sources
-  , module Conferer.Source.Env
-  , module Conferer.Source.Simple
-  , module Conferer.Source.Namespaced
-  -- , module Conferer.Source.Mapping
-  , module Conferer.Source.CLIArgs
-  , module Conferer.Source.Null
-  , module Conferer.Source.PropertiesFile
-  -- * Re-Exports
-  , (&)
   ) where
 
 import           Data.Text (Text)
-import           Data.Function ((&))
 
 import Conferer.Config.Internal
 import Conferer.Config.Internal.Types
 import Conferer.FromConfig.Internal
 import Conferer.Key
 import Conferer.Source.Env
-import Conferer.Source.Simple
-import Conferer.Source.Namespaced
--- import Conferer.Source.Mapping
 import Conferer.Source.CLIArgs
-import Conferer.Source.Null
 import Conferer.Source.PropertiesFile
 import Data.Typeable (Typeable)
 
-fetch :: (FromConfig a, Typeable a) => Config -> a -> IO a
+fetch :: forall a. (FromConfig a, Typeable a) => Config -> a -> IO a
 fetch = fetchFromRootConfigWithDefault
 
-fetchKey :: (FromConfig a, Typeable a) => Key -> Config -> a -> IO a
+fetchKey :: forall a. (FromConfig a, Typeable a) => Key -> Config -> a -> IO a
 fetchKey = fetchFromConfigWithDefault
+
+unsafeFetch :: forall a. (FromConfig a) => Config -> IO a
+unsafeFetch = fetchFromRootConfig
+
+unsafeFetchKey :: forall a. (FromConfig a) => Key -> Config -> IO a
+unsafeFetchKey = fetchFromConfig
 
 -- | Default config which reads from command line arguments, env vars and
 -- property files

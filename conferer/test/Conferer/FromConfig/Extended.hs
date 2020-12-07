@@ -12,7 +12,6 @@ module Conferer.FromConfig.Extended
   , aMissingRequiredKey
   , aMissingRequiredKeys
   , aTypeMismatchWithDefaultError
-  , (&)
   , ensureEmptyConfigThrows
   , ensureWrongTypeDefaultThrows
   , ensureUsingDefaultReturnsSameValue

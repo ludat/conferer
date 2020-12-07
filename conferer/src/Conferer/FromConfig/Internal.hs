@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DefaultSignatures #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
@@ -9,26 +8,26 @@
 
 module Conferer.FromConfig.Internal where
 
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
-import           Control.Exception
-import           Data.Typeable
-import           Data.String (IsString, fromString)
-import           Text.Read (readMaybe)
-import           Data.Dynamic
-import           GHC.Generics
-import           Data.Function (on, (&))
+import Control.Exception
+import Data.Typeable
+import Text.Read (readMaybe)
+import Data.Dynamic
+import GHC.Generics
+import Data.Function (on, (&))
 
-import           Conferer.Key
-import           Conferer.Config.Internal.Types
+import Conferer.Key
+import Conferer.Config.Internal.Types
 import Conferer.Config.Internal
 import qualified Data.Char as Char
 import Control.Monad (forM)
 import Data.Maybe (mapMaybe)
 import Data.List (nub, foldl', sort)
+import Data.String (IsString)
 
 instance {-# OVERLAPPABLE #-} Typeable a => FromConfig a where
   fetchFromConfig key config = do
@@ -81,8 +80,8 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
               sort
               . nub
               . filter (not . (`elem` ["prototype", "keys", "defaults"]))
-              . mapMaybe (\k -> case keyPrefixOf key k of
-                    Just (Path (subkey:_)) -> Just $ fromText subkey
+              . mapMaybe (\k -> case rawKeyComponents <$> keyPrefixOf key k of
+                    Just (subkey:_) -> Just $ fromText subkey
                     _ -> Nothing)
               <$> listSubkeys key config
             return $ if null subelements then Nothing else Just subelements
@@ -302,7 +301,7 @@ instance Show ConfigParsingError where
     [ "Couldn't parse value '"
     , Text.unpack value
     , "' from key '"
-    , Text.unpack (keyName key)
+    , show key
     , "' as "
     , show aTypeRep
     ]
@@ -360,12 +359,12 @@ instance Exception TypeMismatchWithDefault
 instance Show TypeMismatchWithDefault where
   show (TypeMismatchWithDefault key dyn aTypeRep) =
     concat
-    [ "Couldn't parse the default from key '"
-    , Text.unpack (keyName key)
-    , "' since there is a type mismatch. "
-    , "Expected type is '"
+    [ "Couldn't parse the default from key "
+    , show key
+    , " since there is a type mismatch. "
+    , "Expected type is "
     , show aTypeRep
-    , "' but the actual type is '"
+    , " but the actual type is '"
     , show dyn
     , "'"
     ]

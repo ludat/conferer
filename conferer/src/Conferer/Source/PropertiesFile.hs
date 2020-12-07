@@ -47,7 +47,7 @@ lineToKeyValue line =
   & (\(rawKey, rawValue) ->
       case Text.stripPrefix "=" rawValue of
         Just value ->
-          Just (Path $ Text.splitOn "." rawKey, value)
+          Just (fromText rawKey, value)
         Nothing ->
           Nothing
     )

@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3fb2d96a003bf31a9d7eafff52970e077d48d59b08b0c44cb70cb5222cb8bc78
+-- hash: eadfaa876ce0495183db6f955a1221be3de529c3031fc26dade2b9c6dd03fd2e
 
 name:           conferer
 version:        0.4.1.1
@@ -33,6 +33,7 @@ library
       Conferer.FromConfig
       Conferer.FromConfig.Internal
       Conferer.Key
+      Conferer.Key.Internal
       Conferer.Source
       Conferer.Source.CLIArgs
       Conferer.Source.Env
@@ -42,6 +43,7 @@ library
       Conferer.Source.Null
       Conferer.Source.PropertiesFile
       Conferer.Source.Simple
+      Conferer.Test
   other-modules:
       Paths_conferer
   hs-source-dirs:
@@ -72,7 +74,7 @@ test-suite specs
       Conferer.FromConfigSpec
       Conferer.GenericsSpec
       Conferer.KeySpec
-      Conferer.Source.ArgsSpec
+      Conferer.Source.CLIArgsSpec
       Conferer.Source.EnvSpec
       Conferer.Source.NamespacedSpec
       Conferer.Source.NullSpec
@@ -85,7 +87,8 @@ test-suite specs
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererSpecMain
   build-depends:
-      base >=4.3 && <5
+      QuickCheck
+    , base >=4.3 && <5
     , bytestring >=0.10 && <0.11
     , conferer
     , containers >=0.5 && <0.7

@@ -1,15 +1,11 @@
 {-# LANGUAGE TypeApplications #-}
 module Conferer.Source.Files where
 
-import qualified Data.Text as Text
 import Data.Text (Text)
+import qualified Data.Text as Text
 
-import           Conferer.Config
-import           Conferer.FromConfig
-
-fromRight :: a -> Either e a -> a
-fromRight a (Left _) = a
-fromRight _ (Right a) = a
+import Conferer.Config
+import Conferer.FromConfig
 
 getFilePathFromEnv :: Config -> String -> IO FilePath
 getFilePathFromEnv config extension = do

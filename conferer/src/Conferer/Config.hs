@@ -9,8 +9,10 @@ module Conferer.Config
   , getKey
   , KeyLookupResult(..)
   , module Conferer.Key
+  , (&)
   ) where
 
 import Conferer.Config.Internal
 import Conferer.Config.Internal.Types
 import Conferer.Key
+import Data.Function

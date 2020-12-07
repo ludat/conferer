@@ -26,7 +26,7 @@ instance IsSource SimpleSource where
   getKeyInSource SimpleSource {..} key =
     return $ Map.lookup key configMap
   getSubkeysInSource SimpleSource {..} key = do
-    return $ filter (key `isKeyPrefixOf`) $ Map.keys configMap
+    return $ filter (\k -> key `isKeyPrefixOf` k && key /= k) $ Map.keys configMap
 
 -- | Make a 'SourceCreator' from a 'Map'
 mkMapSource' :: Map Key Text -> SourceCreator

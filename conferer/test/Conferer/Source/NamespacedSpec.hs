@@ -10,7 +10,7 @@ import Conferer.Source.Namespaced
 
 spec :: Spec
 spec = do
-  xdescribe "namespaced config" $ do
+  describe "namespaced config" $ do
     it "return nothing if the key doesn't match" $ do
       c <- mkStandaloneSource $
         mkNamespacedSource "postgres" $

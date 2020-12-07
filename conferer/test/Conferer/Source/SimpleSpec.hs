@@ -26,10 +26,10 @@ spec = do
       res <- getSubkeysInSource c "postgres"
       res `shouldBe` ["postgres.url"]
 
-    it "listing subkeys works" $ do
+    it "listing subkeys never returns the same key" $ do
       c <- creator
       res <- getSubkeysInSource c "postgres.url"
-      res `shouldBe` ["postgres.url"]
+      res `shouldBe` []
 
     it "listing subkeys that are not present" $ do
       c <- creator

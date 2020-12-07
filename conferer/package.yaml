@@ -24,4 +24,5 @@ tests:
       - conferer
       - hspec
       - deepseq
+      - QuickCheck
 

@@ -1,16 +1,16 @@
-module Conferer.Source.ArgsSpec where
+module Conferer.Source.CLIArgsSpec where
 
-import           Test.Hspec
+import Test.Hspec
 
-import           Conferer.Source
-import           Conferer.Config.Internal
-import           Conferer.Source.CLIArgs
+import Conferer.Source
+import Conferer.Source.CLIArgs
+import Conferer.Config (emptyConfig)
 
 spec :: Spec
 spec = do
   describe "with a mapping source" $ do
     let mkConf args =
-          mkStandaloneSource $ mkCLIArgsSource' args
+          mkCLIArgsSource' args emptyConfig
 
     it "gets a parameters with it's value if it starts with the right prefix" $ do
       c <- mkConf []
@@ -36,3 +36,8 @@ spec = do
       c <- mkConf ["--", "--some.key=value"]
       res <- getKeyInSource c "some.key"
       res `shouldBe` Nothing
+
+    it "with passed flag without a value it returns true" $ do
+      c <- mkConf ["--some.key"]
+      res <- getKeyInSource c "some.key"
+      res `shouldBe` Just "true"

@@ -3,7 +3,6 @@
 module Conferer.GenericsSpec where
 
 import Test.Hspec
-import Data.Function ((&))
 
 import Conferer.FromConfig
 import Conferer.Config
