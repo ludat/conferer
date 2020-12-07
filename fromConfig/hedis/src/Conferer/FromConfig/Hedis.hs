@@ -23,7 +23,6 @@ import qualified Database.Redis as Redis
 import Data.Text (Text, unpack)
 import Text.Read (readMaybe)
 import Data.Dynamic
-import Data.Function ((&))
 
 instance FromConfig Redis.PortID where
   fetchFromConfig = fetchFromConfigWith (\t -> do

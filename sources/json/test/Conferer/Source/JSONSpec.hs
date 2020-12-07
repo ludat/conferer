@@ -87,6 +87,8 @@ spec = do
           c <- mk [aesonQQ| {"key": false} |]
           res <- getKeyInSource c "key"
           res `shouldBe` Just "false"
+
+
     context "#getSubkeysInSource" $ do
       describe "listing keys in non existant path" $ do
         it "gets no keys" $ do
@@ -97,7 +99,7 @@ spec = do
         it "gets only the 'keys' magic key" $ do
           c <- mk [aesonQQ|{}|]
           res <- getSubkeysInSource c ""
-          res `shouldBe` ["keys"]
+          res `shouldBe` []
       describe "gettings a existing subkey directly" $ do
         it "gets no keys" $ do
           c <- mk [aesonQQ|{"key": 7}|]
@@ -107,25 +109,25 @@ spec = do
         it "gets the keys" $ do
           c <- mk [aesonQQ|{"key": 7}|]
           res <- getSubkeysInSource c ""
-          res `shouldBe` ["keys", "key"]
+          res `shouldBe` ["key"]
       describe "gettings the keys from a list and an object" $ do
         it "gets the keys as index numbers" $ do
           c <- mk [aesonQQ|{"a": ["a"]}|]
           res <- getSubkeysInSource c ""
-          res `shouldBe` ["keys", "a.keys", "a.0"]
+          res `shouldBe` ["a.0"]
       describe "getting the keys from subkeys" $ do
         it "gets no keys" $ do
           c <- mk [aesonQQ|{"a": ["a"]}|]
           res <- getSubkeysInSource c "a"
-          res `shouldBe` ["a.keys", "a.0"]
+          res `shouldBe` ["a.0"]
       describe "gettings the keys from nested objects" $ do
         it "gets those keys and all intermediate magic 'keys' keys" $ do
           c <- mk [aesonQQ|{"a": {"a": 7}}|]
           res <- getSubkeysInSource c ""
-          res `shouldBe` ["keys", "a.keys", "a.a"]
+          res `shouldBe` ["a.a"]
       describe "gettings the keys from list" $ do
         it "returns the present indexes" $ do
           c <- mk [aesonQQ|[true, true, true]|]
           res <- getSubkeysInSource c ""
-          res `shouldBe` ["keys", "0", "1", "2"]
+          res `shouldBe` ["0", "1", "2"]
 

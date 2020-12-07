@@ -4,17 +4,22 @@ module Conferer.FromConfig.SnapSpec where
 import Test.Hspec
 
 import Conferer
-import Conferer.Config
 import Conferer.Test
 import Conferer.FromConfig.Snap ()
 import qualified Snap.Http.Server.Config as Snap
-import qualified Snap.Internal.Core as Snap
 import Snap.Http.Server.Config hiding (Config, emptyConfig)
 import Snap.Internal.Core
-import Data.Text (Text)
 
 spec :: Spec
 spec = do
+  describe "fetching a snap configuration without a default" $ do
+    it "returns snap empty config" $ do
+      -- Snap config is based around lots of maybes so it possible to create
+      -- one even if there is no default value
+      config <- configWith [] []
+      fetchedValue <- unsafeFetchKey @(Snap.Config Snap ()) "snap" config
+      getPort fetchedValue
+        `shouldBe` getPort (configDef :: Snap.Config Snap ())
   describe "fetching a snap configuration that has the default" $ do
     it "returns snap default config" $ do
       config <- configWith [] []

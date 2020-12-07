@@ -38,6 +38,7 @@ module Conferer.Source.JSON
 where
 
 import Data.Aeson
+import Control.Applicative
 import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -48,12 +49,11 @@ import Text.Read (readMaybe)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
 import System.Directory (doesFileExist)
-import Data.List (intersperse)
-import Control.Applicative
 
 import Conferer.Source.Files
 import Conferer.Source.Null
 import Conferer.Source
+import Data.List (intersperse)
 
 data JsonSource = JsonSource
   { value :: Value
@@ -78,7 +78,7 @@ mkJsonSource config = do
       value <- decodeStrict' <$> B.readFile fileToParse
       case value of
         Nothing ->
-          error $ "Failed to decode file '" ++ fileToParse ++ "'"
+          error $ "Failed to decode json file '" ++ fileToParse ++ "'"
         Just v -> do
           mkJsonSource' v config
     else do
@@ -135,10 +135,10 @@ listKeysInJSON = go
   go :: Key -> Value -> [Key]
   go key value =
     case (unconsKey key, value) of
-      (_, Object o) -> key /. "keys" : do
+      (_, Object o) -> do
         (k, v) <- HashMap.toList o
         go (key /. fromText k) v
-      (_, Array as) -> key /. "keys" : do
+      (_, Array as) -> do
         (index :: Integer, v) <- zip [0..] $ Vector.toList as
         go (key /. fromString (show index)) v
       (Nothing, _) -> []

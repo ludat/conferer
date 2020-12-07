@@ -6,7 +6,6 @@ import Conferer.FromConfig.Hedis ()
 import Database.Redis
 
 import Conferer
-import Conferer.Config
 import Conferer.Test
 
 portAndHostShouldBe :: ConnectInfo -> (PortID, String) -> Expectation
