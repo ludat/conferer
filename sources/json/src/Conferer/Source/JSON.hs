@@ -48,11 +48,12 @@ import Text.Read (readMaybe)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
 import System.Directory (doesFileExist)
+import Data.List (intersperse)
+import Control.Applicative
 
 import Conferer.Source.Files
 import Conferer.Source.Null
 import Conferer.Source
-import Data.List (intersperse)
 
 data JsonSource = JsonSource
   { value :: Value
@@ -106,11 +107,12 @@ traverseJSON key value =
    (Nothing, v) ->
      Just v
    (Just ("keys", ""), Object o) ->
-      Just $
-        String $
-        mconcat $
-        intersperse "," $
-        HashMap.keys o
+      HashMap.lookup "keys" o
+        <|> pure (
+              String $
+              mconcat $
+              intersperse "," $
+              HashMap.keys o)
    (Just (c, ks), Object o) ->
      HashMap.lookup c o >>= traverseJSON ks
    (Just ("keys", ""), Array vs) ->

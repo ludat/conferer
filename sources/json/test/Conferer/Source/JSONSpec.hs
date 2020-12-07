@@ -64,6 +64,11 @@ spec = do
               c <- mk [aesonQQ| {"key": {a: true, b: true, c: true}}|]
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just "a,b,c"
+          context "with an object that has a 'keys' key present" $ do
+            it "return its value instead of doing the metamagic" $ do
+              c <- mk [aesonQQ| {"key": {keys: "something", c: true}}|]
+              res <- getKeyInSource c "key.keys"
+              res `shouldBe` Just "something"
 
       describe "with an int" $ do
         it "getting an existing path returns the right value" $ do
