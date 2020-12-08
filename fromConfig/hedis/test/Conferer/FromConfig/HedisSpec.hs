@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE CPP #-}
 module Conferer.FromConfig.HedisSpec where
 
@@ -15,24 +16,30 @@ portAndHostShouldBe fetchedSettings (port, host) = do
 
 spec :: Spec
 spec = do
-  let defaultPort = connectPort defaultConnectInfo
-      defaultHost = connectHost defaultConnectInfo
+  let defaultPort = connectPort configDef
+      defaultHost = connectHost configDef
+  describe "fetching a hedis configuration from a totally empty config" $ do
+    it "throws an exception" $ do
+      config <- configWith [] []
+      unsafeFetchKey @ConnectInfo "hedis" config
+        `shouldThrow` anyException
+
   describe "with no configuration" $ do
     it "returns hedis default config" $ do
       config <- configWith [] []
-      fetchedValue <- fetchKey "hedis" config defaultConnectInfo
+      fetchedValue <- fetchKey "hedis" config configDef
       fetchedValue `portAndHostShouldBe` (defaultPort, defaultHost)
 
   describe "with configured port" $ do
     it "return a hedis config with that port" $ do
       config <- configWith [] [("hedis.port", "9999")]
-      fetchedValue <- fetchKey "hedis" config defaultConnectInfo
+      fetchedValue <- fetchKey "hedis" config configDef
       fetchedValue `portAndHostShouldBe` (PortNumber 9999, defaultHost)
 
   describe "with configured maxConnections" $ do
     it "returns a hedis config with that max connections" $ do
       config <- configWith [] [("hedis.maxConnections", "6")]
-      fetchedValue <- fetchKey "hedis" config defaultConnectInfo
+      fetchedValue <- fetchKey "hedis" config configDef
       connectMaxConnections fetchedValue
         `shouldBe` 6
 
@@ -41,7 +48,7 @@ spec = do
   describe "with a url configured" $ do
     it "returns a hedis config with host, port, auth and database from the url" $ do
       config <- configWith [] [("hedis.url", "redis://username:password@host:42")]
-      fetchedValue <- fetchKey "hedis" config defaultConnectInfo
+      fetchedValue <- fetchKey "hedis" config configDef
       fetchedValue `portAndHostShouldBe` (PortNumber 42, "host")
 
     describe "and something url defined configured by itself" $ do
@@ -51,7 +58,7 @@ spec = do
           [ ("hedis.url", "redis://username:password@host:42")
           , ("hedis.port", "72")
           ]
-        fetchedValue <- fetchKey "hedis" config defaultConnectInfo
+        fetchedValue <- fetchKey "hedis" config configDef
         fetchedValue `portAndHostShouldBe` (PortNumber 72, "host")
 
     describe "and a something not defined in url" $ do
@@ -61,7 +68,7 @@ spec = do
           [ ("hedis.url", "redis://username:password@host:42")
           , ("hedis.maxConnections", "70")
           ]
-        fetchedValue <- fetchKey "hedis" config defaultConnectInfo
+        fetchedValue <- fetchKey "hedis" config configDef
         fetchedValue `portAndHostShouldBe` (PortNumber 42, "host")
         connectMaxConnections fetchedValue
           `shouldBe` 70
@@ -73,7 +80,7 @@ spec = do
           [ ("hedis.url", "redis://username:password@host:42")
           ]
         fetchedValue <- fetchKey "hedis" config
-          (defaultConnectInfo {connectMaxConnections = 73})
+          configDef {connectMaxConnections = 73}
         fetchedValue `portAndHostShouldBe` (PortNumber 42, "host")
         connectMaxConnections fetchedValue
           `shouldBe` 73

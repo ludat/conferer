@@ -51,6 +51,9 @@ deconstructConnInfoToDefaults Redis.ConnInfo{..} =
 #endif
   ]
 
+instance DefaultConfig Redis.ConnectInfo where
+  configDef = Redis.defaultConnectInfo
+
 instance FromConfig Redis.ConnectInfo where
   fetchFromConfig key originalConfig = do
     firstConfig <- addDefaultsAfterDeconstructingToDefaults deconstructConnInfoToDefaults key originalConfig
