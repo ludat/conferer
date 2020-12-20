@@ -4,7 +4,6 @@ import Test.Hspec
 import Test.QuickCheck
 
 import Conferer.Source
-import Conferer.Config.Internal
 import Conferer.Source.Env
 
 spec :: Spec

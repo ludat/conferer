@@ -3,7 +3,6 @@ module Conferer.Source.InMemorySpec where
 import Test.Hspec
 
 import Conferer.Source
-import Conferer.Config.Internal
 import Conferer.Source.InMemory
 
 spec :: Spec

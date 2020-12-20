@@ -3,7 +3,6 @@ module Conferer.Source.NamespacedSpec where
 import Test.Hspec
 
 import Conferer.Source
-import Conferer.Config.Internal
 
 import qualified Conferer.Source.InMemory as InMemory
 import Conferer.Source.Namespaced
