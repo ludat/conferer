@@ -6,9 +6,9 @@ import qualified Conferer.Source.JSON as JSON
 import           Conferer.Source.Files
 import           Conferer.Source
 
-fromConfig :: SourceCreator
-fromConfig config = do
-  filePath <- getFilePathFromEnv config "yaml"
+fromConfig :: Key -> SourceCreator
+fromConfig key config = do
+  filePath <- getFilePathFromEnv key "yaml" config
   fromFilePath filePath
 
 

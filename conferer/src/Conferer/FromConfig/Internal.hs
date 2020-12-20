@@ -25,7 +25,8 @@ import Conferer.Config.Internal.Types
 import Conferer.Config.Internal
 import qualified Data.Char as Char
 import Control.Monad (forM)
-import Data.Maybe (mapMaybe)
+import Data.Maybe (fromMaybe, mapMaybe)
+import qualified System.FilePath as FilePath
 import Data.List (nub, foldl', sort)
 import Data.String (IsString)
 
@@ -121,6 +122,42 @@ instance FromConfig Text where
 
 instance FromConfig Bool where
   fetchFromConfig = fetchFromConfigWith parseBool
+
+newtype File =
+  File FilePath
+  deriving (Show, Eq, Ord, Read)
+
+instance IsString File where
+  fromString s = File s
+
+instance FromConfig File where
+  fetchFromConfig key config = do
+    filepath <- fetchFromConfig @(Maybe String) key config
+
+    extension <- fetchFromConfig @(Maybe String) (key /. "extension") config
+    dirname <- fetchFromConfig @(Maybe String) (key /. "dirname") config
+    basename <- fetchFromConfig @(Maybe String) (key /. "basename") config
+    filename <- fetchFromConfig @(Maybe String) (key /. "filename") config
+
+    let
+      constructedFilePath =
+        applyIfPresent FilePath.replaceDirectory dirname
+        $ applyIfPresent FilePath.replaceBaseName basename
+        $ applyIfPresent FilePath.replaceExtension extension
+        $ applyIfPresent FilePath.replaceFileName filename
+        $ fromMaybe "" filepath
+    if FilePath.isValid constructedFilePath
+      then return $ File constructedFilePath
+      else throwMissingRequiredKeys @String
+        [ key
+        , key /. "extension"
+        , key /. "dirname"
+        , key /. "basename"
+        , key /. "filename"
+        ]
+    where
+      applyIfPresent f maybeComponent =
+        (\fp -> maybe fp (f fp) maybeComponent)
 
 parseBool :: Text -> Maybe Bool
 parseBool text =

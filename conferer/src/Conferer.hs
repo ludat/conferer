@@ -109,4 +109,4 @@ mkConfig appName =
   pure emptyConfig
   >>= addSource (Cli.fromConfig)
   >>= addSource (Env.fromConfig appName)
-  >>= addSource (PropertiesFile.fromConfig)
+  >>= addSource (PropertiesFile.fromConfig "config.file")

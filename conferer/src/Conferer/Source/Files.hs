@@ -1,18 +1,15 @@
 {-# LANGUAGE TypeApplications #-}
 module Conferer.Source.Files where
 
-import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Maybe (fromMaybe)
+import System.FilePath
 
 import Conferer.Config
 import Conferer.FromConfig
 
-getFilePathFromEnv :: Config -> String -> IO FilePath
-getFilePathFromEnv config extension = do
-  env <- fetchFromConfigWithDefault @Text "env" config "development"
-  return $ mconcat
-    [ "config/"
-    , Text.unpack env
-    , "."
-    , extension
-    ]
+getFilePathFromEnv :: Key -> String -> Config -> IO FilePath
+getFilePathFromEnv key extension config = do
+  env <- fromMaybe "development" <$> fetchFromConfig @(Maybe String) "env" config
+  let defaultPath = "config" </> env <.> extension
+  File filepath <- fetchFromConfigWithDefault @File key config $ File $ defaultPath
+  return filepath

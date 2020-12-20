@@ -23,6 +23,7 @@ module Conferer.FromConfig
   , typeMismatchWithDefault
   , Key
   , (/.)
+  , File(..)
   , KeyLookupResult(..)
 
   , fetchFromDefaults

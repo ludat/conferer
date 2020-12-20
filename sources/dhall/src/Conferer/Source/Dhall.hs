@@ -10,11 +10,11 @@ import Conferer.Source.Files
 import qualified Conferer.Source.JSON as JSON
 import qualified Conferer.Source.Null as Null
 
-import           Conferer.Source
+import Conferer.Source
 
-fromConfig :: SourceCreator
-fromConfig config = do
-  filePath <- getFilePathFromEnv config "dhall"
+fromConfig :: Key -> SourceCreator
+fromConfig key config = do
+  filePath <- getFilePathFromEnv key "dhall" config
   fromFilePath filePath
 
 fromFilePath :: FilePath -> IO Source

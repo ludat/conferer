@@ -70,9 +70,9 @@ instance IsSource JsonSource where
 -- template, if the file is not present it will behave like the null source
 -- (it has no keys) but if the file doesn't have valid json it will throw an
 -- error
-fromConfig :: SourceCreator
-fromConfig config = do
-  fileToParse <- getFilePathFromEnv config "json"
+fromConfig :: Key -> SourceCreator
+fromConfig key config = do
+  fileToParse <- getFilePathFromEnv key "json" config
   fromFilePath fileToParse
 
 fromFilePath :: FilePath -> IO Source

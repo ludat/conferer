@@ -15,9 +15,9 @@ import qualified Conferer.Source.InMemory as InMemory
 -- | 'SourceCreator' for properties file 'Source' that read from a
 -- config file in @config/{env}.properties@ and parses it as a properties
 -- file with @some.key=a value@ lines
-fromConfig :: SourceCreator
-fromConfig config = do
-  filePath <- getFilePathFromEnv config "properties"
+fromConfig :: Key -> SourceCreator
+fromConfig key config = do
+  filePath <- getFilePathFromEnv key "properties" config
   fromFilePath filePath
 
 fromFilePath :: FilePath -> IO Source
