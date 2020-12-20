@@ -2,7 +2,8 @@ module Conferer.Source.Null
   (
     -- * Does Nothing Source
     -- | The stub source that never has a key
-    mkNullSource
+    fromConfig
+    , empty
   )
 where
 
@@ -19,6 +20,11 @@ instance IsSource NullSource where
     return []
 
 -- | Create a null 'Source'
-mkNullSource :: SourceCreator
-mkNullSource _config =
-  return $ Source $ NullSource
+fromConfig :: SourceCreator
+fromConfig _config =
+  return $ empty
+
+-- | Create a null 'Source'
+empty :: Source
+empty =
+  Source $ NullSource

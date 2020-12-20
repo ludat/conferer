@@ -4,13 +4,12 @@ import Test.Hspec
 
 import Conferer.Source
 import Conferer.Source.CLIArgs
-import Conferer.Config (emptyConfig)
 
 spec :: Spec
 spec = do
   describe "with a mapping source" $ do
     let mkConf args =
-          mkCLIArgsSource' args emptyConfig
+          return $ fromArgs args
 
     it "gets a parameters with it's value if it starts with the right prefix" $ do
       c <- mkConf []

@@ -6,7 +6,7 @@ import Data.Text (Text)
 import Data.Dynamic
 
 import Conferer.Config
-import Conferer.Source.Simple
+import Conferer.Source.InMemory
 import Conferer.Config.Internal (listSubkeys)
 
 missingKey :: Key -> KeyLookupResult -> Bool 
@@ -33,7 +33,7 @@ spec = do
           pure (emptyConfig
                   & withKeyMappings keyMappings
                   & addDefaults defaults)
-              >>= addSource (mkMapSource content)
+              >>= addSource (fromConfig content)
     describe "#getKey" $ do
       it "getting a non existent key returns missing key" $ do
         c <- mkConfig [] [] []
@@ -49,8 +49,8 @@ spec = do
         let mkConfig' defaults sourceWithPriority otherSource =
               pure (emptyConfig
                 & addDefaults defaults)
-              >>= addSource (mkMapSource sourceWithPriority)
-              >>= addSource (mkMapSource otherSource)
+              >>= addSource (fromConfig sourceWithPriority)
+              >>= addSource (fromConfig otherSource)
 
         it "getting an key returns unwraps the original map" $ do
           c <- mkConfig' [] [] [("some.key", "1")]

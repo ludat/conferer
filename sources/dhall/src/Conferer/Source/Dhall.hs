@@ -1,26 +1,37 @@
 module Conferer.Source.Dhall where
 
 import qualified Data.Text.IO as Text
-import           Dhall
-import           Dhall.JSON
-import           System.Directory (doesFileExist)
-import           Conferer.Source.JSON
-import           Conferer.Source.Files
-import           Conferer.Source.Null
+import Dhall
+import Dhall.Core
+import Data.Void
+import Dhall.JSON
+import System.Directory (doesFileExist)
+import Conferer.Source.Files
+import qualified Conferer.Source.JSON as JSON
+import qualified Conferer.Source.Null as Null
 
 import           Conferer.Source
 
-mkDhallSource :: SourceCreator
-mkDhallSource config = do
+fromConfig :: SourceCreator
+fromConfig config = do
   filePath <- getFilePathFromEnv config "dhall"
+  fromFilePath filePath
+
+fromFilePath :: FilePath -> IO Source
+fromFilePath filePath = do
   fileExists <- doesFileExist filePath
   if fileExists
     then do
-    fileContent <- Text.readFile filePath
-    dahllExpr <- inputExpr fileContent
-    case dhallToJSON dahllExpr of
-      Right jsonConfig -> do
-        mkJsonSource' jsonConfig config
-      Left compileError -> error (show compileError)
+      fileContent <- Text.readFile filePath
+      dhallExpr <- inputExpr fileContent
+      return $ fromDhallExpr dhallExpr
     else do
-      mkNullSource config
+      return Null.empty
+
+fromDhallExpr :: Expr s Void -> Source
+fromDhallExpr dhallExpr =
+  case dhallToJSON dhallExpr of
+    Right jsonConfig -> do
+      JSON.fromValue jsonConfig
+    Left compileError ->
+      error (show compileError)

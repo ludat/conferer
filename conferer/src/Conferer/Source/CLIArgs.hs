@@ -4,8 +4,9 @@ module Conferer.Source.CLIArgs
     -- | This source provides keys from the command line arguments passed into
     -- the program. It only accepts arguments with @--@ and an equals, for
     -- example: @./awesomeapp --warp.port=5000@
-    mkCLIArgsSource
-    , mkCLIArgsSource'
+    fromConfig
+    , fromArgs
+    , fromEnv
     , parseArgsIntoKeyValue
   )
 where
@@ -16,21 +17,24 @@ import           Data.Maybe (mapMaybe)
 import           System.Environment (getArgs)
 
 import           Conferer.Source
-import           Conferer.Source.Simple
+import qualified Conferer.Source.InMemory as InMemory
 
+fromConfig :: SourceCreator
+fromConfig = \_config ->
+  fromEnv
 
 -- | Create a 'SourceCreator' for CLIArgs from a argument list
-mkCLIArgsSource' :: [String] -> SourceCreator
-mkCLIArgsSource' args = \config -> do
+fromArgs :: [String] -> Source
+fromArgs args = do
   let configMap = parseArgsIntoKeyValue args
-  mkMapSource configMap config
+  InMemory.fromAssociations configMap
 
 -- | Same as 'mkCLIArgsSource'' but using 'getArgs' to provide the argument
 -- list
-mkCLIArgsSource :: SourceCreator
-mkCLIArgsSource = \config -> do
+fromEnv :: IO Source
+fromEnv = do
   args <- getArgs
-  mkCLIArgsSource' args config
+  return $ fromArgs args
 
 -- | Parse an argument list into a dictionary suitable for a 'Source'
 parseArgsIntoKeyValue :: [String] -> [(Key, Text)]

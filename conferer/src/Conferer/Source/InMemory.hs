@@ -1,14 +1,14 @@
 {-# LANGUAGE RecordWildCards #-}
-module Conferer.Source.Simple
+module Conferer.Source.InMemory
   (
     -- * Simple Source
     -- | This source provides values from a hardcoded Map passed at creation
     -- time that can not be changed afterwards, it's mostly used as a necessary
     -- utility
-    mkMapSource
-  , mkMapSource'
-  , mkPureMapSource
-  , SimpleSource(..)
+    SimpleSource(..)
+  , fromConfig
+  , fromAssociations
+  , fromMap
   ) where
 
 import           Data.Map (Map)
@@ -28,17 +28,16 @@ instance IsSource SimpleSource where
   getSubkeysInSource SimpleSource {..} key = do
     return $ filter (\k -> key `isKeyPrefixOf` k && key /= k) $ Map.keys configMap
 
--- | Make a 'SourceCreator' from a 'Map'
-mkMapSource' :: Map Key Text -> SourceCreator
-mkMapSource' configMap _config =
-  return $ mkPureMapSource configMap
+fromConfig :: [(Key, Text)] -> SourceCreator
+fromConfig configMap _config =
+  return $ fromAssociations configMap
 
--- | Make a 'Source' from a 'Map'
-mkPureMapSource :: Map Key Text -> Source
-mkPureMapSource =
-  Source . SimpleSource
+-- | Make a 'SourceCreator' from a 'Map'
+fromMap :: Map Key Text -> Source
+fromMap configMap =
+  Source . SimpleSource $ configMap
 
 -- | Make a 'Source' from 'List' of 'Key', 'Text' pairs
-mkMapSource :: [(Key, Text)] -> SourceCreator
-mkMapSource =
-  mkMapSource' . Map.fromList
+fromAssociations :: [(Key, Text)] -> Source
+fromAssociations =
+  fromMap . Map.fromList

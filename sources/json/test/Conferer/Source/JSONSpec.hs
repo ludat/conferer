@@ -4,15 +4,12 @@ import Data.Aeson.QQ
 import Test.Hspec
 
 import Conferer.Source
-import Conferer.Config.Internal (mkStandaloneSource)
 import Conferer.Source.JSON
 
 spec :: Spec
 spec = do
   describe "json source" $ do
-    let mk value =
-          mkStandaloneSource $
-            mkJsonSource' value
+    let mk = return . fromValue
     describe "#getKeyInSource" $ do
       it "getting an existing path returns the right value" $ do
         c <- mk [aesonQQ| {"postgres": {"url": "some url", "ssl": true}} |]

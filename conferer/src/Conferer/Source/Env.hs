@@ -9,7 +9,7 @@ import qualified System.Environment as System
 import Data.Maybe (mapMaybe)
 
 import           Conferer.Source
-import           Conferer.Source.Simple (mkMapSource)
+import qualified Conferer.Source.InMemory as InMemory
 
 data EnvSource =
   EnvSource
@@ -35,15 +35,19 @@ instance IsSource EnvSource where
 
 -- | 'SourceCreator' for env 'Source' that uses the real 'System.lookupEnv'
 -- function
-mkEnvSource :: Prefix -> SourceCreator
-mkEnvSource prefix config = do
+fromConfig :: Prefix -> SourceCreator
+fromConfig prefix _config = do
+  fromEnv prefix
+
+fromEnv :: Prefix -> IO Source
+fromEnv prefix = do
   rawEnvironment <- System.getEnvironment
-  mkEnvSource' rawEnvironment prefix config
+  return $ fromEnvList rawEnvironment prefix
 
 -- | 'SourceCreator' for env 'Source' that allows parameterizing the
 -- function used to lookup for testing
-mkEnvSource' :: RawEnvironment -> Prefix -> SourceCreator
-mkEnvSource' environment keyPrefix config = do
+fromEnvList :: RawEnvironment -> Prefix -> Source
+fromEnvList environment keyPrefix =
   let
     mappings =
       mapMaybe (\(key, v) -> do
@@ -51,10 +55,8 @@ mkEnvSource' environment keyPrefix config = do
         return (k, Text.pack v)
       )
       environment
-  innerSource <- mkMapSource mappings config
-  return $
-    Source $
-      EnvSource {..}
+    innerSource = InMemory.fromAssociations mappings
+  in Source EnvSource {..}
 
 -- | Get the env name from a prefix and a key by uppercasing and
 -- intercalating underscores

@@ -6,7 +6,7 @@ import Test.Hspec
 
 import Conferer.FromConfig
 import Conferer.Config
-import Conferer.Source.Simple
+import Conferer.Source.InMemory
 
 import GHC.Generics
 
@@ -37,7 +37,7 @@ spec = do
       context "without a default but with all of the keys defined" $ do
         it "returns the default" $ do
           c <- emptyConfig
-                & addSource (mkMapSource
+                & addSource (fromConfig
                   [ ("somekey.a", "0")
                   , ("somekey.b", "0")
                   ])
@@ -48,7 +48,7 @@ spec = do
         it "returns the default" $ do
           c <- emptyConfig
                 & addDefault "somekey" (configDef @Thing)
-                & addSource (mkMapSource [ ])
+                & addSource (fromConfig [ ])
 
           res <- fetchFromConfig @Thing "somekey" c
           res `shouldBe` Thing { thingA = 0, thingB = 0 }
@@ -56,7 +56,7 @@ spec = do
         it "return the keys set" $ do
           c <- emptyConfig
                 & addDefault "somekey" (configDef @Thing)
-                & addSource (mkMapSource
+                & addSource (fromConfig
                   [ ("somekey.a", "1")
                   , ("somekey.b", "2")
                   ])
@@ -68,7 +68,7 @@ spec = do
         it "uses the default and returns the keys set" $ do
           c <- emptyConfig
                 & addDefault "somekey" (configDef @Thing)
-                & addSource (mkMapSource
+                & addSource (fromConfig
                   [ ("somekey.b", "2")
                   ])
 
@@ -80,7 +80,7 @@ spec = do
         it "returns the default of both records" $ do
           c <- emptyConfig
                 & addDefault "somekey" (configDef @Bigger)
-                & addSource (mkMapSource
+                & addSource (fromConfig
                   [ ])
 
           res <- fetchFromConfig @Bigger "somekey" c
@@ -90,7 +90,7 @@ spec = do
         it "returns the default for the inner record" $ do
           c <- emptyConfig
                 & addDefault "somekey" (configDef @Bigger)
-                & addSource (mkMapSource
+                & addSource (fromConfig
                   [ ("somekey.b", "30")
                   ])
 
@@ -101,7 +101,7 @@ spec = do
         it "returns the inner record updated" $ do
           c <- emptyConfig
                 & addDefault "somekey" (configDef @Bigger)
-                & addSource (mkMapSource
+                & addSource (fromConfig
                   [ ("somekey.thing.a", "30")
                   ])
 
@@ -112,7 +112,7 @@ spec = do
         it "returns everything with the right values" $ do
           c <- emptyConfig
                 & addDefault "somekey" (configDef @Bigger)
-                & addSource (mkMapSource
+                & addSource (fromConfig
                   [ ("somekey.thing.a", "10")
                   , ("somekey.thing.b", "20")
                   , ("somekey.b", "30")

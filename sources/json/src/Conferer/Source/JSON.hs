@@ -24,8 +24,9 @@ module Conferer.Source.JSON
   -- keys.
   --
   -- TODO Describe how we transform json into key value strings
-  mkJsonSource
-  , mkJsonSource'
+  fromConfig
+  , fromFilePath
+  , fromValue
 
   -- * Internal utility functions
   -- | These may be useful for someone but are subject to change at any point so
@@ -51,7 +52,7 @@ import qualified Data.ByteString.Lazy as L
 import System.Directory (doesFileExist)
 
 import Conferer.Source.Files
-import Conferer.Source.Null
+import qualified Conferer.Source.Null as Null
 import Conferer.Source
 import Data.List (intersperse)
 
@@ -69,9 +70,13 @@ instance IsSource JsonSource where
 -- template, if the file is not present it will behave like the null source
 -- (it has no keys) but if the file doesn't have valid json it will throw an
 -- error
-mkJsonSource :: SourceCreator
-mkJsonSource config = do
+fromConfig :: SourceCreator
+fromConfig config = do
   fileToParse <- getFilePathFromEnv config "json"
+  fromFilePath fileToParse
+
+fromFilePath :: FilePath -> IO Source
+fromFilePath fileToParse = do
   fileExists <- doesFileExist fileToParse
   if fileExists
     then do
@@ -80,14 +85,14 @@ mkJsonSource config = do
         Nothing ->
           error $ "Failed to decode json file '" ++ fileToParse ++ "'"
         Just v -> do
-          mkJsonSource' v config
+          return $ fromValue v
     else do
-      mkNullSource config
+      return $ Null.empty
 
 -- | Just like 'mkJsonSource' but accepts the json value as a parameter
-mkJsonSource' :: Value -> SourceCreator
-mkJsonSource' value = \_config ->
-  return . Source $ JsonSource {..}
+fromValue :: Value -> Source
+fromValue value =
+  Source JsonSource {..}
 
 -- | Traverse a 'Value' using a 'Key' to get a value for conferer ('Text').
 --

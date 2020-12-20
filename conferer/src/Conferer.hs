@@ -79,15 +79,15 @@ module Conferer
   , Key
   ) where
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 import Conferer.Config.Internal
 import Conferer.Config.Internal.Types
 import Conferer.FromConfig.Internal
 import Conferer.Key
-import Conferer.Source.Env
-import Conferer.Source.CLIArgs
-import Conferer.Source.PropertiesFile
+import qualified Conferer.Source.Env as Env
+import qualified Conferer.Source.CLIArgs as Cli
+import qualified Conferer.Source.PropertiesFile as PropertiesFile
 import Data.Typeable (Typeable)
 
 fetch :: forall a. (FromConfig a, Typeable a) => Config -> a -> IO a
@@ -107,6 +107,6 @@ unsafeFetchKey = fetchFromConfig
 mkConfig :: Text -> IO Config
 mkConfig appName =
   pure emptyConfig
-  >>= addSource mkCLIArgsSource
-  >>= addSource (mkEnvSource appName)
-  >>= addSource mkPropertiesFileSource
+  >>= addSource (Cli.fromConfig)
+  >>= addSource (Env.fromConfig appName)
+  >>= addSource (PropertiesFile.fromConfig)

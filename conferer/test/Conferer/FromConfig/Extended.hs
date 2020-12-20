@@ -38,10 +38,12 @@ import Conferer.FromConfig.Internal
   , ConfigParsingError(..)
   )
 import Conferer.FromConfig
-import Conferer.Source.Simple (mkMapSource)
+import Conferer.Source.InMemory
 
 configWith :: [(Key, Text)] -> IO Config
-configWith keyValues = emptyConfig & addSource (mkMapSource keyValues)
+configWith keyValues =
+  emptyConfig
+  & addSource (fromConfig keyValues)
 
 anyConfigParserError :: ConfigParsingError -> Bool
 anyConfigParserError _ = True

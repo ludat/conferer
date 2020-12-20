@@ -9,11 +9,10 @@ import Conferer.Source.Env
 
 spec :: Spec
 spec = do
-  describe "with an env config" $ do
+  describe "with an env source" $ do
     let
       mkEnvConfig envVars =
-        mkStandaloneSource $
-          mkEnvSource' envVars "APP"
+        return $ fromEnvList envVars "APP"
 
     it "getting an existent key returns unwraps top level value (without \
        \children)" $ do
