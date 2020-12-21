@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6c3353b189a3d84c3d9aac6853c4e5c14b2dbcc3d6d3d246a54860cd5753f856
+-- hash: 0addebf98a5e1b09497ce3838e580af7e69d52f96f8054e7b9237b9a6fccadd5
 
 name:           conferer
 version:        0.4.1.1
@@ -55,7 +55,7 @@ library
     , bytestring >=0.10 && <0.11
     , containers >=0.5 && <0.7
     , directory >=1.2 && <2.0
-    , filepath
+    , filepath >=1.0 && <2.0
     , text >=1.1 && <1.3
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
@@ -96,7 +96,7 @@ test-suite specs
     , containers >=0.5 && <0.7
     , deepseq
     , directory >=1.2 && <2.0
-    , filepath
+    , filepath >=1.0 && <2.0
     , hspec
     , text >=1.1 && <1.3
   if impl(ghc >= 8.4.1)
