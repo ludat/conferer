@@ -2,7 +2,7 @@ module Conferer.Source.Yaml where
 
 import           Data.Yaml
 
-import qualified Conferer.Source.JSON as JSON
+import qualified Conferer.Source.Aeson as JSON
 import           Conferer.Source.Files
 import           Conferer.Source
 

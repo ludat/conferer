@@ -4,9 +4,9 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0ddc8d30507613c24d0cd0417ab51e897ba839c03af7604e76be6a45cd02d61a
+-- hash: 1eddabc204f950268993e9c440d01569907c1f45d44053311f681144e121f80e
 
-name:           conferer-source-yaml
+name:           conferer-yaml
 version:        0.4.0.1
 synopsis:       Configuration for reading yaml files
 
@@ -28,7 +28,7 @@ library
   exposed-modules:
       Conferer.Source.Yaml
   other-modules:
-      Paths_conferer_source_yaml
+      Paths_conferer_yaml
   hs-source-dirs:
       src
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
@@ -36,7 +36,7 @@ library
   build-depends:
       base >=4.3 && <5
     , conferer >=0.4.0.0 && <0.5.0.0
-    , conferer-source-json >=0.4.0.0 && <0.5.0.0
+    , conferer-aeson >=0.4.0.0 && <0.5.0.0
     , yaml >=0.8 && <1.0
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
@@ -46,7 +46,7 @@ test-suite specs
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_conferer_source_yaml
+      Paths_conferer_yaml
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
@@ -54,8 +54,8 @@ test-suite specs
   build-depends:
       base >=4.3 && <5
     , conferer >=0.4.0.0 && <0.5.0.0
-    , conferer-source-json >=0.4.0.0 && <0.5.0.0
-    , conferer-source-yaml
+    , conferer-aeson >=0.4.0.0 && <0.5.0.0
+    , conferer-yaml
     , hspec
     , yaml >=0.8 && <1.0
   if impl(ghc >= 8.4.1)

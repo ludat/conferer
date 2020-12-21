@@ -1,12 +1,11 @@
 resolver: none
 
 packages:
-  - ./conferer/
-  - ./sources/json/
-  - ./sources/yaml/
-  - ./sources/dhall/
-
-  - ./fromConfig/warp/
-  - ./fromConfig/hspec/
-  - ./fromConfig/snap/
-  - ./fromConfig/hedis/
+  - ./packages/conferer/
+  - ./packages/aeson/
+  - ./packages/yaml/
+  - ./packages/dhall/
+  - ./packages/warp/
+  - ./packages/hspec/
+  - ./packages/snap/
+  - ./packages/hedis/

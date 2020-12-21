@@ -1,4 +1,4 @@
-name: conferer-source-json
+name: conferer-aeson
 version: 0.4.0.1
 synopsis: |
   conferer's source for reading json files
@@ -27,7 +27,7 @@ tests:
     main: Spec.hs
     source-dirs: test
     dependencies:
-    - conferer-source-json
     - conferer
+    - conferer-aeson
     - hspec
     - aeson-qq

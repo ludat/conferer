@@ -5,7 +5,7 @@ import Dhall
 import Dhall.JSON
 import System.Directory (doesFileExist)
 import Conferer.Source.Files
-import qualified Conferer.Source.JSON as JSON
+import qualified Conferer.Source.Aeson as JSON
 import qualified Conferer.Source.Null as Null
 
 import Conferer.Source

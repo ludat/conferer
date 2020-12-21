@@ -4,9 +4,9 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: aeb2aedcf4587aaaf20e65c452ac407c26f8528373862f5534f35555869c26f9
+-- hash: d25cbf804a55fd7e8edd8375332ab3d43d8c7c106801f12ac8e1fb3e1956b4a1
 
-name:           conferer-source-json
+name:           conferer-aeson
 version:        0.4.0.1
 synopsis:       conferer's source for reading json files
 
@@ -26,9 +26,10 @@ extra-doc-files:
 
 library
   exposed-modules:
-      Conferer.Source.JSON
+      Conferer.FromConfig.Aeson
+      Conferer.Source.Aeson
   other-modules:
-      Paths_conferer_source_json
+      Paths_conferer_aeson
   hs-source-dirs:
       src
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
@@ -50,8 +51,8 @@ test-suite specs
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Conferer.Source.JSONSpec
-      Paths_conferer_source_json
+      Conferer.Source.AesonSpec
+      Paths_conferer_aeson
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
@@ -62,7 +63,7 @@ test-suite specs
     , base >=4.3 && <5
     , bytestring >=0.10 && <0.11
     , conferer
-    , conferer-source-json
+    , conferer-aeson
     , directory >=1.2 && <2.0
     , hspec
     , text >=1.1 && <1.3

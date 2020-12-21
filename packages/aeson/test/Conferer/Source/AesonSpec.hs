@@ -1,10 +1,10 @@
-module Conferer.Source.JSONSpec where
+module Conferer.Source.AesonSpec where
 
 import Data.Aeson.QQ
 import Test.Hspec
 
 import Conferer.Source
-import Conferer.Source.JSON
+import Conferer.Source.Aeson
 
 spec :: Spec
 spec = do

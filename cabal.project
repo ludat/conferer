@@ -1,8 +1,0 @@
-packages: ./conferer/
-          ./fromConfig/hedis
-          ./fromConfig/hspec
-          ./fromConfig/snap
-          ./fromConfig/warp
-          ./sources/dhall
-          ./sources/json
-          ./sources/yaml

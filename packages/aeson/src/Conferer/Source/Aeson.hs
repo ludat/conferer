@@ -1,5 +1,5 @@
 {-# LANGUAGE RecordWildCards #-}
-module Conferer.Source.JSON
+module Conferer.Source.Aeson
   (
   -- * How to use this source
   -- | As any other source you can add it to a config using the 'addSource'
@@ -49,12 +49,12 @@ import qualified Data.Vector as Vector
 import Text.Read (readMaybe)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
+import Data.List (intersperse)
 import System.Directory (doesFileExist)
 
 import Conferer.Source.Files
 import qualified Conferer.Source.Null as Null
 import Conferer.Source
-import Data.List (intersperse)
 
 data JsonSource = JsonSource
   { value :: Value

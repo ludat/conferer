@@ -1,13 +1,13 @@
 resolver: lts-16.12
 
 packages:
-  - ./conferer/
-  - ./example/
-  - ./sources/json/
-  - ./sources/yaml/
-  - ./sources/dhall/
+  - ./packages/conferer/
+  - ./packages/aeson/
+  - ./packages/yaml/
+  - ./packages/dhall/
+  - ./packages/warp/
+  - ./packages/hspec/
+  - ./packages/snap/
+  - ./packages/hedis/
 
-  - ./fromConfig/warp/
-  - ./fromConfig/hspec/
-  - ./fromConfig/snap/
-  - ./fromConfig/hedis/
+  - ./example/

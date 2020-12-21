@@ -1,4 +1,4 @@
-name: conferer-source-yaml
+name: conferer-yaml
 version: 0.4.0.1
 synopsis: |
   Configuration for reading yaml files
@@ -12,7 +12,7 @@ _common/lib: !include ../../utils/package.common.yaml
 dependencies:
   - base >= 4.3 && < 5
   - conferer >= 0.4.0.0 && < 0.5.0.0
-  - conferer-source-json >= 0.4.0.0 && < 0.5.0.0
+  - conferer-aeson >= 0.4.0.0 && < 0.5.0.0
   - yaml >= 0.8 && < 1.0
 
 tests:
@@ -20,5 +20,5 @@ tests:
     main: Spec.hs
     source-dirs: test
     dependencies:
-    - conferer-source-yaml
+    - conferer-yaml
     - hspec

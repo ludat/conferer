@@ -4,9 +4,9 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6041442a634294020e721605cc6c73b839fe9d0b691c0279334dbc4db8b81ffa
+-- hash: b7da4e2c0c21b4efc0be4548306c1d39161f6650bb2d92986b210c99c71e430e
 
-name:           conferer-source-dhall
+name:           conferer-dhall
 version:        0.4.0.1
 synopsis:       Configuration for reading dhall files
 
@@ -28,7 +28,7 @@ library
   exposed-modules:
       Conferer.Source.Dhall
   other-modules:
-      Paths_conferer_source_dhall
+      Paths_conferer_dhall
   hs-source-dirs:
       src
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
@@ -37,7 +37,7 @@ library
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11
     , conferer >=0.4.0.0 && <0.5.0.0
-    , conferer-source-json >=0.4.0.0 && <0.5.0.0
+    , conferer-aeson >=0.4.0.0 && <0.5.0.0
     , dhall >=1.8 && <2.0
     , dhall-json >=1.0 && <2.0
     , directory >=1.2 && <2.0
@@ -50,7 +50,7 @@ test-suite specs
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_conferer_source_dhall
+      Paths_conferer_dhall
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
@@ -59,8 +59,8 @@ test-suite specs
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11
     , conferer >=0.4.0.0 && <0.5.0.0
-    , conferer-source-dhall
-    , conferer-source-json >=0.4.0.0 && <0.5.0.0
+    , conferer-aeson >=0.4.0.0 && <0.5.0.0
+    , conferer-dhall
     , dhall >=1.8 && <2.0
     , dhall-json >=1.0 && <2.0
     , directory >=1.2 && <2.0
