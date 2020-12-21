@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Main where
 
-import Conferer
+import qualified Conferer
 import Conferer.FromConfig.Warp ()
 
 import Network.Wai
@@ -13,22 +13,24 @@ data AppConfig = AppConfig
   { appConfigServer :: Settings
   , appConfigSeed :: Int
   } deriving (Generic)
-instance FromConfig AppConfig
-instance DefaultConfig AppConfig where
+instance Conferer.FromConfig AppConfig
+instance Conferer.DefaultConfig AppConfig where
   configDef = AppConfig
-    { appConfigServer = setPort 2222 configDef -- If you want to configure new default for internal libs this is the place
+    { appConfigServer = setPort 2222 Conferer.configDef -- If you want to configure new default for internal libs this is the place
     , appConfigSeed = 17
     }
 
 main :: IO ()
 main = do
-  config <- defaultConfig "awesomeapp"
-  appConfig <- getFromRootConfig config
+  config <- Conferer.mkConfig "awesomeapp"
+  appConfig <- Conferer.fetch config Conferer.configDef
 
   putStrLn $ "Running on port: " ++ show (getPort $ appConfigServer appConfig)
-  runSettings (appConfigServer appConfig) application
+  runSettings (appConfigServer appConfig) (application config)
 
-application :: Application
-application _ respond = respond $
-  responseLBS status200 [("Content-Type", "text/plain")] "Hello World"
+application :: Conferer.Config -> Application
+application config _ respond = do
+  body <- Conferer.fetchKey "body" config "default"
+  respond $
+    responseLBS status200 [("Content-Type", "text/plain")] body
 
