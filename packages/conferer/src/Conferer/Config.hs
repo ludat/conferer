@@ -1,13 +1,26 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- Public API providing Config functionality
 module Conferer.Config
-  ( Config
+  (
+    -- * Data
+    Config
+    -- * Querying a config
+  , getKey
+  , KeyLookupResult(..)
+  , listSubkeys
+    -- * Config creation and initialization
+  , emptyConfig
   , addSource
   , addDefault
   , addDefaults
-  , withKeyMappings
   , addKeyMappings
-  , emptyConfig
-  , getKey
-  , KeyLookupResult(..)
+    -- * Re-Exports
   , module Conferer.Key
   , (&)
   ) where

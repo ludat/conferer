@@ -9,7 +9,7 @@ import Conferer.Source.PropertiesFile
 spec :: Spec
 spec = do
   describe "with a properties file config" $ do
-    let mk = return . fromFileContent
+    let mk = return . fromFileContent "file.properties"
     it "getting an existent key returns unwraps top level value (without \
        \children)" $ do
       c <- mk "some.key=a value"

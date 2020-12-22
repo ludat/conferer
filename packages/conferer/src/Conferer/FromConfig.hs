@@ -1,3 +1,11 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- Public API module providing FromConfig functionality
 module Conferer.FromConfig 
   ( FromConfig(fetchFromConfig)
   , DefaultConfig(configDef)

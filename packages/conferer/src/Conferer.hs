@@ -1,81 +1,31 @@
 -- |
--- Module:      Conferer
--- Copyright:   (c) 2019 Lucas David Traverso
--- License:     MIT
--- Maintainer:  Lucas David Traverso <lucas6246@gmail.com>
--- Stability:   experimental
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
 -- Portability: portable
 --
--- Types and functions for managing configuration effectively
+-- Public and stable API for the most basic usage of this library
 module Conferer
   (
 
-  -- * How to use this library
-  -- | This is the most basic example: which uses the default configuration
-  --   to get a configuration for warp, which can be overriden via env vars,
-  --   command line arguments of @.properties@ files
-  --
-  -- @
-  -- import Conferer
-  -- import Conferer.FromConfig.Warp () -- from package conferer-warp
-  --
-  -- main = do
-  --   config <- 'defaultConfig' \"awesomeapp\"
-  --   warpSettings <- 'fetchFromConfig' \"warp\" config
-  --   runSettings warpSettings application
-  -- @
-  --
-  -- In the above example we see that we are getting a configuration value for
-  -- warp under the key warp, so for example to override it's default value
-  -- provided by warp the config keys for warp will always look like
-  -- @warp.something@, for example to override the port for warp (3000 by
-  -- default) we could call our program as @./my_program --warp.port=8000@.
-  --
-  -- There are two sides to conferer: Getting configuration for other libraries
-  -- like warp, hspec, snap, etc. and the way we choose to provide values like
-  -- json files, properties files, env vars, etc.
+  -- * How to use this doc
+  -- | This doc is mostly for reference, so you probably won't learn how to
+  --   use conferer by reading it. For more detailed and guided documentation
+  --   the best place is the webpage: <https://conferer.ludat.io/docs>
 
-  -- ** Getting configuration for existing libraries
-  -- | There is a typeclass 'FromConfig' that defines how to get a type
-  --   from a config, they are implemented in different packages since the
-  --   weight of the dependencies would be too high, the package is usually
-  --   named as @conferer-DEPENDENCY@ where DEPENDENCY is the name of the dependency (
-  --   for example: conferer-snap, conferer-warp, conferer-hspec), if you find
-  --   a library without a conferer port for its config you can create an issue
-  --   or maybe even create the library yourself!
-
-  -- ** Providing key value pairs for configuration
-  -- | There is one important type in conferer: 'Config' from which, given a key
-  -- (eg: @warp@) you can get anything that implements 'FromConfig' (like
-  -- 'Warp.Settings')
-  --
-  -- Internally a 'Config' is made of many 'Source's which have a simpler
-  -- interface:
-  --
-  -- @
-  -- 'getKeyInSource' :: Source -> Key -> IO (Maybe Text)
-  -- @
-  --
-  -- Most configuration sources can be abstracted away as Map String String,
-  -- and they can use whatever logic they want to turn conferer keys (a list of
-  -- strings) into a place to look for a string, (for example the env source
-  -- requires a string to namespace the env vars that can affect the
-  -- configuration)
-  --
-  -- Once you have your 'Source' you can add it to a 'Config' using the
-  -- 'addSource' function. One final note: each source has a different
-  -- priority, which depends on when is was added to the config ('Source's
-  -- added later have lower priority) so the config searches keys in sources
-  -- in the same order they were added.
-
+  -- * Creating a Config
   mkConfig
-  , Config
-  , DefaultConfig(..)
-  , FromConfig(..)
+  -- * Getting values from a config
+  -- | These functions allow you to get any type that implements 'FromConfig'
   , fetch
   , fetchKey
-  , unsafeFetch
+  , safeFetchKey
   , unsafeFetchKey
+  , DefaultConfig(..)
+  , FromConfig
+  -- * Some useful types
+  , Config
   , Key
   ) where
 
@@ -90,20 +40,34 @@ import qualified Conferer.Source.CLIArgs as Cli
 import qualified Conferer.Source.PropertiesFile as PropertiesFile
 import Data.Typeable (Typeable)
 
+-- | Use the 'FromConfig' instance to get a value of type @a@ from the config
+--   using some default fallback. The most common use for this is creating a custom
+--   record and using this function to fetch it at initialization time.
+--
+--   This function throws only parsing exceptions when the values are present
+--   but malformed somehow (@"abc"@ as an Int) but that depends on the 'FromConfig'
+--   implementation for the type.
 fetch :: forall a. (FromConfig a, Typeable a) => Config -> a -> IO a
 fetch = fetchFromRootConfigWithDefault
 
+-- | Same as 'fetch' but you can specify a 'Key' instead of the root key which allows
+--   you to fetch smaller values when you need them instead of a big one at
+--   initialization time.
 fetchKey :: forall a. (FromConfig a, Typeable a) => Key -> Config -> a -> IO a
 fetchKey = fetchFromConfigWithDefault
 
-unsafeFetch :: forall a. (FromConfig a) => Config -> IO a
-unsafeFetch = fetchFromRootConfig
+-- | Same as 'fetchKey' but it returns a 'Nothing' when the value isn't present
+safeFetchKey :: forall a. (FromConfig a, Typeable a) => Key -> Config -> IO (Maybe a)
+safeFetchKey = fetchFromConfig
 
+-- | Same as 'fetchKey' but it throws when the value isn't present.
 unsafeFetchKey :: forall a. (FromConfig a) => Key -> Config -> IO a
 unsafeFetchKey = fetchFromConfig
 
--- | Default config which reads from command line arguments, env vars and
--- property files
+
+-- | Create a 'Config' which reads from command line arguments, env vars and
+--   property files that depend on the environment (@config/development.properties@)
+--   by default
 mkConfig :: Text -> IO Config
 mkConfig appName =
   pure emptyConfig

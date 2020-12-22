@@ -1,16 +1,27 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- Environment based source
 {-# LANGUAGE RecordWildCards #-}
 module Conferer.Source.Env where
 
-
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Data.Map (Map)
 import qualified System.Environment as System
 import Data.Maybe (mapMaybe)
 
-import           Conferer.Source
+import Conferer.Source
 import qualified Conferer.Source.InMemory as InMemory
 
+-- | Source that interfaces with the environment transforming keys
+-- by uppercasing and interspersing underscores, and using a prefix
+-- to avoid clashing with system env vars
+--
+-- so with "app" prefix, @"some.key"@ turns into @APP_SOME_KEY@
 data EnvSource =
   EnvSource
   { environment :: RawEnvironment
@@ -18,13 +29,10 @@ data EnvSource =
   , innerSource :: Source
   } deriving (Show)
 
--- | Type alias for the function to lookup env vars
-type Environment = Map String String
-
--- | Type alias for the function to lookup env vars
+-- | Type alias for the environment
 type RawEnvironment = [(String, String)]
 
--- | A text to namespace env vars
+-- | Type alias for the env vars prefix
 type Prefix = Text
 
 instance IsSource EnvSource where
@@ -33,19 +41,18 @@ instance IsSource EnvSource where
   getSubkeysInSource EnvSource{..} key = do
     getSubkeysInSource innerSource key
 
--- | 'SourceCreator' for env 'Source' that uses the real 'System.lookupEnv'
--- function
+-- | Create a 'SourceCreator' using 'fromEnv'
 fromConfig :: Prefix -> SourceCreator
 fromConfig prefix _config = do
   fromEnv prefix
 
+-- | Create a 'Source' using the real environment
 fromEnv :: Prefix -> IO Source
 fromEnv prefix = do
   rawEnvironment <- System.getEnvironment
   return $ fromEnvList rawEnvironment prefix
 
--- | 'SourceCreator' for env 'Source' that allows parameterizing the
--- function used to lookup for testing
+-- | Create a 'Source' using a hardcoded list of env vars
 fromEnvList :: RawEnvironment -> Prefix -> Source
 fromEnvList environment keyPrefix =
   let
@@ -67,10 +74,11 @@ keyToEnvVar prefix keys =
   $ filter (/= mempty)
   $ prefix : rawKeyComponents keys
 
+-- | The opossite of 'keyToEnvVar'
 envVarToKey :: Prefix -> Text -> Maybe Key
 envVarToKey prefix envVar =
   let
     splitEnvVar = fromText $ Text.replace "_"  "." envVar
   in
-    keyPrefixOf (fromText prefix) splitEnvVar
+    stripKeyPrefix (fromText prefix) splitEnvVar
 

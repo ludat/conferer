@@ -1,43 +1,44 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- In memory source mostly used for testing
 {-# LANGUAGE RecordWildCards #-}
-module Conferer.Source.InMemory
-  (
-    -- * Simple Source
-    -- | This source provides values from a hardcoded Map passed at creation
-    -- time that can not be changed afterwards, it's mostly used as a necessary
-    -- utility
-    SimpleSource(..)
-  , fromConfig
-  , fromAssociations
-  , fromMap
-  ) where
+module Conferer.Source.InMemory where
 
-import           Data.Map (Map)
+import Data.Map (Map)
 import qualified Data.Map as Map
-import           Data.Text (Text)
+import Data.Text (Text)
 
-import           Conferer.Source
+import Conferer.Source
 
-newtype SimpleSource = 
-  SimpleSource
+-- | A 'Source' mostly use for mocking which is configured directly using a
+-- 'Map'
+newtype InMemorySource =
+  InMemorySource
   { configMap :: Map Key Text
   } deriving (Show, Eq)
 
-instance IsSource SimpleSource where
-  getKeyInSource SimpleSource {..} key =
+instance IsSource InMemorySource where
+  getKeyInSource InMemorySource {..} key =
     return $ Map.lookup key configMap
-  getSubkeysInSource SimpleSource {..} key = do
+  getSubkeysInSource InMemorySource {..} key = do
     return $ filter (\k -> key `isKeyPrefixOf` k && key /= k) $ Map.keys configMap
 
+-- | Create a 'SourceCreator' from a list of associations
 fromConfig :: [(Key, Text)] -> SourceCreator
 fromConfig configMap _config =
   return $ fromAssociations configMap
 
--- | Make a 'SourceCreator' from a 'Map'
+-- | Create a 'Source' from a 'Map'
 fromMap :: Map Key Text -> Source
 fromMap configMap =
-  Source . SimpleSource $ configMap
+  Source . InMemorySource $ configMap
 
--- | Make a 'Source' from 'List' of 'Key', 'Text' pairs
+-- | Create a 'Source' from a list of associations
 fromAssociations :: [(Key, Text)] -> Source
 fromAssociations =
   fromMap . Map.fromList

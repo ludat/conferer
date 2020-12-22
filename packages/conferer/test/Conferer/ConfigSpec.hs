@@ -7,7 +7,6 @@ import Data.Dynamic
 
 import Conferer.Config
 import Conferer.Source.InMemory
-import Conferer.Config.Internal (listSubkeys)
 
 missingKey :: Key -> KeyLookupResult -> Bool 
 missingKey expectedKey (MissingKey k) = [expectedKey] == k
@@ -31,7 +30,7 @@ spec = do
   describe "Config" $ do
     let mkConfig keyMappings defaults content = 
           pure (emptyConfig
-                  & withKeyMappings keyMappings
+                  & addKeyMappings keyMappings
                   & addDefaults defaults)
               >>= addSource (fromConfig content)
     describe "#getKey" $ do
