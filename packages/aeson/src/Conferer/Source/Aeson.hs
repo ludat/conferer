@@ -145,7 +145,7 @@ listKeysInJSON = go
         go (key /. fromText k) v
       (_, Array as) -> do
         (index :: Integer, v) <- zip [0..] $ Vector.toList as
-        go (key /. fromString (show index)) v
+        go (key /. mkKey (show index)) v
       (Nothing, _) -> []
       (_, _) -> [key]
 

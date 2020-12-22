@@ -36,7 +36,7 @@ import Control.Monad (forM)
 import Data.Maybe (fromMaybe, mapMaybe)
 import qualified System.FilePath as FilePath
 import Data.List (nub, foldl', sort)
-import Data.String (IsString)
+import Data.String (IsString(..))
 
 -- | The typeclass for defining the way to get values from a 'Config', hiding the
 -- 'Text' based nature of the 'Conferer.Source.Source's and parse whatever value
@@ -100,7 +100,7 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
               case defaultsMay of
                 Just defaults ->
                   foldl' (\c (index, value) ->
-                    c & addDefault (key /. "defaults" /. fromString (show index)) value) config
+                    c & addDefault (key /. "defaults" /. mkKey (show index)) value) config
                   $ zip [0 :: Integer ..] defaults
                 Nothing -> config
         forM subkeys $ \k -> do
@@ -120,7 +120,7 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
               Just $
               nub $
               filter (/= "") $
-              fromString @Key .
+              mkKey .
               Text.unpack <$>
               Text.split (== ',') rawKeys
           Nothing -> do

@@ -16,7 +16,7 @@ import Data.List (stripPrefix, isPrefixOf)
 import qualified Data.Char as Char
 -- | This type is used extensivelly as a way to point into a 'Conferer.Source.Source'
 --   and in turn into a 'Conferer.Config.Config'. The intended way to create them is
---   is using 'mkKey' or 'fromString'.
+--   is using 'mkKey'.
 --
 --   It's a list of alphanumeric words and each 'Conferer.Source.Source' can interpret
 --   it as it sees fit.
@@ -52,7 +52,7 @@ mkKey s =
 
 -- | Same as 'mkKey' but for 'Text'
 fromText :: Text -> Key
-fromText = fromString . Text.unpack
+fromText = mkKey . Text.unpack
 
 -- | Collapse a key into a textual representation
 keyName :: Key -> Text

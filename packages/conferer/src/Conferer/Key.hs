@@ -11,7 +11,6 @@ module Conferer.Key
   -- * Creating 'Key's
   , mkKey
   , fromText
-  , fromString
   -- * Maniputaing 'Key's
   , (/.)
   , stripKeyPrefix
@@ -22,4 +21,3 @@ module Conferer.Key
   ) where
 
 import Conferer.Key.Internal
-import Data.String (IsString(fromString))
