@@ -20,9 +20,8 @@ import Conferer.Source.Files
 import qualified Conferer.Source.Null as Null
 import qualified Conferer.Source.InMemory as InMemory
 
--- | 'Source' for properties file 'Source' that read from a
--- config file in @config/{env}.properties@ and parses it as a properties
--- file with @some.key=a value@ lines
+-- | 'Source' that uses a config file in @config/{env}.properties@ and
+-- parses it as a properties file with @some.key=a value@ lines
 data PropertiesFileSource =
   PropertiesFileSource
   { originalFilePath :: FilePath
@@ -64,7 +63,6 @@ fromFileContent originalFilePath fileContent =
         & catMaybes
       innerSource = InMemory.fromAssociations keyValues
   in Source $ PropertiesFileSource {..}
-
 
 -- | Transform a line into a key/value pair (or not)
 lineToKeyValue :: Text -> Maybe (Key, Text)
