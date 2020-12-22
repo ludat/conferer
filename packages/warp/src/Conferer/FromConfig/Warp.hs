@@ -1,20 +1,15 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- FromConfig instance for warp
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE CPP #-}
-module Conferer.FromConfig.Warp
-  (
-  -- * How to use this
-  -- | FromConfig instance for warp server settings
-  --
-  -- @
-  -- import Conferer
-  -- import Conferer.FromConfig.Warp ()
-  --
-  -- main = do
-  --   config <- 'defaultConfig' \"awesomeapp\"
-  --   warpSettings <- 'fetchFromConfig' \"warp\" config
-  -- @
-  ) where
+module Conferer.FromConfig.Warp where
 
 import qualified Data.Text as Text
 import Data.Dynamic
@@ -42,6 +37,8 @@ instance FromConfig ProxyProtocol where
 instance DefaultConfig Settings where
   configDef = defaultSettings
 
+-- | Deconstruct a 'Settings' into a many key/dynamic pairs to
+-- provide valid defaults for downstream 'fetchFromConfig'
 deconstructSettingsToDefaults :: Settings -> [(Key, Dynamic)]
 deconstructSettingsToDefaults Settings{..} =
   [ ("port", toDyn settingsPort)
@@ -100,6 +97,8 @@ deconstructSettingsToDefaults Settings{..} =
 #endif
   ]
 
+-- | Newtype wrapper for the 'settingsFork' value that has too much polymorphism
+-- to be typeable
 newtype ForkSettings = ForkSettings (((forall a. IO a -> IO a) -> IO ()) -> IO ())
 
 instance FromConfig Settings where

@@ -1,35 +1,24 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- FromConfig instance for snap
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
-{-# LANGUAGE FlexibleInstances #-}
-module Conferer.FromConfig.Snap
-  (
-  -- * How to use this
-  -- | FromConfig instance for snap server configuration
-  --
-  -- @
-  -- import Conferer
-  -- import Conferer.FromConfig.Snap ()
-  --
-  -- main = do
-  --   config <- 'defaultConfig' \"awesomeapp\"
-  --   snapConfig <- 'fetchFromConfig' \"snap\" config
-  -- @
-  --
-  -- * Internal utility functions
-  -- | These may be useful for someone but are subject to change at any point so
-  -- use with care
-  ) where
+module Conferer.FromConfig.Snap where
 
 import Conferer.FromConfig
 
-import Data.Text (unpack, toLower)
-
-import qualified Snap.Http.Server.Config as Snap
-import qualified Snap.Internal.Http.Server.Config as Snap
-import qualified Snap.Core as Snap
 import Data.Data (Typeable)
 import Data.Dynamic (toDyn, Dynamic)
+import Data.Text (unpack, toLower)
+
+import qualified Snap.Core as Snap
+import qualified Snap.Http.Server.Config as Snap
+import qualified Snap.Internal.Http.Server.Config as Snap
 
 instance FromConfig Snap.ConfigLog where
   fetchFromConfig =
@@ -63,6 +52,8 @@ instance FromConfig Snap.ProxyType where
 instance (Snap.MonadSnap m) => DefaultConfig (Snap.Config m a) where
   configDef = Snap.defaultConfig
 
+-- | Deconstruct a 'Snap.Config' into a many key/dynamic pairs to
+-- provide valid defaults for downstream 'fetchFromConfig'
 desconstructSnapConfigToDefaults :: (Typeable a, Typeable m) => Snap.Config m a -> [(Key, Dynamic)]
 desconstructSnapConfigToDefaults Snap.Config{..} =
   [ ("defaultTimeout", toDyn defaultTimeout)

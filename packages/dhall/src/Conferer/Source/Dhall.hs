@@ -1,3 +1,11 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- Source for dhall config files
 module Conferer.Source.Dhall where
 
 import qualified Data.Text.IO as Text
@@ -11,11 +19,16 @@ import qualified Conferer.Source.Null as Null
 import Conferer.Source
 import Control.Exception
 
+-- | Create a 'SourceCreator' from a dhall config file
+-- using 'fromFilePath'
 fromConfig :: Key -> SourceCreator
 fromConfig key config = do
   filePath <- getFilePathFromEnv key "dhall" config
   fromFilePath filePath
 
+-- | Create a 'Source' from a filepath reading it as dhall
+-- if the file doesn't exist do nothing, but if it has invalid
+-- dhall throw an exception.
 fromFilePath :: FilePath -> IO Source
 fromFilePath filePath = do
   fileExists <- doesFileExist filePath

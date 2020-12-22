@@ -1,31 +1,22 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- FromConfig instance for hspec
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE CPP #-}
-module Conferer.FromConfig.Hspec
-  (
-  -- * How to use this
-  -- | FromConfig instance for snap server configuration
-  --
-  -- @
-  -- import Conferer
-  -- import Conferer.FromConfig.Snap ()
-  --
-  -- main = do
-  --   config <- 'defaultConfig' \"awesomeapp\"
-  --   snapConfig <- 'fetchFromConfig' \"snap\" config
-  -- @
-  --
-  -- * Internal utility functions
-  -- | These may be useful for someone but are subject to change at any point so
-  -- use with care
-  ) where
+module Conferer.FromConfig.Hspec where
 
 import Conferer.FromConfig
 
 import Data.Text (toLower)
+import Data.Dynamic (toDyn, Dynamic)
 
 import qualified Test.Hspec.Core.Runner as Hspec
 import qualified Test.Hspec.Core.Formatters as Hspec
-import Data.Dynamic (toDyn, Dynamic)
 
 instance FromConfig Hspec.ColorMode where
   fetchFromConfig =
@@ -51,6 +42,8 @@ instance FromConfig Hspec.Formatter where
 instance DefaultConfig Hspec.Config where
   configDef = Hspec.defaultConfig
 
+-- | Deconstruct a 'Hspec.Config' into a many key/dynamic pairs to
+-- provide valid defaults for downstream 'fetchFromConfig'
 desconstructHspecConfigToDefaults :: Hspec.Config -> [(Key, Dynamic)]
 desconstructHspecConfigToDefaults Hspec.Config{..} =
   [ ("dryRun", toDyn configDryRun)

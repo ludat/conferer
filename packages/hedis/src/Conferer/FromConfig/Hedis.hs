@@ -1,20 +1,15 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: stable
+-- Portability: portable
+--
+-- FromConfig instance for hedis
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE CPP #-}
-module Conferer.FromConfig.Hedis
-  (
-  -- * How to use this
-  -- | FromConfig instance for hedis server settings
-  --
-  -- @
-  -- import Conferer
-  -- import Conferer.FromConfig.Hedis ()
-  --
-  -- main = do
-  --   config <- 'defaultConfig' \"awesomeapp\"
-  --   hedisSettings <- 'fetchFromConfig' \"hedis\" config
-  -- @
-  ) where
+module Conferer.FromConfig.Hedis where
 
 import Conferer.FromConfig
 import Conferer.Config
@@ -36,6 +31,8 @@ instance FromConfig Redis.PortID where
 #endif
     )
 
+-- | Deconstruct a 'Redis.ConnectInfo' into a many key/dynamic pairs to
+-- provide valid defaults for downstream 'fetchFromConfig'
 deconstructConnInfoToDefaults :: Redis.ConnectInfo -> [(Key, Dynamic)]
 deconstructConnInfoToDefaults Redis.ConnInfo{..} =
   [ ("host", toDyn connectHost)
