@@ -3,12 +3,78 @@ id: from-config
 title: FromConfig
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In ac euismod odio, eu consequat dui. Nullam molestie consectetur risus id imperdiet. Proin sodales ornare turpis, non mollis massa ultricies id. Nam at nibh scelerisque, feugiat ante non, dapibus tortor. Vivamus volutpat diam quis tellus elementum bibendum. Praesent semper gravida velit quis aliquam. Etiam in cursus neque. Nam lectus ligula, malesuada et mauris a, bibendum faucibus mi. Phasellus ut interdum felis. Phasellus in odio pulvinar, porttitor urna eget, fringilla lectus. Aliquam sollicitudin est eros. Mauris consectetur quam vitae mauris interdum hendrerit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Before reading this doc, read the [core concepts](/docs/core-concepts).
 
-Duis et egestas libero, imperdiet faucibus ipsum. Sed posuere eget urna vel feugiat. Vivamus a arcu sagittis, fermentum urna dapibus, congue lectus. Fusce vulputate porttitor nisl, ac cursus elit volutpat vitae. Nullam vitae ipsum egestas, convallis quam non, porta nibh. Morbi gravida erat nec neque bibendum, eu pellentesque velit posuere. Fusce aliquam erat eu massa eleifend tristique.
+## Why would I want to read this doc?
 
-Sed consequat sollicitudin ipsum eget tempus. Integer a aliquet velit. In justo nibh, pellentesque non suscipit eget, gravida vel lacus. Donec odio ante, malesuada in massa quis, pharetra tristique ligula. Donec eros est, tristique eget finibus quis, semper non nisl. Vivamus et elit nec enim ornare placerat. Sed posuere odio a elit cursus sagittis.
+You don't need to read this doc to use conferer, you only need this if you
+plan to write a custom `FromConfig` instance for some type, otherwise
+this will probably won't be of much help.
 
-Phasellus feugiat purus eu tortor ultrices finibus. Ut libero nibh, lobortis et libero nec, dapibus posuere eros. Sed sagittis euismod justo at consectetur. Nulla finibus libero placerat, cursus sapien at, eleifend ligula. Vivamus elit nisl, hendrerit ac nibh eu, ultrices tempus dui. Nam tellus neque, commodo non rhoncus eu, gravida in risus. Nullam id iaculis tortor.
+## Who?
 
-Nullam at odio in sem varius tempor sit amet vel lorem. Etiam eu hendrerit nisl. Fusce nibh mauris, vulputate sit amet ex vitae, congue rhoncus nisl. Sed eget tellus purus. Nullam tempus commodo erat ut tristique. Cras accumsan massa sit amet justo consequat eleifend. Integer scelerisque vitae tellus id consectetur.
+Throughout this doc I'll reference two actors:
+
+* The Programmer: This is the person writing haskell that has direct access
+    to the source code.
+* The User: This is the person using the haskell program, this person doesn't
+    have access to the source (or maybe recompiling would be too hard) but is
+    the one executing the haskell program made by The programmer.
+
+As usual The Programmer and The User may be the same person.
+
+## Where is FromConfig?
+
+The module `Conferer.FromConfig` is the stable interface for `FromConfig`. If you
+really need it you can import `Conferer.FromConfig.Internal` but that could break
+without notice so be careful.
+
+## What is FromConfig?
+
+The point of conferer is to provide configuration values for most libraries
+and to do this we use a `Config` and a `Key`.
+
+A `Key` is a simple object (mostly a `[String]`) which is useful to reference
+things inside a `Config`. In turn a `Config` is an object that we can query
+for value associated with some `Key`, this value is either a `Text` or a
+[`Dynamic`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Dynamic.html).
+
+The `Dynamic` values are called "defaults", which are defined only by The Programmer
+and are used to customize the behavior of `FromConfig` instances so the instance
+fits The Programmer needs and in turn The User's expectations.
+
+The `Text` values are defined by The User, via cli args, env var, etc. (we'll get
+here when we discuss the `Source`s), they usually take priority over "defaults",
+so The User can override most things by default.
+
+## Some conventions
+
+### MissingKeyError
+
+This exception is slightly special since it's used internally and should be thrown
+whenever a `FromConfig` instance needs a `Key` that's not present.
+
+### Defaults should be respected
+
+A `FromConfig` instance should use the default that appears on the key that is was
+asked to parse, so this should hold for any `FromConfig`
+
+```haskell
+spec = do 
+  fetchedValue <-
+    fetchFromConfig key (config & addDefault key someTypeDefault)
+  fetchedValue `shouldBe` someTypeDefault
+```
+
+### If something looks weird fail fast
+
+Most of the time a default will be present so you could ignore bad input but most
+of the time you should tell The User or The Programmer that they provided bad input
+(either bad `Text` or `Dynamic`).
+
+So if you expect an `Int` and you see the `Text` "abc", you should throw
+Mirroring this, if you expect an `Int` and you find a `Dynamic` which has a `Text`
+you should throw.
+
+Note that this last error won't be easily fixable by The User so you should let
+The Programmer using your instance to look out for this.

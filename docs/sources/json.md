@@ -28,32 +28,41 @@ json values.
 
 Now this json file will result in only two keys;
 
-`"some.key"` mapped to `"value"`
-`"other"` mapped to `"true"`
-`"list.0"` mapped to `"1"`
-`"list.1"` mapped to `"2"`
-`"list.3.k"` mapped to `"x"`
+* `"some"` not present
+* `"some.key"` mapped to `"value"`
+* `"other"` mapped to `"true"`
+* `"list.0"` mapped to `"1"`
+* `"list.1"` mapped to `"2"`
+* `"list.3.k"` mapped to `"x"`
 
 Note that:
 
 * Since conferer's values always are string the `true` becomes `"true"`, conferer's 
-FromConfig knows how to interpret this properly though (same as numbers and null).
+    FromConfig knows how to interpret this properly though (same as numbers and null).
 * We traverse the tree until we find a primitive value.
 * We don't define keys for nested values like `"some"` in this case.
-* For list we define a key with its index and they can nest other values
+* For list we define a key with its index and they can nest other values.
+* All `Key`s are lowercase so this source ignores uppercase properties.
 
 
-### The future (NOT IMPLEMENTED YET)
+### Magic `keys` key
 
-In the future I'd like to expose metadata here for example:
+For nested values the magic `keys` key is present and has a comma separated list
+of the present keys
+
 
 ```json
 {
-    "list": [1]
+    "list": [3,4,5],
+    "object": {"a": 1, "b": 7}
 }
 ```
 
 exposes
 
-`"list.0"` mapped to `"1"`
-`"list.length"` mapped to `"1"`
+* `"list"` not present
+* `"list.0"` mapped to `"3"`
+* `"list.keys"` mapped to `"0,1,2"`
+* `"object"` not present
+* `"object.a"` mapped to `"1"`
+* `"object.keys"` mapped to `"a,b"`
