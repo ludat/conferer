@@ -16,32 +16,32 @@ spec = do
       -- Snap config is based around lots of maybes so it possible to create
       -- one even if there is no default value
       config <- configWith [] []
-      fetchedValue <- unsafeFetchKey @(Config Snap ()) "snap" config
+      fetchedValue <- unsafeFetchKey @(Config Snap ()) config "snap"
       getPort fetchedValue
         `shouldBe` getPort (configDef :: Config Snap ())
   describe "fetching a snap configuration that has the default" $ do
     it "returns snap default config" $ do
       config <- configWith [] []
-      fetchedValue <- fetchKey @(Config Snap ()) "snap" config configDef
+      fetchedValue <- fetchKey @(Config Snap ()) config "snap" configDef
       getPort fetchedValue
         `shouldBe` getPort (configDef :: Config Snap ())
   describe "fetching a snap configuration overriding its port" $ do
     it "returns a snap config with its port set to the overriden one" $ do
       config <- configWith [] [("snap.port", "5555")]
-      fetchedValue <- fetchKey @(Config Snap ()) "snap" config configDef
+      fetchedValue <- fetchKey @(Config Snap ()) config "snap" configDef
       getPort fetchedValue
         `shouldBe` Just 5555
   describe "fetching a snap configuration overriding its port" $ do
     it "returns a snap config with its port set to the overriden one" $ do
       config <- configWith [] []
-      fetchedValue <- fetchKey @(Config Snap ()) "snap" config
-        (setPort 5555 (configDef @(Config Snap ())))
+      fetchedValue <- fetchKey @(Config Snap ()) config "snap"
+        $ setPort 5555 (configDef :: Config Snap ())
       getPort fetchedValue
         `shouldBe` Just 5555
   describe "fetching a snap configuration overriding its port" $ do
     it "returns a snap config with its port set to the overriden one" $ do
       config <- configWith [] [("snap.other", "55")]
-      fetchedValue <- fetchKey @(Config Snap Int) "snap" config configDef
+      fetchedValue <- fetchKey @(Config Snap Int) config "snap" configDef
       getOther fetchedValue
         `shouldBe` Just 55
 

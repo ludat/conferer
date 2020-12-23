@@ -21,25 +21,25 @@ spec = do
   describe "fetching a hedis configuration from a totally empty config" $ do
     it "throws an exception" $ do
       config <- configWith [] []
-      unsafeFetchKey @ConnectInfo "hedis" config
+      unsafeFetchKey @ConnectInfo config "hedis"
         `shouldThrow` anyException
 
   describe "with no configuration" $ do
     it "returns hedis default config" $ do
       config <- configWith [] []
-      fetchedValue <- fetchKey "hedis" config configDef
+      fetchedValue <- fetchKey config "hedis" configDef
       fetchedValue `portAndHostShouldBe` (defaultPort, defaultHost)
 
   describe "with configured port" $ do
     it "return a hedis config with that port" $ do
       config <- configWith [] [("hedis.port", "9999")]
-      fetchedValue <- fetchKey "hedis" config configDef
+      fetchedValue <- fetchKey config "hedis" configDef
       fetchedValue `portAndHostShouldBe` (PortNumber 9999, defaultHost)
 
   describe "with configured maxConnections" $ do
     it "returns a hedis config with that max connections" $ do
       config <- configWith [] [("hedis.maxConnections", "6")]
-      fetchedValue <- fetchKey "hedis" config configDef
+      fetchedValue <- fetchKey config "hedis" configDef
       connectMaxConnections fetchedValue
         `shouldBe` 6
 
@@ -48,7 +48,7 @@ spec = do
   describe "with a url configured" $ do
     it "returns a hedis config with host, port, auth and database from the url" $ do
       config <- configWith [] [("hedis.url", "redis://username:password@host:42")]
-      fetchedValue <- fetchKey "hedis" config configDef
+      fetchedValue <- fetchKey config "hedis" configDef
       fetchedValue `portAndHostShouldBe` (PortNumber 42, "host")
 
     describe "and something url defined configured by itself" $ do
@@ -58,7 +58,7 @@ spec = do
           [ ("hedis.url", "redis://username:password@host:42")
           , ("hedis.port", "72")
           ]
-        fetchedValue <- fetchKey "hedis" config configDef
+        fetchedValue <- fetchKey config "hedis" configDef
         fetchedValue `portAndHostShouldBe` (PortNumber 72, "host")
 
     describe "and a something not defined in url" $ do
@@ -68,7 +68,7 @@ spec = do
           [ ("hedis.url", "redis://username:password@host:42")
           , ("hedis.maxConnections", "70")
           ]
-        fetchedValue <- fetchKey "hedis" config configDef
+        fetchedValue <- fetchKey config "hedis" configDef
         fetchedValue `portAndHostShouldBe` (PortNumber 42, "host")
         connectMaxConnections fetchedValue
           `shouldBe` 70
@@ -79,8 +79,7 @@ spec = do
           []
           [ ("hedis.url", "redis://username:password@host:42")
           ]
-        fetchedValue <- fetchKey "hedis" config
-          configDef {connectMaxConnections = 73}
+        fetchedValue <- fetchKey config "hedis" $ configDef {connectMaxConnections = 73}
         fetchedValue `portAndHostShouldBe` (PortNumber 42, "host")
         connectMaxConnections fetchedValue
           `shouldBe` 73

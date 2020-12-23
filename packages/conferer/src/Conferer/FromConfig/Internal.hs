@@ -399,8 +399,8 @@ fetchFromRootConfig =
 
 -- | Same as 'fetchFromConfig' but adding a user defined default before 'fetchFromConfig'ing
 -- so it doesn't throw a MissingKeyError
-fetchFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Key -> Config -> a -> IO a
-fetchFromConfigWithDefault key config configDefault =
+fetchFromConfigWithDefault :: forall a. (Typeable a, FromConfig a) => Config -> Key -> a -> IO a
+fetchFromConfigWithDefault config key configDefault =
   fetchFromConfig key (config & addDefault key configDefault)
 
 -- | Same as 'fetchFromConfigWithDefault' using the root key
