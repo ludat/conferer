@@ -6,9 +6,9 @@ title: Warp FromConfig
 ## Warp FromConfig
 
 This FromConfig instance provider support for parsing [Warp's Settings](https://hackage.haskell.org/package/warp-3.3.11/docs/Network-Wai-Handler-Warp.html#t:Settings).
-It supports versions from 2.0.0 up to the latest version (currently 3.3.11).
+It supports versions from 2.0.0 up to the latest version (currently 3.3.13).
 
-## Knobs
+## Configurable values
 
 ### `port :: Integer`
 
@@ -154,7 +154,7 @@ Determines the maximum header size that Warp will tolerate when using HTTP/1.x.
 
 Since 3.3.8
 
-### `altSvc :: Maybe ByteString` (NOT IMPLEMENTED)
+### `altSvc :: Maybe ByteString`
 
 Specify the header value of Alternative Services (AltSvc:).
 
@@ -162,10 +162,11 @@ Default: Nothing
 
 Since 3.3.11
 
-## Not Included
+## Not user configurable
 
 There are many configuration values that are not configurable through conferer since they are not
-serializable (functions for example), so we don't ever serialize those.
+serializable (functions for example), but you can configure those using either `addDefault` or
+passing a default value that has these properly configured.
 
 These include:
 

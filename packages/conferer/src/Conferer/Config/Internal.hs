@@ -1,3 +1,11 @@
+-- |
+-- Copyright: (c) 2019 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: unstable
+-- Portability: portable
+--
+-- Internal module providing Config functionality
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ExistentialQuantification #-}
@@ -5,6 +13,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Conferer.Config.Internal where
 
+import Control.Monad (forM, msum)
 import Data.Dynamic
 import Data.List (sort, nub, union)
 import Data.Text (Text)
@@ -13,37 +22,48 @@ import qualified Data.Map as Map
 import Conferer.Key
 import Conferer.Source.Internal
 import Conferer.Config.Internal.Types
-import Control.Monad (forM, msum)
 
-type KeyMapping = (Key, Key)
-
-data MappedKey = MappedKey 
-  { mappingsChain :: [KeyMapping]
-  , mappedKey :: Key
-  } deriving (Show, Eq)
-
+-- | This function runs lookups on the 'Config', first in 'Source's in order and
+--   then on the 'Dynamic' based defaults.
 getKey :: Key -> Config -> IO KeyLookupResult
 getKey key config = do
   let possibleKeys = getKeysFromMappings (configKeyMappings config) key
-  untilJust (fmap (\MappedKey{..} -> getKeyInSources' mappedKey config) possibleKeys)
-    >>= \case 
-        Just (k, textResult) -> 
+  untilJust (fmap (\MappedKey{..} -> getRawKeyInSources mappedKey config) possibleKeys)
+    >>= \case
+        Just (k, textResult) ->
           return $ FoundInSources k textResult
         Nothing ->
           case msum $ fmap (\MappedKey{..} -> fmap (mappedKey,) $ (getKeyFromDefaults mappedKey config)) possibleKeys of
             Just (k, dynResult) -> return $ FoundInDefaults k dynResult
             Nothing -> return $ MissingKey [key]
 
+-- | Alias for a mapping from one key to another used for transforming keys
+type KeyMapping = (Key, Key)
+
+-- | A key that has been transformed using one or many 'KeyMapping's, so that
+--   that process can be reversed.
+data MappedKey = MappedKey
+  { mappingsChain :: [KeyMapping]
+  , mappedKey :: Key
+  } deriving (Show, Eq)
+
+
+-- | This function lists all available keys under some key, that could be fetched
+--   successfully.
 listSubkeys :: Key -> Config -> IO [Key]
 listSubkeys originalKey Config{..} = do
   let mappedKeys = getKeysFromMappings configKeyMappings originalKey
   subkeysFromSources <- forM mappedKeys $ \MappedKey{..} -> do
-    subkeysFromSources <- go mappedKey [] configSources
+    subkeysFromSources <- listRawSubkeysInSources mappedKey configSources
     let subkeysFromDefaults =
           filter (mappedKey `isKeyPrefixOf`) $ Map.keys configDefaults
     return $ fmap (MappedKey mappingsChain) $ subkeysFromSources ++ subkeysFromDefaults
   let subkeys = mconcat subkeysFromSources
   return $ sort $ nub $ fmap undoMappings subkeys
+
+-- | This function lists subkeys in some 'Source's and combines the results
+listRawSubkeysInSources :: Key -> [Source] -> IO [Key]
+listRawSubkeysInSources mappedKey configSources = go mappedKey [] configSources
   where
     go :: Key -> [Key] -> [Source] -> IO [Key]
     go _ result [] = return result
@@ -51,26 +71,39 @@ listSubkeys originalKey Config{..} = do
       subkeys <- getSubkeysInSource source k
       go k (result `union` subkeys) otherSources
 
+-- | This function reverses the mappings in a 'MappedKey' to retrieve the
+--   original key.
+--
+--   Assumes that mappings were really used, otherwise it ignores bad values
 undoMappings :: MappedKey -> Key
 undoMappings MappedKey{..} =
   go (reverse mappingsChain) mappedKey
   where
     go [] key = key
     go ((src, dest):others) key =
-      case keyPrefixOf dest key of
+      case stripKeyPrefix dest key of
         Just k -> go others (src /. k)
         Nothing -> go others key
 
+-- | This utility function run a list of IO actions and returns the
+--   first that return a 'Just', if no one does, returns 'Nothing'
 untilJust :: [IO (Maybe a)] -> IO (Maybe a)
 untilJust actions = go actions
   where
     go [] = return Nothing
     go (action:rest) = do
       action
-        >>= \case 
+        >>= \case
           Just res -> return $ Just res
           Nothing -> go rest
 
+-- | This function tries to apply a list of mappings to a key meaning
+-- replace the prefix with the new value from the mapping, if the mapping
+-- isn't a prefix that mapping is ignored
+--
+-- This function always terminates even in presence of recursive mappings,
+-- since it removes the mapping after it was first used, and that causes that
+-- eventually the function will run out of keymappings and terminate.
 getKeysFromMappings :: [KeyMapping] -> Key -> [MappedKey]
 getKeysFromMappings originalKeyMappings originalKey =
   go (MappedKey [] originalKey) originalKeyMappings
@@ -87,14 +120,16 @@ getKeysFromMappings originalKeyMappings originalKey =
       where
         tryMappingKey :: (Key, Key) -> Maybe MappedKey
         tryMappingKey (source, dest) =
-          case keyPrefixOf source (mappedKey currKey) of
+          case stripKeyPrefix source (mappedKey currKey) of
             Just aKey ->
               Just $ MappedKey (mappingsChain currKey ++ [(source, dest)]) (dest /. aKey)
-            Nothing -> Nothing 
+            Nothing -> Nothing
         generateDerivedKeys :: ([KeyMapping], MappedKey, [KeyMapping]) -> [MappedKey]
         generateDerivedKeys (prevMappings, aKey, nextMappings) =
           go aKey $ prevMappings ++ nextMappings
 
+-- | This utility function splits a list based on a @cond@ function and returns a tuple
+--   of previous value, next values and the mapped found value.
 findAndSplitList :: forall a b. (a -> Maybe b) -> [a] -> [([a], b, [a])]
 findAndSplitList cond list = go [] list
   where
@@ -102,13 +137,14 @@ findAndSplitList cond list = go [] list
     go _ [] = []
     go prevElems (curElem:nextElems) =
       case cond curElem of
-        Just res -> 
+        Just res ->
           (prevElems, res, nextElems) : go (curElem:prevElems) nextElems
-        Nothing -> 
+        Nothing ->
           go (curElem:prevElems) nextElems
 
-getKeyInSources' :: Key -> Config -> IO (Maybe (Key, Text))
-getKeyInSources' k Config{..} =
+-- | This function gets a value from 'Source's but ignores mappings and defaults
+getRawKeyInSources :: Key -> Config -> IO (Maybe (Key, Text))
+getRawKeyInSources k Config{..} =
   go configSources
   where
     go [] = return Nothing
@@ -118,9 +154,10 @@ getKeyInSources' k Config{..} =
         Just t -> return $ Just (k, t)
         Nothing -> go otherSources
 
+-- | This function gets values from the defaults
 getKeyFromDefaults :: Key -> Config -> Maybe Dynamic
 getKeyFromDefaults key Config{..} =
-  let 
+  let
     possibleKeys = fmap mappedKey $ getKeysFromMappings configKeyMappings key
   in msum $ fmap (\k -> Map.lookup k configDefaults) possibleKeys
 
@@ -133,27 +170,14 @@ emptyConfig = Config
   , configKeyMappings = []
   }
 
-withKeyMappings :: [(Key, Key)] -> Config -> Config
-withKeyMappings keyMappings config =
-  config
-  { configKeyMappings = keyMappings
-  }
-
-addKeyMappings :: [(Key, Key)] -> Config -> Config
+-- | This function adds some key mappings to a 'Config'
+addKeyMappings :: [KeyMapping] -> Config -> Config
 addKeyMappings keyMappings config =
   config
   { configKeyMappings = configKeyMappings config ++ keyMappings
   }
 
-withDefaults :: (Typeable a) => [(Key, a)] -> Config -> Config
-withDefaults configMap config =
-  config
-  { configDefaults =
-    (Map.map toDyn . Map.fromList $ configMap)
-      `Map.union`
-      configDefaults config
-  }
-
+-- | This function adds defaults to a 'Config'
 addDefaults :: [(Key, Dynamic)] -> Config -> Config
 addDefaults configMap config =
   config
@@ -163,24 +187,24 @@ addDefaults configMap config =
       configDefaults config
   }
 
+-- | This function adds one default of a custom type to a 'Config'
+--
+--   Note that unlike 'addDefaults' this function does the toDyn so
+--   no need to do it on the user's side
 addDefault :: (Typeable a) => Key -> a -> Config -> Config
 addDefault key value config =
   config
   { configDefaults = Map.insert key (toDyn value) $ configDefaults config
   }
 
+-- | This function removes a key default from a 'Config'
 removeDefault :: Key -> Config -> Config
 removeDefault key config =
   config
   { configDefaults = Map.delete key $ configDefaults config
   }
 
--- | Instantiate a 'SourceCreator' using the 'emptyConfig'
-mkStandaloneSource :: SourceCreator -> IO Source
-mkStandaloneSource mkSource =
-  mkSource emptyConfig
-
--- | Instantiate a 'Source' using an 'SourceCretor' and a 'Config' and add
+-- | Instantiate a 'Source' using an 'SourceCreator' and a 'Config' and add
 --   to the config
 addSource :: SourceCreator -> Config -> IO Config
 addSource mkSource config = do

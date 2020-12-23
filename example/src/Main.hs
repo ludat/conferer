@@ -23,14 +23,14 @@ instance Conferer.DefaultConfig AppConfig where
 main :: IO ()
 main = do
   config <- Conferer.mkConfig "awesomeapp"
-  appConfig <- Conferer.fetch config Conferer.configDef
+  appConfig <- Conferer.fetch config
 
   putStrLn $ "Running on port: " ++ show (getPort $ appConfigServer appConfig)
   runSettings (appConfigServer appConfig) (application config)
 
 application :: Conferer.Config -> Application
 application config _ respond = do
-  body <- Conferer.fetchKey "body" config "default"
+  body <- Conferer.fetchKey config "body" "default"
   respond $
     responseLBS status200 [("Content-Type", "text/plain")] body
 
