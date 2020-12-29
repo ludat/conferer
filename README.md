@@ -1,9 +1,9 @@
 # Conferer
 
-![Hackage](https://img.shields.io/hackage/v/conferer)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ludat/conferer/CI)
-![Hackage-Deps](https://img.shields.io/hackage-deps/v/conferer)
-![License](https://img.shields.io/github/license/ludat/conferer)
+[![Hackage](https://img.shields.io/hackage/v/conferer)](https://hackage.haskell.org/package/conferer)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ludat/conferer/CI)](https://github.com/ludat/conferer/actions)
+[![Hackage-Deps](https://img.shields.io/hackage-deps/v/conferer)](https://packdeps.haskellers.com/feed?needle=conferer)
+[![License](https://img.shields.io/github/license/ludat/conferer)](https://www.mozilla.org/en-US/MPL/2.0/)
 
 Most user oriented information you can find in the website: [conferer.ludat.io](https://conferer.ludat.io/)
 
