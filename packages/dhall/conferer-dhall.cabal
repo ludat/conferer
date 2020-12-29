@@ -4,10 +4,10 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b7da4e2c0c21b4efc0be4548306c1d39161f6650bb2d92986b210c99c71e430e
+-- hash: 8bb4481d13df0bed3d408adff60af49b6a685e1f3fce6ca14134d658713cac3b
 
 name:           conferer-dhall
-version:        0.4.0.1
+version:        1.0.0.0
 synopsis:       Configuration for reading dhall files
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
@@ -36,8 +36,8 @@ library
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11
-    , conferer >=0.4.0.0 && <0.5.0.0
-    , conferer-aeson >=0.4.0.0 && <0.5.0.0
+    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer-aeson >=1.0.0.0 && <2.0.0.0
     , dhall >=1.8 && <2.0
     , dhall-json >=1.0 && <2.0
     , directory >=1.2 && <2.0
@@ -58,8 +58,8 @@ test-suite specs
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11
-    , conferer >=0.4.0.0 && <0.5.0.0
-    , conferer-aeson >=0.4.0.0 && <0.5.0.0
+    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer-aeson >=1.0.0.0 && <2.0.0.0
     , conferer-dhall
     , dhall >=1.8 && <2.0
     , dhall-json >=1.0 && <2.0

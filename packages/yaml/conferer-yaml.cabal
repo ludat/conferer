@@ -4,10 +4,10 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1eddabc204f950268993e9c440d01569907c1f45d44053311f681144e121f80e
+-- hash: ada51878e61d1455d4094686b329b46171a3ce3b73d1d9950447d4871073f2a6
 
 name:           conferer-yaml
-version:        0.4.0.1
+version:        1.0.0.0
 synopsis:       Configuration for reading yaml files
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
@@ -35,8 +35,8 @@ library
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=0.4.0.0 && <0.5.0.0
-    , conferer-aeson >=0.4.0.0 && <0.5.0.0
+    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer-aeson >=1.0.0.0 && <2.0.0.0
     , yaml >=0.8 && <1.0
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
@@ -53,8 +53,8 @@ test-suite specs
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=0.4.0.0 && <0.5.0.0
-    , conferer-aeson >=0.4.0.0 && <0.5.0.0
+    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer-aeson >=1.0.0.0 && <2.0.0.0
     , conferer-yaml
     , hspec
     , yaml >=0.8 && <1.0

@@ -1,5 +1,5 @@
 name: conferer-yaml
-version: 0.4.0.1
+version: 1.0.0.0
 synopsis: |
   Configuration for reading yaml files
 description: |
@@ -11,8 +11,8 @@ _common/lib: !include ../../utils/package.common.yaml
 
 dependencies:
   - base >= 4.3 && < 5
-  - conferer >= 0.4.0.0 && < 0.5.0.0
-  - conferer-aeson >= 0.4.0.0 && < 0.5.0.0
+  - conferer >= 1.0.0.0 && < 2.0.0.0
+  - conferer-aeson >= 1.0.0.0 && < 2.0.0.0
   - yaml >= 0.8 && < 1.0
 
 tests:
