@@ -6,6 +6,11 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
+Nothing
+
+## [v1.0.0.0] 2020-12-29
+
 First release
 
-[Unreleased]: https://github.com/ludat/conferer/compare/v0.0.0.0...HEAD
+[Unreleased]: https://github.com/ludat/conferer/compare/conferer-hedis_v1.0.0.0...HEAD
+[v1.0.0.0]: https://github.com/ludat/conferer/compare/v0.0.0.0...conferer-hedis_v1.0.0.0
