@@ -17,9 +17,11 @@ module Conferer.Config
     -- * Config creation and initialization
   , emptyConfig
   , addSource
+  , addSources
   , addDefault
   , addDefaults
   , addKeyMappings
+  , Defaults
     -- * Re-Exports
   , module Conferer.Key
   , (&)
@@ -29,3 +31,6 @@ import Conferer.Config.Internal
 import Conferer.Config.Internal.Types
 import Conferer.Key
 import Data.Function
+import Data.Dynamic (Dynamic)
+
+type Defaults = [(Key, Dynamic)]

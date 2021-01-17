@@ -13,7 +13,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Conferer.Config.Internal where
 
-import Control.Monad (forM, msum)
+import Control.Monad (foldM, forM, msum)
 import Data.Dynamic
 import Data.List (sort, nub, union)
 import Data.Text (Text)
@@ -213,6 +213,11 @@ addSource mkSource config = do
     config
     { configSources = configSources config ++ [ newSource ]
     }
+
+-- | Instantiate several 'Source's using a 'SourceCreator's and a 'Config' and add
+--   them to the config in the order defined by the list
+addSources :: [SourceCreator] -> Config -> IO Config
+addSources sources config = foldM (flip addSource) config sources
 
 -- orElse :: IO KeyLookupResult -> IO KeyLookupResult -> IO KeyLookupResult
 -- orElse getKey1 getKey2 = do

@@ -16,6 +16,7 @@ module Conferer
 
   -- * Creating a Config
   mkConfig
+  , mkConfig'
   -- * Getting values from a config
   -- | These functions allow you to get any type that implements 'FromConfig'
   , fetch
@@ -40,6 +41,7 @@ import Conferer.Key
 import qualified Conferer.Source.Env as Env
 import qualified Conferer.Source.CLIArgs as Cli
 import qualified Conferer.Source.PropertiesFile as PropertiesFile
+import Conferer.Config (Defaults)
 
 -- | Use the 'FromConfig' instance to get a value of type @a@ from the config
 --   using some default fallback. The most common use for this is creating a custom
@@ -80,3 +82,10 @@ mkConfig appName =
   >>= addSource (Cli.fromConfig)
   >>= addSource (Env.fromConfig appName)
   >>= addSource (PropertiesFile.fromConfig "config.file")
+
+-- | Create a 'Config' with the given defaults and source creators.
+--   The sources will take precedence by the order they have in the list (earlier in
+--   the list means it's tried first).
+--   If the requested key is not found in any source it'll be looked up in the defaults.
+mkConfig' :: Defaults -> [SourceCreator] -> IO Config
+mkConfig' defaults sources = addSources sources . addDefaults defaults $ emptyConfig
