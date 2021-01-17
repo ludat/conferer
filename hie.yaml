@@ -1,0 +1,58 @@
+cradle:
+  stack:
+    - path: "./example/src"
+      component: "example:lib"
+
+    - path: "./example/src/Main.hs"
+      component: "example:exe:example-exe"
+
+    - path: "./example/src/Paths_example.hs"
+      component: "example:exe:example-exe"
+
+    - path: "./packages/aeson/src"
+      component: "conferer-aeson:lib"
+
+    - path: "./packages/aeson/test"
+      component: "conferer-aeson:test:specs"
+
+    - path: "./packages/conferer/src"
+      component: "conferer:lib"
+
+    - path: "./packages/conferer/test"
+      component: "conferer:test:specs"
+
+    - path: "./packages/dhall/src"
+      component: "conferer-dhall:lib"
+
+    - path: "./packages/dhall/test"
+      component: "conferer-dhall:test:specs"
+
+    - path: "./packages/hedis/src"
+      component: "conferer-hedis:lib"
+
+    - path: "./packages/hedis/test"
+      component: "conferer-hedis:test:specs"
+
+    - path: "./packages/hspec/src"
+      component: "conferer-hspec:lib"
+
+    - path: "./packages/hspec/test"
+      component: "conferer-hspec:test:specs"
+
+    - path: "./packages/snap/src"
+      component: "conferer-snap:lib"
+
+    - path: "./packages/snap/test"
+      component: "conferer-snap:test:specs"
+
+    - path: "./packages/warp/src"
+      component: "conferer-warp:lib"
+
+    - path: "./packages/warp/test"
+      component: "conferer-warp:test:specs"
+
+    - path: "./packages/yaml/src"
+      component: "conferer-yaml:lib"
+
+    - path: "./packages/yaml/test"
+      component: "conferer-yaml:test:specs"
