@@ -6,6 +6,13 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+* In the `File`'s `FromConfig` instance, if the default is present and it's type
+is `File`, it throws, which doesn't follow the rest of the library.
+
+### Added
+
 * Add `mkConfig'` which allows creating a config by passing a list of defaults and
 a list of source creators.
 * Add `addSources`, which allows to add several sources to a config.
