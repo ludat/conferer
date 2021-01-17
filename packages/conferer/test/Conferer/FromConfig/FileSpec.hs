@@ -11,6 +11,8 @@ spec :: Spec
 spec = do
   context "File fromConfig" $ do
     describe "fetching a File from config" $ do
+      ensureFetchParses @File [] [("", toDyn $ File "file.png")] $
+        File "file.png"
       ensureFetchThrows @File [] [] $
         aMissingRequiredKeys @String
           [ "some.key"
@@ -21,7 +23,7 @@ spec = do
           ]
 
       ensureFetchThrows @File [] [("", toDyn False)] $
-        aTypeMismatchWithDefaultError @String "some.key" False
+        aTypeMismatchWithDefaultError @File "some.key" False
       context "with whole path in root" $ do
         ensureFetchParses @File
           [ ("", pack $ "some" </> "file.png")

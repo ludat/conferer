@@ -176,11 +176,17 @@ newtype File =
   File FilePath
   deriving (Show, Eq, Ord, Read)
 
+unFile :: File -> FilePath
+unFile (File f) = f
+
 instance IsString File where
   fromString s = File s
 
 instance FromConfig File where
-  fetchFromConfig key config = do
+  fetchFromConfig key config' = do
+    defaultPath <- fetchFromDefaults @File key config'
+    let config = removeDefault key config'
+
     filepath <- fetchFromConfig @(Maybe String) key config
 
     extension <- fetchFromConfig @(Maybe String) (key /. "extension") config
@@ -194,7 +200,7 @@ instance FromConfig File where
         $ applyIfPresent FilePath.replaceBaseName basename
         $ applyIfPresent FilePath.replaceExtension extension
         $ applyIfPresent FilePath.replaceFileName filename
-        $ fromMaybe "" filepath
+        $ fromMaybe (unFile $ fromMaybe "" defaultPath) filepath
     if FilePath.isValid constructedFilePath
       then return $ File constructedFilePath
       else throwMissingRequiredKeys @String
