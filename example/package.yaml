@@ -6,7 +6,6 @@ maintainer: lucas6246@gmail.com
 _common/lib: !include ../utils/package.common.yaml
 
 <<: *lib
-<<: *extensions
 <<: *ghcoptions
 
 dependencies:
@@ -16,6 +15,7 @@ dependencies:
 - http-types
 - conferer
 - conferer-warp
+- conferer-dhall
 
 executables:
   example-exe:
