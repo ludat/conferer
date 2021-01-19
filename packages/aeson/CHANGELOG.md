@@ -6,7 +6,10 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
-Nothing
+### Changed
+
+* Rename `fromFilePath` to `fromFilePath'`.
+* Define a new `fromFilePath` whose type is `FilePath -> SourceCreator` instaed of `FilePath -> IO Source`.
 
 ## [v1.0.0.0] 2020-12-29
 

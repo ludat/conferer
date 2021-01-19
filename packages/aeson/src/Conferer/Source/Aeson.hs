@@ -44,15 +44,24 @@ instance IsSource JsonSource where
 fromConfig :: Key -> SourceCreator
 fromConfig key config = do
   fileToParse <- getFilePathFromEnv key "json" config
-  fromFilePath fileToParse
+  fromFilePath' fileToParse
+
+-- | Create a 'SourceCreator' from a filepath
+--
+-- If the file is not present it will behave as if it had no keys.
+--
+-- If the file doesn't have valid json it will throw an error.
+fromFilePath :: FilePath -> SourceCreator
+fromFilePath fileToParse _config =
+  fromFilePath' fileToParse
 
 -- | Create a 'Source' from a filepath
 --
 -- If the file is not present it will behave as if it had no keys.
 --
 -- If the file doesn't have valid json it will throw an error.
-fromFilePath :: FilePath -> IO Source
-fromFilePath fileToParse = do
+fromFilePath' :: FilePath -> IO Source
+fromFilePath' fileToParse = do
   fileExists <- doesFileExist fileToParse
   if fileExists
     then do

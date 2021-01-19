@@ -39,12 +39,18 @@ instance IsSource PropertiesFileSource where
 fromConfig :: Key -> SourceCreator
 fromConfig key config = do
   filePath <- getFilePathFromEnv key "properties" config
-  fromFilePath filePath
+  fromFilePath' filePath
+
+-- | Create a 'SourceCreator' reading the file and using that as a properties file, but
+-- if the file doesn't exist do nothing.
+fromFilePath :: FilePath -> SourceCreator
+fromFilePath filepath _config =
+  fromFilePath' filepath
 
 -- | Create a 'Source' reading the file and using that as a properties file, but
 -- if the file doesn't exist do nothing.
-fromFilePath :: FilePath -> IO Source
-fromFilePath filePath = do
+fromFilePath' :: FilePath -> IO Source
+fromFilePath' filePath = do
   fileExists <- doesFileExist filePath
   if fileExists
     then do

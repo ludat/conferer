@@ -24,13 +24,21 @@ import Control.Exception
 fromConfig :: Key -> SourceCreator
 fromConfig key config = do
   filePath <- getFilePathFromEnv key "dhall" config
-  fromFilePath filePath
+  fromFilePath' filePath
+
+
+-- | Create a 'SourceCreator' from a filepath reading it as dhall
+-- if the file doesn't exist do nothing, but if it has invalid
+-- dhall throw an exception.
+fromFilePath :: FilePath -> SourceCreator
+fromFilePath filePath _config =
+  fromFilePath' filePath
 
 -- | Create a 'Source' from a filepath reading it as dhall
 -- if the file doesn't exist do nothing, but if it has invalid
 -- dhall throw an exception.
-fromFilePath :: FilePath -> IO Source
-fromFilePath filePath = do
+fromFilePath' :: FilePath -> IO Source
+fromFilePath' filePath = do
   fileExists <- doesFileExist filePath
   if fileExists
     then do
