@@ -6,6 +6,10 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
+Nothing
+
+## [v1.0.0.1] - 2021-01-17
+
 ### Fixed
 
 * In the `File`'s `FromConfig` instance, if the default is present and it's type
@@ -25,3 +29,4 @@ First release
 
 [Unreleased]: https://github.com/ludat/conferer/compare/conferer_v1.0.0.0...HEAD
 [v1.0.0.0]: https://github.com/ludat/conferer/releases/tag/v0.0.0.0...conferer_v1.0.0.0
+[v1.0.0.1]: https://github.com/ludat/conferer/releases/tag/conferer_v1.0.0.0...conferer_v1.0.0.1
