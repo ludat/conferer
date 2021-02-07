@@ -165,8 +165,8 @@ spec = do
             \fromconfig uses listSubkeys" $ do
       ensureFetchParses
         @[[Int]]
-        [ ("1.first", "0")
+        [ ("1.0", "0")
         ]
-        [ ("prototype.second", toDyn @Int 8)
+        [ ("prototype.1", toDyn @Int 8)
         ]
         [[0, 8]]
