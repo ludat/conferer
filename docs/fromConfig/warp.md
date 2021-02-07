@@ -5,7 +5,7 @@ title: Warp FromConfig
 
 ## Warp FromConfig
 
-This FromConfig instance provider support for parsing [Warp's Settings](https://hackage.haskell.org/package/warp-3.3.11/docs/Network-Wai-Handler-Warp.html#t:Settings).
+This FromConfig instance provides support for parsing [Warp's Settings](https://hackage.haskell.org/package/warp-3.3.11/docs/Network-Wai-Handler-Warp.html#t:Settings).
 It supports versions from 2.0.0 up to the latest version (currently 3.3.13).
 
 ## Configurable values

@@ -5,7 +5,7 @@ title: Hedis FromConfig
 
 ## Hedis FromConfig
 
-This FromConfig instance provider support for parsing [Hedis's ConnectInfo](https://hackage.haskell.org/package/hedis-0.13.1/docs/Database-Redis.html#t:ConnectInfo).
+This FromConfig instance provides support for parsing [Hedis's ConnectInfo](https://hackage.haskell.org/package/hedis-0.13.1/docs/Database-Redis.html#t:ConnectInfo).
 
 ## Url and overrides
 
