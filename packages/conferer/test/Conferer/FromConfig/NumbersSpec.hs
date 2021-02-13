@@ -14,7 +14,6 @@ spec = do
   context "Numbers fetching" $ do
     describe "fetching an Int from config" $ do
       ensureEmptyConfigThrows @Int
-      ensureWrongTypeDefaultThrows @Int
       ensureUsingDefaultReturnsSameValue @Int 7
       ensureSingleConfigParsesTheRightThing @Int "7" 7
       ensureSingleConfigParsesTheRightThing @Int "-7" (-7)
@@ -22,7 +21,6 @@ spec = do
 
     describe "fetching a Float from config" $ do
       ensureEmptyConfigThrows @Float
-      ensureWrongTypeDefaultThrows @Float
       ensureUsingDefaultReturnsSameValue @Float 7.5
       ensureSingleConfigParsesTheRightThing @Float "9.5" 9.5
       ensureSingleConfigParsesTheRightThing @Float "-9.5" (-9.5)

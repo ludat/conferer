@@ -13,7 +13,6 @@ module Conferer.FromConfig.Extended
   , aMissingRequiredKeys
   , aTypeMismatchWithDefaultError
   , ensureEmptyConfigThrows
-  , ensureWrongTypeDefaultThrows
   , ensureUsingDefaultReturnsSameValue
   , ensureSingleConfigParsesTheRightThing
   , ensureSingleConfigThrowsParserError
@@ -63,7 +62,7 @@ aMissingRequiredKeys keys (MissingRequiredKey k t) =
 aTypeMismatchWithDefaultError :: forall a dyn. (Typeable dyn, Typeable a) =>
   Key -> dyn -> TypeMismatchWithDefault -> Bool
 aTypeMismatchWithDefaultError key dyn e =
-  e == typeMismatchWithDefault @a key (toDyn dyn)
+  e == typeMismatchWithDefault @a key [toDyn dyn]
 
 data InvalidThing = InvalidThing deriving (Show, Eq)
 
@@ -74,15 +73,6 @@ ensureEmptyConfigThrows =
       config <- configWith []
       fetchFromConfig @a "some.key" config
         `shouldThrow` aMissingRequiredKey @a "some.key"
-
-ensureWrongTypeDefaultThrows :: forall a. (Typeable a, FromConfig a) => SpecWith ()
-ensureWrongTypeDefaultThrows =
-  context "with invalid types in the defaults"  $ do
-    it "throws an exception" $ do
-      config <- configWith []
-      fetchFromConfig @a "some.key"
-          (config & addDefault "some.key" InvalidThing)
-        `shouldThrow` aTypeMismatchWithDefaultError @a "some.key" InvalidThing
 
 ensureSingleConfigThrowsParserError ::
     forall a. (FromConfig a) =>

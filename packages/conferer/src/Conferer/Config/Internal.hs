@@ -155,7 +155,7 @@ getRawKeyInSources k Config{..} =
         Nothing -> go otherSources
 
 -- | This function gets values from the defaults
-getKeyFromDefaults :: Key -> Config -> Maybe Dynamic
+getKeyFromDefaults :: Key -> Config -> Maybe [Dynamic]
 getKeyFromDefaults key Config{..} =
   let
     possibleKeys = fmap mappedKey $ getKeysFromMappings configKeyMappings key
@@ -180,11 +180,15 @@ addKeyMappings keyMappings config =
 -- | This function adds defaults to a 'Config'
 addDefaults :: [(Key, Dynamic)] -> Config -> Config
 addDefaults configMap config =
-  config
+  let
+    constructedMap =
+      Map.fromListWith (++)
+      . fmap (\(k,v) -> (k, [v]))
+      $ configMap
+  in config
   { configDefaults =
-    Map.fromList configMap
-      `Map.union`
-      configDefaults config
+    Map.unionWith (++) constructedMap
+      $ configDefaults config
   }
 
 -- | This function adds one default of a custom type to a 'Config'
@@ -194,14 +198,7 @@ addDefaults configMap config =
 addDefault :: (Typeable a) => Key -> a -> Config -> Config
 addDefault key value config =
   config
-  { configDefaults = Map.insert key (toDyn value) $ configDefaults config
-  }
-
--- | This function removes a key default from a 'Config'
-removeDefault :: Key -> Config -> Config
-removeDefault key config =
-  config
-  { configDefaults = Map.delete key $ configDefaults config
+  { configDefaults = Map.insertWith (++) key [toDyn value] $ configDefaults config
   }
 
 -- | Instantiate a 'Source' using an 'SourceCreator' and a 'Config' and add

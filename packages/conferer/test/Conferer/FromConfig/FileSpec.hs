@@ -22,8 +22,6 @@ spec = do
           , "some.key.filename"
           ]
 
-      ensureFetchThrows @File [] [("", toDyn False)] $
-        aTypeMismatchWithDefaultError @File "some.key" False
       context "with whole path in root" $ do
         ensureFetchParses @File
           [ ("", pack $ "some" </> "file.png")

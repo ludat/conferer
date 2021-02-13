@@ -7,6 +7,7 @@ import Data.Dynamic
 
 import Conferer.Config
 import Conferer.Source.InMemory
+import Conferer.FromConfig.Internal (fromDynamics)
 
 missingKey :: Key -> KeyLookupResult -> Bool 
 missingKey expectedKey (MissingKey k) = [expectedKey] == k
@@ -21,7 +22,7 @@ foundInSources _keyExpected _expected _ =
 foundInDefaults :: forall expected. (Eq expected, Typeable expected)
   => Key -> expected -> KeyLookupResult -> Bool 
 foundInDefaults expectedKey expected (FoundInDefaults k d) =  
-  Just expected == fromDynamic @expected d && expectedKey == k
+  Just expected == fromDynamics @expected d && expectedKey == k
 foundInDefaults _expctedKey _expected _ =  
   False
 
@@ -197,3 +198,14 @@ spec = do
                   [ ]
             res <- listSubkeys "a" c
             res `shouldBe` ["a.k"]
+
+    describe "#addDefaults" $ do
+      context "with multiple defaults on the same key" $ do
+        it "the last one has more priority" $ do
+          let c = emptyConfig
+                & addDefaults
+                  [ ("some.key", toDyn @Int 1)
+                  , ("some.key", toDyn @Int 2)
+                  ]
+          res <- getKey "some.key" c
+          res `shouldSatisfy` foundInDefaults "some.key" (2 :: Int)
