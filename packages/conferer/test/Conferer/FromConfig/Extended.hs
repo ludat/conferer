@@ -11,7 +11,6 @@ module Conferer.FromConfig.Extended
   , aConfigParserError
   , aMissingRequiredKey
   , aMissingRequiredKeys
-  , aTypeMismatchWithDefaultError
   , ensureEmptyConfigThrows
   , ensureUsingDefaultReturnsSameValue
   , ensureSingleConfigParsesTheRightThing
@@ -58,11 +57,6 @@ aMissingRequiredKey key (MissingRequiredKey k t) =
 aMissingRequiredKeys :: forall t. Typeable t => [Key] -> MissingRequiredKey -> Bool
 aMissingRequiredKeys keys (MissingRequiredKey k t) =
   keys == k && typeRep (Proxy :: Proxy t) == t
-
-aTypeMismatchWithDefaultError :: forall a dyn. (Typeable dyn, Typeable a) =>
-  Key -> dyn -> TypeMismatchWithDefault -> Bool
-aTypeMismatchWithDefaultError key dyn e =
-  e == typeMismatchWithDefault @a key [toDyn dyn]
 
 data InvalidThing = InvalidThing deriving (Show, Eq)
 
