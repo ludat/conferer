@@ -1,0 +1,15 @@
+resolver: none
+
+packages:
+  - ./packages/conferer/
+  - ./packages/aeson/
+  - ./packages/yaml/
+  - ./packages/dhall/
+
+  - ./packages/warp/
+  - ./packages/hspec/
+  # TODO: snap is broken because the package regex-posix doesn't build on windows
+  # https://github.com/haskell-hvr/regex-posix/issues/7 here is the reported issue
+  # - ./packages/snap/
+  - ./packages/hedis/
+
