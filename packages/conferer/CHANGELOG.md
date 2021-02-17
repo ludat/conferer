@@ -10,6 +10,9 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 * Rename `fromFilePath` to `fromFilePath'`.
 * Define a new `fromFilePath` whose type is `FilePath -> SourceCreator` instaed of `FilePath -> IO Source`.
+* (Internal) Remove the mismatched type exception since it's not actionable by the user
+* (Internal) Use a list for default values so that many different defaults are available,
+  possible point of extension in the future.
 
 ## [v1.0.0.1] - 2021-01-17
 
