@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2543e03c19711f47aefac06d11874917b5f28a3c1d272d42fbb5d4016968c1cd
+-- hash: e78b7d168e12467f1c9c77e015b58a710394e3663af0d8bea733785bbc017aa9
 
 name:           conferer-aeson
 version:        1.0.0.0
@@ -51,6 +51,7 @@ test-suite specs
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Conferer.FromConfig.AesonSpec
       Conferer.Source.AesonSpec
       Paths_conferer_aeson
   hs-source-dirs:

@@ -14,6 +14,10 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 * (Internal) Use a list for default values so that many different defaults are available,
   possible point of extension in the future.
 
+### Added
+
+* `isValidKeyFragment` and `isKeyCharacter` to validate `Key`s
+
 ## [v1.0.0.1] - 2021-01-17
 
 ### Fixed

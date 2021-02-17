@@ -15,6 +15,8 @@ module Conferer.Key
   , (/.)
   , stripKeyPrefix
   , isKeyPrefixOf
+  , isValidKeyFragment
+  , isKeyCharacter
   -- * Introspecting 'Key's
   , rawKeyComponents
   , unconsKey

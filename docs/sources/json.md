@@ -44,8 +44,33 @@ Note that:
 * For list we define a key with its index and they can nest other values.
 * All `Key`s are lowercase so this source ignores uppercase properties.
 
+### Special `_self` key
 
-### Magic `keys` key
+Conferer allows setting some key and at the same time more specifici keys at the same
+time.
+
+For example setting:
+
+`somefile`=myfile.png
+`somefile.extension`=jpg
+
+is possible and when parsing `File` this will result in `myfile.jpg` (more specific wins)
+
+Json cannot do that natively so we have the `_self` magic key, which is interpreted as
+setting the value of the object while still allowing more specific keys to be set.
+
+The example above in json would be:
+
+```json
+{
+    "somefile": {
+        "_self": "myfile.png",
+        "extension": "jpg"
+    }
+}
+```
+
+### Special `keys` key
 
 For nested values the magic `keys` key is present and has a comma separated list
 of the present keys

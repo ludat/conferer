@@ -26,6 +26,18 @@ spec = do
         res <- getKeyInSource c "some.path"
         res `shouldBe` Nothing
 
+      context "getting a key with an object that has '_self'" $ do
+        it "gets the value inside '_self'" $ do
+          c <- mk [aesonQQ| { key: {_self: 72}} |]
+          res <- getKeyInSource c "key"
+          res `shouldBe` Just "72"
+
+      context "with a key that's not valid" $ do
+        it "ignores the value" $ do
+          c <- mk [aesonQQ| { key: {key_: 72}} |]
+          res <- getKeyInSource c "key"
+          res `shouldBe` Nothing
+
       describe "with an array" $ do
         it "getting a path with number gets the right value" $ do
           c <- mk [aesonQQ| {"key": ["value"]} |]
@@ -127,4 +139,40 @@ spec = do
           c <- mk [aesonQQ|[true, true, true]|]
           res <- getSubkeysInSource c ""
           res `shouldBe` ["0", "1", "2"]
+      describe "gettings keys with invalid names" $ do
+        it "ignores those names" $ do
+          c <- mk [aesonQQ|{"_a": 7}|]
+          res <- getSubkeysInSource c ""
+          res `shouldBe` []
+      describe "when json keys don't follow the conferer Key format" $ do
+        it "ignores the evil keys" $ do
+          c <- mk [aesonQQ|{some: {k_e_y: 0}}|]
+          res <- getSubkeysInSource c ""
+          res `shouldBe` []
+      describe "when '_self' is present" $ do
+        it "gets an object if it has '_self'" $ do
+          c <- mk [aesonQQ|{some: {_self: 7, key: 0}}|]
+          res <- getSubkeysInSource c ""
+          res `shouldBe` ["some", "some.key"]
+    describe "#validateJsonKeys" $ do
+      context "with some common keys" $
+        it "works" $ do
+          validateJsonKeys [aesonQQ|{postgres: {url: "some url", ssl: true}} |]
+            `shouldBe` []
+      context "with one top level invalid key" $
+        it "fails" $ do
+          validateJsonKeys [aesonQQ|{k_e_y: {}} |]
+            `shouldBe` [["k_e_y"]]
+      context "with one invalid key inside an object" $
+        it "fails" $ do
+          validateJsonKeys [aesonQQ|{some: {k_e_y: {}}} |]
+            `shouldBe` [["some", "k_e_y"]]
+      context "with one invalid key inside an array" $
+        it "fails" $ do
+          validateJsonKeys [aesonQQ|[{k_e_y: {}}]|]
+            `shouldBe` [["0", "k_e_y"]]
+      context "with _self" $
+        it "fails" $ do
+          validateJsonKeys [aesonQQ|[{some: {_self: 7}}]|]
+            `shouldBe` []
 

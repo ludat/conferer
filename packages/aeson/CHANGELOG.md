@@ -10,6 +10,10 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 * Rename `fromFilePath` to `fromFilePath'`.
 * Define a new `fromFilePath` whose type is `FilePath -> SourceCreator` instaed of `FilePath -> IO Source`.
+* Validate that the json value doesn't contain any wrong key name (only lowercase ascii and numbers
+  are accepted) and throw otherwise.
+* Even if invalid key names get through, ignore them in the source.
+
 
 ## [v1.0.0.0] 2020-12-29
 
