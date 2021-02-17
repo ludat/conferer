@@ -20,6 +20,7 @@ import qualified Test.Hspec.Core.Formatters as Hspec
 
 instance FromConfig Hspec.ColorMode where
   fetchFromConfig =
+    allowingFetchOverride $
     fetchFromConfigWith $
     (\case
       "auto" -> Just Hspec.ColorAuto
@@ -30,6 +31,7 @@ instance FromConfig Hspec.ColorMode where
 
 instance FromConfig Hspec.Formatter where
   fetchFromConfig =
+    allowingFetchOverride $
     fetchFromConfigWith $
     (\case
       "silent" -> Just Hspec.silent
@@ -78,7 +80,7 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   ]
 
 instance FromConfig Hspec.Config where
-  fetchFromConfig key originalConfig = do
+  fetchFromConfig = allowingFetchOverride $ \key originalConfig -> do
     config <- addDefaultsAfterDeconstructingToDefaults
       desconstructHspecConfigToDefaults
       key originalConfig

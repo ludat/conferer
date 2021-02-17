@@ -17,6 +17,7 @@ module Conferer.FromConfig
   , fetchFromConfigByRead
   , fetchFromConfigWith
   , addDefaultsAfterDeconstructingToDefaults
+  , allowingFetchOverride
 
   , MissingRequiredKey
   , throwMissingRequiredKey
@@ -30,6 +31,7 @@ module Conferer.FromConfig
   , (/.)
   , File(..)
   , KeyLookupResult(..)
+  , OverrideFromConfig(..)
 
   , fetchFromDefaults
   , fetchRequiredFromDefaults

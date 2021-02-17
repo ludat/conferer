@@ -20,7 +20,7 @@ import Text.Read (readMaybe)
 import Data.Dynamic
 
 instance FromConfig Redis.PortID where
-  fetchFromConfig = fetchFromConfigWith (\t -> do
+  fetchFromConfig = allowingFetchOverride $ fetchFromConfigWith (\t -> do
       case readMaybe $ unpack t of
         Just n -> return $ Redis.PortNumber n
         Nothing -> do
@@ -52,7 +52,7 @@ instance DefaultConfig Redis.ConnectInfo where
   configDef = Redis.defaultConnectInfo
 
 instance FromConfig Redis.ConnectInfo where
-  fetchFromConfig key originalConfig = do
+  fetchFromConfig = allowingFetchOverride $ \key originalConfig  -> do
     firstConfig <- addDefaultsAfterDeconstructingToDefaults deconstructConnInfoToDefaults key originalConfig
 
 -- For hedis < 0.10.0 `Redis.parseConnectInfo` doesn't exist so in that case

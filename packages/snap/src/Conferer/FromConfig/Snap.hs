@@ -22,6 +22,7 @@ import qualified Snap.Internal.Http.Server.Config as Snap
 
 instance FromConfig Snap.ConfigLog where
   fetchFromConfig =
+    allowingFetchOverride $
     fetchFromConfigWith $
       (\case
         "nolog" -> pure Snap.ConfigNoLog
@@ -33,6 +34,7 @@ instance FromConfig Snap.ConfigLog where
 
 instance FromConfig Snap.ProxyType where
   fetchFromConfig =
+    allowingFetchOverride $
     fetchFromConfigWith $
       (\case
         "noproxy" -> pure Snap.NoProxy
@@ -79,7 +81,7 @@ desconstructSnapConfigToDefaults Snap.Config{..} =
   ]
 
 instance forall a m. (FromConfig a, Typeable a, Snap.MonadSnap m, Typeable m) => FromConfig (Snap.Config m a) where
-  fetchFromConfig key originalConfig = do
+  fetchFromConfig = allowingFetchOverride $ \key originalConfig -> do
     config <- addDefaultsAfterDeconstructingToDefaults
       (desconstructSnapConfigToDefaults :: Snap.Config m a -> [(Key, Dynamic)])
       key originalConfig

@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 -- |
 -- Copyright: (c) 2019 Lucas David Traverso
 -- License: MPL-2.0
@@ -190,6 +191,29 @@ addDefaults configMap config =
     Map.unionWith (++) constructedMap
       $ configDefaults config
   }
+
+-- | This function removes a default from a 'Config', this is the
+-- oposite of 'addDefault', it deletes the first element of
+-- matching type in a certain 'Key'.
+removeDefault :: forall t. Typeable t => Key -> Config -> Config
+removeDefault key config =
+  config
+  { configDefaults =
+      Map.update removeFirstDynamic key $ configDefaults config
+  }
+  where
+    removeFirstDynamic :: [Dynamic] -> Maybe [Dynamic]
+    removeFirstDynamic dynamics =
+      let result = go dynamics
+      in if null result
+          then Nothing 
+          else Just result
+      where
+        go [] = []
+        go (d:ds) =
+          case fromDynamic @t d of
+            Just _ -> ds
+            Nothing -> d:go ds
 
 -- | This function adds one default of a custom type to a 'Config'
 --

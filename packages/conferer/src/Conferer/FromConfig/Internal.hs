@@ -63,12 +63,11 @@ class FromConfig a where
   -- partial overriding.
   fetchFromConfig :: Key -> Config -> IO a
   default fetchFromConfig :: (Typeable a, Generic a, IntoDefaultsG (Rep a), FromConfigG (Rep a)) => Key -> Config -> IO a
-  fetchFromConfig k c = do
-    let config =
-          case fetchFromDefaults @a k c of
-            Just d -> c & addDefaults (intoDefaultsG k $ from d)
-            Nothing -> c
-    to <$> fetchFromConfigG k config
+  fetchFromConfig = allowingFetchOverride $ \key config -> do
+    let configWithDefaults = case fetchFromDefaults @a key config of
+          Just d -> config & addDefaults (intoDefaultsG key $ from d)
+          Nothing -> config
+    to <$> fetchFromConfigG key configWithDefaults
 
 -- | Utility only typeclass to smooth the naming differences between default values for
 -- external library settings
@@ -78,19 +77,18 @@ class DefaultConfig a where
   configDef :: a
 
 instance {-# OVERLAPPABLE #-} Typeable a => FromConfig a where
-  fetchFromConfig key config = do
-    fetchFromConfigWith (const Nothing) key config
+  fetchFromConfig = allowingFetchOverride fetchRequiredFromDefaults
 
 instance FromConfig () where
-  fetchFromConfig _key _config = return ()
+  fetchFromConfig = allowingFetchOverride $ \_key _config -> return ()
 
 instance FromConfig String where
-  fetchFromConfig = fetchFromConfigWith (Just . Text.unpack)
+  fetchFromConfig = allowingFetchOverride $ fetchFromConfigWith (Just . Text.unpack)
 
 instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
     FromConfig [a] where
-  fetchFromConfig key config = do
-    keysForItems <- getSubkeysForItems
+  fetchFromConfig = allowingFetchOverride $ \key config -> do
+    keysForItems <- getSubkeysForItems key config
     case keysForItems of
       Nothing -> do
         fetchRequiredFromDefaults @[a] key config
@@ -110,8 +108,8 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
               else
                 configWithDefaults & addKeyMappings [(key /. k, key /. "prototype")])
     where
-    getSubkeysForItems ::IO (Maybe [Key])
-    getSubkeysForItems = do
+    getSubkeysForItems :: Key -> Config -> IO (Maybe [Key])
+    getSubkeysForItems key config = do
       fetchFromConfig @(Maybe Text) (key /. "keys") config
         >>= \case
           Just rawKeys -> do
@@ -134,23 +132,22 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
             return $ if null subelements then Nothing else Just subelements
 
 instance FromConfig Int where
-  fetchFromConfig = fetchFromConfigByRead
+  fetchFromConfig = allowingFetchOverride fetchFromConfigByRead
 
 instance FromConfig Integer where
-  fetchFromConfig k c = do
-    fetchFromConfigByRead k c
+  fetchFromConfig = allowingFetchOverride fetchFromConfigByRead
 
 instance FromConfig Float where
-  fetchFromConfig = fetchFromConfigByRead
+  fetchFromConfig = allowingFetchOverride fetchFromConfigByRead
 
 instance FromConfig BS.ByteString where
-  fetchFromConfig = fetchFromConfigWith (Just . Text.encodeUtf8)
+  fetchFromConfig = allowingFetchOverride $ fetchFromConfigWith (Just . Text.encodeUtf8)
 
 instance FromConfig LBS.ByteString where
-  fetchFromConfig = fetchFromConfigWith (Just . LBS.fromStrict . Text.encodeUtf8)
+  fetchFromConfig = allowingFetchOverride $ fetchFromConfigWith (Just . LBS.fromStrict . Text.encodeUtf8)
 
 instance forall a. (Typeable a, FromConfig a) => FromConfig (Maybe a) where
-  fetchFromConfig key config = do
+  fetchFromConfig = allowingFetchOverride $ \key config -> do
     let
       configWithUnwrappedDefault =
         case fetchFromDefaults @(Maybe a) key config of
@@ -162,10 +159,10 @@ instance forall a. (Typeable a, FromConfig a) => FromConfig (Maybe a) where
       `catch` (\(_e :: MissingRequiredKey) -> return Nothing)
 
 instance FromConfig Text where
-  fetchFromConfig = fetchFromConfigWith Just
+  fetchFromConfig = allowingFetchOverride $ fetchFromConfigWith Just
 
 instance FromConfig Bool where
-  fetchFromConfig = fetchFromConfigWith parseBool
+  fetchFromConfig = allowingFetchOverride $ fetchFromConfigWith parseBool
 
 -- | A newtype wrapper for a 'FilePath' to allow implementing 'FromConfig'
 -- with something better than just a 'String'
@@ -180,7 +177,7 @@ instance IsString File where
   fromString s = File s
 
 instance FromConfig File where
-  fetchFromConfig key config = do
+  fetchFromConfig = allowingFetchOverride $ \key config -> do
     let defaultPath = fetchFromDefaults @File key config
 
     filepath <- fetchFromConfig @(Maybe String) key config
@@ -217,6 +214,21 @@ parseBool text =
     "false" -> Just False
     "true" -> Just True
     _ -> Nothing
+
+data OverrideFromConfig a =
+  OverrideFromConfig (Key -> Config -> IO a)
+
+-- | Allow the programmer to override this 'FromConfig' instance by providing
+-- a special 'OverrideFromConfig' value.
+--
+-- To avoid infinite recursion we remove the Override before calling the value
+allowingFetchOverride :: forall a. Typeable a => (Key -> Config -> IO a) -> Key -> Config -> IO a
+allowingFetchOverride originalFetch = \key config -> do
+  case fetchFromDefaults @(OverrideFromConfig a) key config of
+    Just (OverrideFromConfig fetch) ->
+      fetch key $ removeDefault @(OverrideFromConfig a) key config
+    Nothing ->
+      originalFetch key config
 
 -- | Helper function to implement fetchFromConfig using the 'Read' instance
 fetchFromConfigByRead :: (Typeable a, Read a) => Key -> Config -> IO a

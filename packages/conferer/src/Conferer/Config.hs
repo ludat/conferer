@@ -21,6 +21,7 @@ module Conferer.Config
   , addDefault
   , addDefaults
   , addKeyMappings
+  , removeDefault
   , Defaults
     -- * Re-Exports
   , module Conferer.Key

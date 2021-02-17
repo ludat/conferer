@@ -20,10 +20,10 @@ import Network.Wai.Handler.Warp
 import Network.Wai.Handler.Warp.Internal
 
 instance FromConfig HostPreference where
-  fetchFromConfig = fetchFromConfigByIsString
+  fetchFromConfig = allowingFetchOverride fetchFromConfigByIsString
 
 instance FromConfig ProxyProtocol where
-  fetchFromConfig = fetchFromConfigWith $
+  fetchFromConfig = allowingFetchOverride $ fetchFromConfigWith $
     (\case
       "proxyprotocolnone" -> Just ProxyProtocolNone
       "none" -> Just ProxyProtocolNone
@@ -102,7 +102,7 @@ deconstructSettingsToDefaults Settings{..} =
 newtype ForkSettings = ForkSettings (((forall a. IO a -> IO a) -> IO ()) -> IO ())
 
 instance FromConfig Settings where
-  fetchFromConfig key originalConfig = do
+  fetchFromConfig = allowingFetchOverride $ \key originalConfig -> do
     config <- addDefaultsAfterDeconstructingToDefaults deconstructSettingsToDefaults key originalConfig
     settingsPort <- fetchFromConfig (key /. "port") config
     settingsHost <- fetchFromConfig (key /. "host") config
