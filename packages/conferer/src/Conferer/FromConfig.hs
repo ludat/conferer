@@ -26,9 +26,6 @@ module Conferer.FromConfig
   , throwConfigParsingError
   , configParsingError
 
-  , TypeMismatchWithDefault
-  , throwTypeMismatchWithDefault
-  , typeMismatchWithDefault
   , Key
   , (/.)
   , File(..)

@@ -26,7 +26,7 @@ import Data.Typeable
 import Text.Read (readMaybe)
 import Data.Dynamic
 import GHC.Generics
-import Data.Function (on, (&))
+import Data.Function ((&))
 
 import Conferer.Key
 import Conferer.Config.Internal.Types
@@ -37,6 +37,7 @@ import Data.Maybe (fromMaybe, mapMaybe)
 import qualified System.FilePath as FilePath
 import Data.List (nub, foldl', sort)
 import Data.String (IsString(..))
+import Data.Foldable (msum)
 
 -- | The typeclass for defining the way to get values from a 'Config', hiding the
 -- 'Text' based nature of the 'Conferer.Source.Source's and parse whatever value
@@ -63,9 +64,8 @@ class FromConfig a where
   fetchFromConfig :: Key -> Config -> IO a
   default fetchFromConfig :: (Typeable a, Generic a, IntoDefaultsG (Rep a), FromConfigG (Rep a)) => Key -> Config -> IO a
   fetchFromConfig k c = do
-    defaultValue <- fetchFromDefaults @a k c
     let config =
-          case defaultValue of
+          case fetchFromDefaults @a k c of
             Just d -> c & addDefaults (intoDefaultsG k $ from d)
             Nothing -> c
     to <$> fetchFromConfigG k config
@@ -95,9 +95,8 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
       Nothing -> do
         fetchRequiredFromDefaults @[a] key config
       Just subkeys -> do
-        defaultsMay <- fetchFromDefaults @[a] key config
         let configWithDefaults :: Config =
-              case defaultsMay of
+              case fetchFromDefaults @[a] key config of
                 Just defaults ->
                   foldl' (\c (index, value) ->
                     c & addDefault (key /. "defaults" /. mkKey (show index)) value) config
@@ -153,15 +152,13 @@ instance FromConfig LBS.ByteString where
 instance forall a. (Typeable a, FromConfig a) => FromConfig (Maybe a) where
   fetchFromConfig key config = do
     let
-      newConfig =
-        case getKeyFromDefaults key config >>= fromDynamic @(Maybe a) of
-        Just (Just defaultThing) -> do
-          config & addDefault key defaultThing
-        Just Nothing -> do
-          config & removeDefault key
-        _ -> do
-          config
-    (Just <$> fetchFromConfig @a key newConfig)
+      configWithUnwrappedDefault =
+        case fetchFromDefaults @(Maybe a) key config of
+          Just (Just defaultThing) -> do
+            config & addDefault key defaultThing
+          _ -> do
+            config
+    (Just <$> fetchFromConfig @a key configWithUnwrappedDefault)
       `catch` (\(_e :: MissingRequiredKey) -> return Nothing)
 
 instance FromConfig Text where
@@ -183,9 +180,8 @@ instance IsString File where
   fromString s = File s
 
 instance FromConfig File where
-  fetchFromConfig key config' = do
-    defaultPath <- fetchFromDefaults @File key config'
-    let config = removeDefault key config'
+  fetchFromConfig key config = do
+    let defaultPath = fetchFromDefaults @File key config
 
     filepath <- fetchFromConfig @(Maybe String) key config
 
@@ -245,13 +241,16 @@ fetchFromConfigWith parseValue key config = do
           Nothing -> do
             throwConfigParsingError @a k value
 
-      FoundInDefaults k dynamic ->
-        case fromDynamic dynamic of
+      FoundInDefaults k dynamics ->
+        case fromDynamics dynamics of
           Just a -> do
             return a
           Nothing -> do
-            throwTypeMismatchWithDefault @a k dynamic
+            throwMissingRequiredKeys @a [k]
 
+fromDynamics :: forall a. Typeable a => [Dynamic] -> Maybe a
+fromDynamics =
+  msum . fmap (fromDynamic @a)
 
 -- | Helper function does the plumbing of desconstructing a default into smaller
 -- defaults, which is usefull for nested 'fetchFromConfig'.
@@ -266,8 +265,7 @@ addDefaultsAfterDeconstructingToDefaults
   Config ->
   IO Config
 addDefaultsAfterDeconstructingToDefaults destructureValue key config = do
-  fetchFromDefaults @a key config
-    >>= \case
+  case fetchFromDefaults @a key config of
     Just value -> do
       let newDefaults =
             ((\(k, d) -> (key /. k, d)) <$> destructureValue value)
@@ -343,60 +341,20 @@ missingRequiredKeys :: forall a. (Typeable a) => [Key] -> MissingRequiredKey
 missingRequiredKeys keys =
   MissingRequiredKey keys (typeRep (Proxy :: Proxy a))
 
--- | Exception to show that the provided default had the wrong type, this is usually a
--- programmer error and a user that configures the library can not do much to fix it.
-data TypeMismatchWithDefault =
-  TypeMismatchWithDefault Key Dynamic TypeRep
-  deriving (Typeable)
-
-instance Eq TypeMismatchWithDefault where
-  (==) = (==) `on`
-    (\(TypeMismatchWithDefault k dyn t) -> (k, show dyn, t))
-instance Exception TypeMismatchWithDefault
-instance Show TypeMismatchWithDefault where
-  show (TypeMismatchWithDefault key dyn aTypeRep) =
-    concat
-    [ "Couldn't parse the default from key "
-    , show key
-    , " since there is a type mismatch. "
-    , "Expected type is "
-    , show aTypeRep
-    , " but the actual type is '"
-    , show dyn
-    , "'"
-    ]
-
--- | Helper function to throw a 'TypeMismatchWithDefault'
-throwTypeMismatchWithDefault :: forall a b. (Typeable a) => Key -> Dynamic -> IO b
-throwTypeMismatchWithDefault key dynamic =
-  throwIO $ typeMismatchWithDefault @a  key dynamic
-
--- | Helper function to create a 'TypeMismatchWithDefault'
-typeMismatchWithDefault :: forall a. (Typeable a) => Key -> Dynamic -> TypeMismatchWithDefault
-typeMismatchWithDefault key dynamic =
-  TypeMismatchWithDefault key dynamic $ typeRep (Proxy :: Proxy a)
-
 -- | Fetch from value from the defaults map of a 'Config' or else throw
 fetchRequiredFromDefaults :: forall a. (Typeable a) => Key -> Config -> IO a
 fetchRequiredFromDefaults key config =
-  fetchFromDefaults key config >>=
-    \case
+  case fetchFromDefaults key config of
     Nothing -> do
       throwMissingRequiredKey @a key
     Just a ->
       return a
 
 -- | Fetch from value from the defaults map of a 'Config' or else return a 'Nothing'
-fetchFromDefaults :: forall a. (Typeable a) => Key -> Config -> IO (Maybe a)
+fetchFromDefaults :: forall a. (Typeable a) => Key -> Config -> Maybe a
 fetchFromDefaults key config =
-  case getKeyFromDefaults key config of
-    Nothing -> do
-      return Nothing
-    Just dyn ->
-      case fromDynamic @a dyn of
-        Nothing ->
-          throwTypeMismatchWithDefault @a key dyn
-        Just a -> return $ Just a
+  getKeyFromDefaults key config
+    >>= fromDynamics @a
 
 -- | Same as 'fetchFromConfig' using the root key
 fetchFromRootConfig :: forall a. (FromConfig a) => Config -> IO a

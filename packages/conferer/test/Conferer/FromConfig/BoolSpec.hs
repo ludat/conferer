@@ -12,7 +12,6 @@ spec = do
   context "Basic fetching" $ do
     describe "fetching a Bool from config" $ do
       ensureEmptyConfigThrows @Bool
-      ensureWrongTypeDefaultThrows @Bool
 
       ensureUsingDefaultReturnsSameValue @Bool True
       ensureUsingDefaultReturnsSameValue @Bool False

@@ -20,7 +20,6 @@ spec :: Spec
 spec = do
   describe "list parsing" $ do
     ensureEmptyConfigThrows @[Int]
-    ensureWrongTypeDefaultThrows @[Int]
     ensureUsingDefaultReturnsSameValue @[Int] [7]
 
     context "with an empty keys it always gets an empty list" $ do

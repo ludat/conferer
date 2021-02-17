@@ -21,7 +21,7 @@ import Data.Text (Text)
 data Config =
   Config
   { configSources :: [Source]
-  , configDefaults :: Map Key Dynamic
+  , configDefaults :: Map Key [Dynamic]
   , configKeyMappings :: [(Key, Key)]
   } deriving (Show)
 
@@ -29,7 +29,7 @@ data Config =
 data KeyLookupResult
   = MissingKey [Key]
   | FoundInSources Key Text
-  | FoundInDefaults Key Dynamic
+  | FoundInDefaults Key [Dynamic]
   deriving (Show)
 
 -- | The type for creating a source given a 'Config', some sources require a
