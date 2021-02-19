@@ -23,13 +23,11 @@ import qualified Data.ByteString.Lazy as L
 import Data.List (intersperse)
 import System.Directory (doesFileExist)
 import Control.Exception
+import Control.Monad (guard)
 
 import Conferer.Source.Files
 import qualified Conferer.Source.Null as Null
 import Conferer.Source
-import Control.Monad (guard)
-import Control.Exception (throwIO)
-import Conferer.Key (isValidKeyFragment)
 
 -- | 'Source' that read a config file as json and uses that value in a way that
 -- makes sense for Conferer but doesn't respect json perfectly.
@@ -74,7 +72,7 @@ fromFilePath' fileToParse = do
         Nothing ->
           error $ "Failed to decode json file '" ++ fileToParse ++ "'"
         Just v -> do
-          case validateJsonKeys v of
+          case invalidJsonKeys v of
             [] ->
               return $ fromValue v
             errors ->
@@ -183,10 +181,10 @@ type RawKey = [Text]
 -- | Validates that a json has the correct format for keys,
 -- since Conferer 'Key's are pretty restricted.
 --
--- The Source will work with incorrect keys, it will ignore
--- them which is not intuitive for the user.
-validateJsonKeys :: Value -> [RawKey]
-validateJsonKeys = go []
+-- The Source will work with incorrect keys but they will
+-- be ignored.
+invalidJsonKeys :: Value -> [RawKey]
+invalidJsonKeys = go []
   where
   go :: RawKey -> Value -> [RawKey]
   go key value =

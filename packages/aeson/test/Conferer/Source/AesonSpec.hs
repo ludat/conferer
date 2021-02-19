@@ -154,25 +154,25 @@ spec = do
           c <- mk [aesonQQ|{some: {_self: 7, key: 0}}|]
           res <- getSubkeysInSource c ""
           res `shouldBe` ["some", "some.key"]
-    describe "#validateJsonKeys" $ do
+    describe "#invalidJsonKeys" $ do
       context "with some common keys" $
         it "works" $ do
-          validateJsonKeys [aesonQQ|{postgres: {url: "some url", ssl: true}} |]
+          invalidJsonKeys [aesonQQ|{postgres: {url: "some url", ssl: true}} |]
             `shouldBe` []
       context "with one top level invalid key" $
         it "fails" $ do
-          validateJsonKeys [aesonQQ|{k_e_y: {}} |]
+          invalidJsonKeys [aesonQQ|{k_e_y: {}} |]
             `shouldBe` [["k_e_y"]]
       context "with one invalid key inside an object" $
         it "fails" $ do
-          validateJsonKeys [aesonQQ|{some: {k_e_y: {}}} |]
+          invalidJsonKeys [aesonQQ|{some: {k_e_y: {}}} |]
             `shouldBe` [["some", "k_e_y"]]
       context "with one invalid key inside an array" $
         it "fails" $ do
-          validateJsonKeys [aesonQQ|[{k_e_y: {}}]|]
+          invalidJsonKeys [aesonQQ|[{k_e_y: {}}]|]
             `shouldBe` [["0", "k_e_y"]]
       context "with _self" $
-        it "fails" $ do
-          validateJsonKeys [aesonQQ|[{some: {_self: 7}}]|]
+        it "succeeds" $ do
+          invalidJsonKeys [aesonQQ|[{some: {_self: 7}}]|]
             `shouldBe` []
 
