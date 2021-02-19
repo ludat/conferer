@@ -18,6 +18,7 @@ import Control.Monad (foldM, forM, msum)
 import Data.Dynamic
 import Data.List (sort, nub, union)
 import Data.Text (Text)
+import Data.Maybe (isJust)
 import qualified Data.Map as Map
 
 import Conferer.Key
@@ -202,18 +203,19 @@ removeDefault key config =
       Map.update removeFirstDynamic key $ configDefaults config
   }
   where
+    removeFirst :: (a -> Bool) -> [a] -> [a]
+    removeFirst _ [] = []
+    removeFirst condition (x:xs) =
+      if condition x
+        then xs
+        else x : removeFirst condition xs
+
     removeFirstDynamic :: [Dynamic] -> Maybe [Dynamic]
     removeFirstDynamic dynamics =
-      let result = go dynamics
+      let result = removeFirst (isJust . fromDynamic @t) dynamics
       in if null result
           then Nothing 
           else Just result
-      where
-        go [] = []
-        go (d:ds) =
-          case fromDynamic @t d of
-            Just _ -> ds
-            Nothing -> d:go ds
 
 -- | This function adds one default of a custom type to a 'Config'
 --
