@@ -199,8 +199,10 @@ invalidJsonKeys = go []
             $ o
         in wrongKeys ++ do
         (k, v) <- HashMap.toList o
-        go (key ++ [k]) v
+        let subkey = key ++ [k]
+        go subkey v
       Array as -> do
         (index :: Integer, v) <- zip [0..] $ Vector.toList as
-        go (key ++ [Text.pack $ show index]) v
+        let subkey = (key ++ [Text.pack $ show index])
+        go subkey v
       _ -> []
