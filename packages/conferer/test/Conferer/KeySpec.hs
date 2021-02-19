@@ -34,3 +34,6 @@ spec = do
     context "with an uppercase letter" $ do
       it "is not valid" $ do
         isValidKeyFragment "FRAGMENT" `shouldBe` False
+    context "with an empty string" $ do
+      it "is not valid" $ do
+        isValidKeyFragment "" `shouldBe` False

@@ -175,4 +175,8 @@ spec = do
         it "succeeds" $ do
           invalidJsonKeys [aesonQQ|[{some: {_self: 7}}]|]
             `shouldBe` []
+      context "with empty key" $
+        it "fails" $ do
+          invalidJsonKeys [aesonQQ|{"": 7}|]
+            `shouldBe` [[""]]
 

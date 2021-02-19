@@ -94,7 +94,7 @@ unconsKey (Key (k:ks)) = Just (k, Key ks)
 -- that each character 'isKeyCharacter'
 isValidKeyFragment :: Text -> Bool
 isValidKeyFragment t =
-  Text.all isKeyCharacter t
+  (not $ Text.null t) && Text.all isKeyCharacter t
 
 -- | Checks if the given 'Char' is a valid for a 'Key'.
 -- Meaning it is a lower case ascii letter or a number.
