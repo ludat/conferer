@@ -56,7 +56,7 @@ For example setting:
 
 is possible and when parsing `File` this will result in `myfile.jpg` (more specific wins)
 
-Json cannot do that natively so we have the `_self` magic key, which is interpreted as
+Json cannot do that natively so we have the `_self` special key, which is interpreted as
 setting the value of the object while still allowing more specific keys to be set.
 
 The example above in json would be:
