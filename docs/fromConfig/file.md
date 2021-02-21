@@ -15,7 +15,7 @@ be used instead.
 
 So if you have `FILE_EXTENSION=jpg` and cli arg `--file=someFile.png`, the file will be read as `someFile.jpg` since
 `"file.extension"` is more specific than `"file"`. This may change in the future but that's the current
-behavior, if enough people find this confusing I may change it.
+behavior, if enough people find this confusing we may change it.
 
 ### `extension :: String`
 
