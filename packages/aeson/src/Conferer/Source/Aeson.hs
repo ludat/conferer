@@ -184,25 +184,32 @@ type RawKey = [Text]
 -- The Source will work with incorrect keys but they will
 -- be ignored.
 invalidJsonKeys :: Value -> [RawKey]
-invalidJsonKeys = go []
+invalidJsonKeys = filter (not . validKey) . allKeys
   where
-  go :: RawKey -> Value -> [RawKey]
-  go key value =
-    case value of
-      Object o ->
-        let
-          wrongKeys =
-            fmap (\t -> key ++ [t])
-            . filter (not . (== "_self"))
-            . filter (not . isValidKeyFragment)
-            . HashMap.keys
-            $ o
-        in wrongKeys ++ do
-        (k, v) <- HashMap.toList o
-        let subkey = key ++ [k]
-        go subkey v
-      Array as -> do
-        (index :: Integer, v) <- zip [0..] $ Vector.toList as
-        let subkey = (key ++ [Text.pack $ show index])
-        go subkey v
-      _ -> []
+    validFragmentForJSON :: Text -> Bool
+    validFragmentForJSON fragment = isValidKeyFragment fragment || fragment == "_self"
+    validKey :: RawKey -> Bool
+    validKey fragments = all validFragmentForJSON fragments
+
+-- | Returns all keys in a json object
+allKeys :: Value -> [RawKey]
+allKeys = go mempty
+  where
+    go :: RawKey -> Value -> [RawKey]
+    go rawkey value =
+      case value of
+        Object o ->
+          let
+            keys =
+              fmap (\t -> rawkey ++ [t])
+              . HashMap.keys
+              $ o
+          in keys ++ do
+          (k, v) <- HashMap.toList o
+          let subkey = rawkey ++ [k]
+          go subkey v
+        Array as -> do
+          (index :: Integer, v) <- zip [0..] $ Vector.toList as
+          let subkey = rawkey ++ [Text.pack $ show index]
+          go subkey v
+        _ -> []
