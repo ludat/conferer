@@ -5,7 +5,7 @@ title: Hspec FromConfig
 
 ## Hspec FromConfig
 
-This FromConfig instance provider support for parsing [Hspec's Config](https://hackage.haskell.org/package/hspec-core-2.7.4/docs/Test-Hspec-Core-Runner.html#t:Config).
+This FromConfig instance provides support for parsing [Hspec's Config](https://hackage.haskell.org/package/hspec-core-2.7.4/docs/Test-Hspec-Core-Runner.html#t:Config).
 
 ## Configurable values
 

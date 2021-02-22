@@ -5,7 +5,7 @@ title: Snap FromConfig
 
 ## Snap FromConfig
 
-This FromConfig instance provider support for parsing [Snap's Config](https://hackage.haskell.org/package/snap-server-1.1.1.2/docs/Snap-Internal-Http-Server-Config.html#t:Config)
+This FromConfig instance provides support for parsing [Snap's Config](https://hackage.haskell.org/package/snap-server-1.1.1.2/docs/Snap-Internal-Http-Server-Config.html#t:Config)
 
 ## Configurable values
 

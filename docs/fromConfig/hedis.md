@@ -5,7 +5,7 @@ title: Hedis FromConfig
 
 ## Hedis FromConfig
 
-This FromConfig instance provider support for parsing [Hedis's ConnectInfo](https://hackage.haskell.org/package/hedis-0.13.1/docs/Database-Redis.html#t:ConnectInfo).
+This FromConfig instance provides support for parsing [Hedis's ConnectInfo](https://hackage.haskell.org/package/hedis-0.13.1/docs/Database-Redis.html#t:ConnectInfo).
 
 ## Url and overrides
 
@@ -14,7 +14,7 @@ be used instead.
 
 So if you have `REDIS_PORT=1000` and cli arg `--redis=redis://host:7000`, the port will be `1000` since
 `"redis.port"` is more specific than `"redis"`. This may change in the future but that's the current
-behavior, if enough people find this confusing I may change it.
+behavior, if enough people find this confusing we may change it.
 
 ## Configurable values
 
