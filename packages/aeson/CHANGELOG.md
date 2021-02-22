@@ -12,6 +12,7 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 * Define a new `fromFilePath` whose type is `FilePath -> SourceCreator` instaed of `FilePath -> IO Source`.
 * Validate that the json value doesn't contain any wrong key name (only lowercase ascii and numbers
   are accepted) and throw otherwise.
+* Treat the special key `_self` as explained in the docs to allow nesting keys that's used elsewhere.
 * Even if invalid key names get through, ignore them in the source.
 
 

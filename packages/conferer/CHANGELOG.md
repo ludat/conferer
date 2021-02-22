@@ -13,6 +13,7 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 * (Internal) Remove the mismatched type exception since it's not actionable by the user
 * (Internal) Use a list for default values so that many different defaults are available,
   possible point of extension in the future.
+* Constraint valid key names to lowercase ascii and numbers (previously some non ascii characters were allowed)
 
 ### Added
 
