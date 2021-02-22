@@ -7,7 +7,8 @@
 --
 -- Public API module providing FromConfig functionality
 module Conferer.FromConfig 
-  ( FromConfig(fetchFromConfig)
+  ( FromConfig(fromConfig)
+  , fetchFromConfig
   , DefaultConfig(configDef)
   , fetchFromConfigWithDefault
   , fetchFromRootConfig
@@ -17,7 +18,6 @@ module Conferer.FromConfig
   , fetchFromConfigByRead
   , fetchFromConfigWith
   , addDefaultsAfterDeconstructingToDefaults
-  , allowingFetchOverride
 
   , MissingRequiredKey
   , throwMissingRequiredKey
@@ -32,6 +32,7 @@ module Conferer.FromConfig
   , File(..)
   , KeyLookupResult(..)
   , OverrideFromConfig(..)
+  , overrideFetch
 
   , fetchFromDefaults
   , fetchRequiredFromDefaults

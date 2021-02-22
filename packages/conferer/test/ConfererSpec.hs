@@ -7,7 +7,7 @@ module ConfererSpec where
 import Test.Hspec
 
 import Data.Text (Text)
-import Conferer.FromConfig ( FromConfig(fetchFromConfig) )
+import Conferer.FromConfig (fetchFromConfig)
 import Conferer.Source.InMemory (fromConfig)
 import Data.Dynamic (toDyn)
 import Conferer.Config (Config)

@@ -22,6 +22,7 @@ module Conferer
   , fetch
   , fetch'
   , fetchKey
+  , fetchFromConfig
   , safeFetchKey
   , unsafeFetchKey
   , DefaultConfig(..)
@@ -69,7 +70,7 @@ safeFetchKey :: forall a. (FromConfig a, Typeable a) => Config -> Key -> IO (May
 safeFetchKey c k = fetchFromConfig k c
 
 -- | Same as 'fetchKey' but it throws when the value isn't present.
-unsafeFetchKey :: forall a. (FromConfig a) => Config -> Key -> IO a
+unsafeFetchKey :: forall a. (FromConfig a, Typeable a) => Config -> Key -> IO a
 unsafeFetchKey c k = fetchFromConfig k c
 
 
