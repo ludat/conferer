@@ -46,7 +46,7 @@ Note that:
 
 ### Special `_self` key
 
-Conferer allows setting some key and at the same time more specifici keys at the same
+Conferer allows setting some key and at the same time more specific keys at the same
 time.
 
 For example setting:
