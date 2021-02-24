@@ -22,6 +22,8 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
 import Data.List (intersperse)
 import System.Directory (doesFileExist)
+import Control.Exception
+import Control.Monad (guard)
 
 import Conferer.Source.Files
 import qualified Conferer.Source.Null as Null
@@ -70,9 +72,20 @@ fromFilePath' fileToParse = do
         Nothing ->
           error $ "Failed to decode json file '" ++ fileToParse ++ "'"
         Just v -> do
-          return $ fromValue v
+          case invalidJsonKeys v of
+            [] ->
+              return $ fromValue v
+            errors ->
+              throwIO $ JsonHasInvalidKeysError fileToParse errors
     else do
       return $ Null.empty
+
+-- | Exception thrown from 'fromFilePath' when the json in the
+-- parsed file has incorrect keys
+data JsonHasInvalidKeysError =
+  JsonHasInvalidKeysError FilePath [RawKey] deriving (Eq, Show)
+
+instance Exception JsonHasInvalidKeysError
 
 -- | Create a 'Source' from a json value, never fails.
 fromValue :: Value -> Source
@@ -126,9 +139,16 @@ listKeysInJSON = go ""
   go :: Key -> Value -> [Key]
   go key value =
     case (unconsKey key, value) of
-      (_, Object o) -> do
-        (k, v) <- HashMap.toList o
-        go (key /. fromText k) v
+      (_, Object o) ->
+        let
+          self =
+            case valueToText <$> HashMap.lookup "_self" o of
+              Just _ -> [key]
+              Nothing -> []
+        in self ++ do
+          (k, v) <- HashMap.toList o
+          guard $ isValidKeyFragment k
+          go (key /. fromText k) v
       (_, Array as) -> do
         (index :: Integer, v) <- zip [0..] $ Vector.toList as
         go (key /. mkKey (show index)) v
@@ -138,7 +158,9 @@ listKeysInJSON = go ""
 -- | Turn json 'Value' into 'Text' to return that key
 valueToText :: Value -> Maybe Text
 valueToText (String t) = Just t
-valueToText (Object _o) = Nothing
+valueToText (Object o) = do
+  selfValue <- HashMap.lookup "_self" o
+  valueToText selfValue
 valueToText (Array _as) = Nothing
 valueToText (Number n) = Just $ Text.decodeUtf8 $ L.toStrict $ encode $ Number n
 valueToText (Bool b) = Just $ boolToString b
@@ -154,3 +176,40 @@ resultToMaybe :: Result a -> Maybe a
 resultToMaybe (Error _) = Nothing
 resultToMaybe (Success a) = Just a
 
+type RawKey = [Text]
+
+-- | Validates that a json has the correct format for keys,
+-- since Conferer 'Key's are pretty restricted.
+--
+-- The Source will work with incorrect keys but they will
+-- be ignored.
+invalidJsonKeys :: Value -> [RawKey]
+invalidJsonKeys = filter (not . validKey) . allKeys
+  where
+    validFragmentForJSON :: Text -> Bool
+    validFragmentForJSON fragment = isValidKeyFragment fragment || fragment == "_self"
+    validKey :: RawKey -> Bool
+    validKey fragments = all validFragmentForJSON fragments
+
+-- | Returns all keys in a json object
+allKeys :: Value -> [RawKey]
+allKeys = go mempty
+  where
+    go :: RawKey -> Value -> [RawKey]
+    go rawkey value =
+      case value of
+        Object o ->
+          let
+            keys =
+              fmap (\t -> rawkey ++ [t])
+              . HashMap.keys
+              $ o
+          in keys ++ do
+          (k, v) <- HashMap.toList o
+          let subkey = rawkey ++ [k]
+          go subkey v
+        Array as -> do
+          (index :: Integer, v) <- zip [0..] $ Vector.toList as
+          let subkey = rawkey ++ [Text.pack $ show index]
+          go subkey v
+        _ -> []

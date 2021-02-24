@@ -45,7 +45,7 @@ mkKey :: String -> Key
 mkKey s =
   Key .
   filter (/= mempty) .
-  fmap (Text.filter Char.isAlphaNum . Text.toLower) .
+  fmap (Text.filter isKeyCharacter . Text.toLower) .
   Text.split (== '.') .
   fromString
   $ s
@@ -89,3 +89,15 @@ rawKeyComponents = unKey
 unconsKey :: Key -> Maybe (Text, Key)
 unconsKey (Key []) = Nothing
 unconsKey (Key (k:ks)) = Just (k, Key ks)
+
+-- | Check if a 'Text' is a valid fragment of a 'Key', meaning
+-- that each character 'isKeyCharacter'
+isValidKeyFragment :: Text -> Bool
+isValidKeyFragment t =
+  (not $ Text.null t) && Text.all isKeyCharacter t
+
+-- | Checks if the given 'Char' is a valid for a 'Key'.
+-- Meaning it is a lower case ascii letter or a number.
+isKeyCharacter :: Char -> Bool
+isKeyCharacter c =
+  Char.isAsciiLower c || Char.isDigit c

@@ -12,11 +12,10 @@ This uses the same facilities as the properties file to resolve the file name so
 production the file will be `config/production.json`. If no `env` key is set,
 `"development"` will be used.
 
-There is a bit of interpretation since conferer's values are not a one to one mapping to 
+There is a bit of interpretation since conferer's values are not a one to one mapping to
 json values.
 
 ```json
-
 {
     "some": {
         "key": "value"
@@ -37,15 +36,41 @@ Now this json file will result in only two keys;
 
 Note that:
 
-* Since conferer's values always are string the `true` becomes `"true"`, conferer's 
+* Since conferer's values always are string, the `true` becomes `"true"`, conferer's
     FromConfig knows how to interpret this properly though (same as numbers and null).
 * We traverse the tree until we find a primitive value.
 * We don't define keys for nested values like `"some"` in this case.
 * For list we define a key with its index and they can nest other values.
-* All `Key`s are lowercase so this source ignores uppercase properties.
+* The json file may only contain valid keys (lowercase ascii and numbers)
+  otherwise an exception will be thrown.
 
+### Special `_self` key
 
-### Magic `keys` key
+Conferer allows setting some key and at the same time more specific keys at the same
+time.
+
+For example setting:
+
+`somefile`=myfile.png
+`somefile.extension`=jpg
+
+is possible and when parsing `File` this will result in `myfile.jpg` (more specific wins)
+
+Json cannot do that natively so we have the `_self` special key, which is interpreted as
+setting the value of the object while still allowing more specific keys to be set.
+
+The example above in json would be:
+
+```json
+{
+    "somefile": {
+        "_self": "myfile.png",
+        "extension": "jpg"
+    }
+}
+```
+
+### Special `keys` key
 
 For nested values the magic `keys` key is present and has a comma separated list
 of the present keys
