@@ -16,6 +16,7 @@ dependencies:
   - text >= 1.1 && < 1.3
   - directory >= 1.2 && < 2.0
   - filepath >= 1.0 && < 2.0
+  - time
 
 tests:
   specs:

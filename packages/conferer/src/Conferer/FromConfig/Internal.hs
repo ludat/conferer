@@ -26,7 +26,10 @@ import Data.Typeable
 import Text.Read (readMaybe)
 import Data.Dynamic
 import GHC.Generics
-import Data.Function ((&))
+import Data.Function (on, (&))
+import qualified Data.Time as Time
+import qualified Data.Time.Format.ISO8601 as Time
+import qualified Data.Time.Clock as Time
 
 import Conferer.Key
 import Conferer.Config.Internal.Types
@@ -215,6 +218,58 @@ instance FromConfig File where
       applyIfPresent f maybeComponent =
         (\fp -> maybe fp (f fp) maybeComponent)
 
+instance FromConfig Time.DayOfWeek where
+  fromConfig =
+    fetchFromConfigWith $
+    (\case
+      "sunday" -> Just Time.Sunday
+      "sun" -> Just Time.Sunday
+
+      "monday" -> Just Time.Monday
+      "mon" -> Just Time.Monday
+
+      "tuesday" -> Just Time.Tuesday
+      "tue" -> Just Time.Tuesday
+
+      "wednesday" -> Just Time.Wednesday
+      "wed" -> Just Time.Wednesday
+
+      "thursday" -> Just Time.Thursday
+      "thu" -> Just Time.Thursday
+
+      "friday" -> Just Time.Friday
+      "fri" -> Just Time.Friday
+
+      "saturday" -> Just Time.Saturday
+      "sat" -> Just Time.Saturday
+
+      _ -> Nothing
+      ) . Text.toLower
+
+instance FromConfig Time.Day where
+  fromConfig = fetchFromConfigByIso8601
+
+instance FromConfig Time.TimeOfDay where
+  fromConfig = fetchFromConfigByIso8601
+
+instance FromConfig Time.UTCTime where
+  fromConfig = fetchFromConfigByIso8601
+
+instance FromConfig Time.LocalTime where
+  fromConfig = fetchFromConfigByIso8601
+
+instance FromConfig Time.TimeZone where
+  fromConfig = fetchFromConfigByIso8601
+
+instance FromConfig Time.ZonedTime where
+  fromConfig = fetchFromConfigByIso8601
+
+instance FromConfig Time.CalendarDiffDays where
+  fromConfig = fetchFromConfigByIso8601
+
+instance FromConfig Time.CalendarDiffTime where
+  fromConfig = fetchFromConfigByIso8601
+
 -- | Helper function to parse a 'Bool' from 'Text'
 parseBool :: Text -> Maybe Bool
 parseBool text =
@@ -234,6 +289,10 @@ data OverrideFromConfig a =
 -- | Helper function to implement fetchFromConfig using the 'Read' instance
 fetchFromConfigByRead :: (Typeable a, Read a) => Key -> Config -> IO a
 fetchFromConfigByRead = fetchFromConfigWith (readMaybe . Text.unpack)
+
+-- | Helper function to implement fetchFromConfig using the 'Time.ISO8601' instance
+fetchFromConfigByIso8601 :: (Typeable a, Time.ISO8601 a) => Key -> Config -> IO a
+fetchFromConfigByIso8601 = fetchFromConfigWith (Time.iso8601ParseM . Text.unpack)
 
 -- | Helper function to implement fetchFromConfig using the 'IsString' instance
 fetchFromConfigByIsString :: (Typeable a, IsString a) => Key -> Config -> IO a

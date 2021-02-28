@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e95018cf9b8ebe424a2926412853affcae168760a3b9ea0530fbf3a4c1d83b14
+-- hash: 786dba20a9ab2782cc8ca0d70b30fe8b384aff3f45f378ac4ce2fe78537e82bd
 
 name:           conferer
 version:        1.0.0.1
@@ -57,6 +57,7 @@ library
     , directory >=1.2 && <2.0
     , filepath >=1.0 && <2.0
     , text >=1.1 && <1.3
+    , time
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
   default-language: Haskell2010
@@ -73,6 +74,7 @@ test-suite specs
       Conferer.FromConfig.MaybeSpec
       Conferer.FromConfig.NumbersSpec
       Conferer.FromConfig.StringLikeSpec
+      Conferer.FromConfig.TimeSpec
       Conferer.FromConfigSpec
       Conferer.GenericsSpec
       Conferer.KeySpec
@@ -100,6 +102,7 @@ test-suite specs
     , filepath >=1.0 && <2.0
     , hspec
     , text >=1.1 && <1.3
+    , time
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
   default-language: Haskell2010
