@@ -19,7 +19,7 @@ import qualified Test.Hspec.Core.Runner as Hspec
 import qualified Test.Hspec.Core.Formatters as Hspec
 
 instance FromConfig Hspec.ColorMode where
-  fetchFromConfig =
+  fromConfig =
     fetchFromConfigWith $
     (\case
       "auto" -> Just Hspec.ColorAuto
@@ -29,7 +29,7 @@ instance FromConfig Hspec.ColorMode where
     ) . toLower
 
 instance FromConfig Hspec.Formatter where
-  fetchFromConfig =
+  fromConfig =
     fetchFromConfigWith $
     (\case
       "silent" -> Just Hspec.silent
@@ -78,7 +78,7 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   ]
 
 instance FromConfig Hspec.Config where
-  fetchFromConfig key originalConfig = do
+  fromConfig key originalConfig = do
     config <- addDefaultsAfterDeconstructingToDefaults
       desconstructHspecConfigToDefaults
       key originalConfig

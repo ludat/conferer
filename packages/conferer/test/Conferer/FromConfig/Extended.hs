@@ -36,12 +36,12 @@ import Conferer.FromConfig.Internal
   , ConfigParsingError(..)
   )
 import Conferer.FromConfig
-import Conferer.Source.InMemory
+import qualified Conferer.Source.InMemory as InMemory
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues =
   emptyConfig
-  & addSource (fromConfig keyValues)
+  & addSource (InMemory.fromConfig keyValues)
 
 anyConfigParserError :: ConfigParsingError -> Bool
 anyConfigParserError _ = True
@@ -69,7 +69,7 @@ ensureEmptyConfigThrows =
         `shouldThrow` aMissingRequiredKey @a "some.key"
 
 ensureSingleConfigThrowsParserError ::
-    forall a. (FromConfig a) =>
+    forall a. (FromConfig a, Typeable a) =>
     Text -> SpecWith ()
 ensureSingleConfigThrowsParserError keyContent =
   context "with invalid types in the defaults"  $ do
@@ -90,7 +90,7 @@ ensureUsingDefaultReturnsSameValue value =
       fetchedValue `shouldBe` value
 
 ensureSingleConfigParsesTheRightThing ::
-    forall a. (Eq a, Show a, FromConfig a) =>
+    forall a. (Eq a, Show a, FromConfig a, Typeable a) =>
     Text -> a -> SpecWith ()
 ensureSingleConfigParsesTheRightThing keyContent value =
   context ("with a config value of '" ++ unpack keyContent ++ "'" ) $ do
@@ -100,7 +100,7 @@ ensureSingleConfigParsesTheRightThing keyContent value =
       fetchedValue `shouldBe` value
 
 ensureSingleConfigThrows ::
-    forall a e. (FromConfig a, Exception e) =>
+    forall a e. (FromConfig a, Typeable a, Exception e) =>
     Text -> (e -> Bool) -> SpecWith ()
 ensureSingleConfigThrows keyContent checkException =
   it "gets the right value" $ do
@@ -111,6 +111,7 @@ ensureSingleConfigThrows keyContent checkException =
 ensureFetchParses ::
     forall a.
     ( FromConfig a
+    , Typeable a
     , Eq a
     , Show a
     )
@@ -130,6 +131,7 @@ ensureFetchParses configs defaults expectedValue =
 ensureFetchThrows ::
     forall a e.
     ( FromConfig a
+    , Typeable a
     , Exception e
     )
     => [(Key, Text)]

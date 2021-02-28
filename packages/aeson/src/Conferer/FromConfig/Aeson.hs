@@ -17,7 +17,7 @@ import Data.Text (Text)
 import qualified Data.Text.Encoding as Text
 
 instance FromConfig Value where
-  fetchFromConfig key config = do
+  fromConfig key config = do
     rawAeson <- fetchFromConfig @Text key config
     case eitherDecodeStrict' @Value $ Text.encodeUtf8 rawAeson of
       Right value -> 

@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 -- |
 -- Copyright: (c) 2019 Lucas David Traverso
 -- License: MPL-2.0
@@ -17,6 +18,7 @@ import Control.Monad (foldM, forM, msum)
 import Data.Dynamic
 import Data.List (sort, nub, union)
 import Data.Text (Text)
+import Data.Maybe (isJust)
 import qualified Data.Map as Map
 
 import Conferer.Key
@@ -190,6 +192,30 @@ addDefaults configMap config =
     Map.unionWith (++) constructedMap
       $ configDefaults config
   }
+
+-- | This function removes a default from a 'Config', this is the
+-- oposite of 'addDefault', it deletes the first element of
+-- matching type in a certain 'Key'.
+removeDefault :: forall t. Typeable t => Key -> Config -> Config
+removeDefault key config =
+  config
+  { configDefaults =
+      Map.update removeFirstDynamic key $ configDefaults config
+  }
+  where
+    removeFirst :: (a -> Bool) -> [a] -> [a]
+    removeFirst _ [] = []
+    removeFirst condition (x:xs) =
+      if condition x
+        then xs
+        else x : removeFirst condition xs
+
+    removeFirstDynamic :: [Dynamic] -> Maybe [Dynamic]
+    removeFirstDynamic dynamics =
+      let result = removeFirst (isJust . fromDynamic @t) dynamics
+      in if null result
+          then Nothing 
+          else Just result
 
 -- | This function adds one default of a custom type to a 'Config'
 --
