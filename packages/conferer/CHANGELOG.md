@@ -39,5 +39,5 @@ a list of source creators.
 First release
 
 [Unreleased]: https://github.com/ludat/conferer/compare/conferer_v1.0.0.0...HEAD
-[v1.0.0.0]: https://github.com/ludat/conferer/releases/tag/v0.0.0.0...conferer_v1.0.0.0
 [v1.0.0.1]: https://github.com/ludat/conferer/releases/tag/conferer_v1.0.0.0...conferer_v1.0.0.1
+[v1.0.0.0]: https://github.com/ludat/conferer/releases/tag/v0.0.0.0...conferer_v1.0.0.0
