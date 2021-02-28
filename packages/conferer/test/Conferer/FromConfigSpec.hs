@@ -10,5 +10,5 @@ spec = do
   describe "Override FromConfig" $ do
     ensureFetchParses @Int
       []
-      [ overrideFetch @Int "" $ \_k _c -> pure 42 ]
+      [ ("", overrideFetch @Int $ \_k _c -> pure 42) ]
       42

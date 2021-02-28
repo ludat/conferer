@@ -17,6 +17,7 @@
     "FromConfig": [
       "fromConfig/list",
       "fromConfig/file",
+      "fromConfig/overrides",
       "fromConfig/warp",
       "fromConfig/snap",
       "fromConfig/hspec",

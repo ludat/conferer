@@ -287,8 +287,13 @@ addDefaultsAfterDeconstructingToDefaults destructureValue key config = do
     Nothing -> do
       return config
 
-overrideFetch :: forall a. Typeable a => Key -> (Key -> Config -> IO a) -> (Key, Dynamic)
-overrideFetch key f = (key, toDyn @(OverrideFromConfig a) (OverrideFromConfig f))
+-- | Helper function to override the fetching function for a certain key.
+--
+-- This function creates a 'Dynamic' that when added to the defaults allows
+-- overriding the default 'FromConfig' instance.
+overrideFetch :: forall a. Typeable a => (Key -> Config -> IO a) -> Dynamic
+overrideFetch f =
+  toDyn @(OverrideFromConfig a) $ OverrideFromConfig f
 
 -- | Exception to show that a value couldn't be parsed properly
 data ConfigParsingError =
