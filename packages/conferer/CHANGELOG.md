@@ -18,6 +18,7 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 ### Added
 
 * `isValidKeyFragment` and `isKeyCharacter` to validate `Key`s
+* Added an overriding method based on type and key (details in the docs)
 
 ## [v1.0.0.1] - 2021-01-17
 
