@@ -18,6 +18,7 @@
       "fromConfig/list",
       "fromConfig/file",
       "fromConfig/overrides",
+      "fromConfig/aeson",
       "fromConfig/warp",
       "fromConfig/snap",
       "fromConfig/hspec",
