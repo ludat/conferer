@@ -6,6 +6,10 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
+Nothing
+
+## [v1.1.0.0] 2021-03-01
+
 ### Changed
 
 * Rename `fromFilePath` to `fromFilePath'`.
@@ -15,5 +19,6 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 First release
 
-[Unreleased]: https://github.com/ludat/conferer/compare/conferer-dhall_v1.0.0.0...HEAD
+[Unreleased]: https://github.com/ludat/conferer/compare/conferer-dhall_v1.1.0.0...HEAD
+[v1.1.0.0]: https://github.com/ludat/conferer/compare/conferer-dhall_v1.0.0.0...conferer-dhall_v1.1.0.0
 [v1.0.0.0]: https://github.com/ludat/conferer/compare/v0.0.0.0...conferer-dhall_v1.0.0.0

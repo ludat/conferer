@@ -1,5 +1,5 @@
 name: conferer-aeson
-version: 1.0.0.0
+version: 1.1.0.0
 synopsis: |
   conferer's source for reading json files
 description: |
