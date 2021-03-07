@@ -11,7 +11,7 @@ _common/lib: !include ../../utils/package.common.yaml
 
 dependencies:
   - base >= 4.3 && < 5
-  - conferer >= 1.0.0.0 && < 2.0.0.0
+  - conferer >= 1.1.0.0 && < 2.0.0.0
   - conferer-aeson >= 1.0.0.0 && < 2.0.0.0
   - yaml >= 0.8 && < 1.0
 

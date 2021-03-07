@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cdd4956f023c56c73b29439f3a0cafebbc5b26d1091e28a67e8b847d76974ee9
+-- hash: 9f084f004fb33d503716d924442b98f5860cd947e18906b89cd79ee59b280e05
 
 name:           conferer-aeson
 version:        1.1.0.0
@@ -38,7 +38,7 @@ library
       aeson >=0.10 && <2.0
     , base >=4.3 && <5
     , bytestring >=0.10 && <0.11
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , directory >=1.2 && <2.0
     , text >=1.1 && <1.3
     , unordered-containers

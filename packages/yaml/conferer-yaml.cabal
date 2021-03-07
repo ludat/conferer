@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f0165eab1cb30f1958939d1fd33c120c5355b7d8cce50bc50697c28be7049e48
+-- hash: 13f65813572938417d46492b63b400add43438cd69beeed126be43108bbac2ef
 
 name:           conferer-yaml
 version:        1.1.0.0
@@ -35,7 +35,7 @@ library
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-aeson >=1.0.0.0 && <2.0.0.0
     , yaml >=0.8 && <1.0
   if impl(ghc >= 8.4.1)
@@ -53,7 +53,7 @@ test-suite specs
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-aeson >=1.0.0.0 && <2.0.0.0
     , conferer-yaml
     , hspec

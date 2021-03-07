@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 588ab8fa28007db868a4fcb9758d77e3057881212ef21be70c60f9f60a104c9b
+-- hash: 7de07c76ae95a50d09256ab7d15c0ee84cf8bee0952b0002f863655b30458675
 
 name:           conferer-dhall
 version:        1.1.0.0
@@ -36,8 +36,8 @@ library
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11
-    , conferer >=1.0.0.0 && <2.0.0.0
-    , conferer-aeson >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
+    , conferer-aeson >=1.1.0.0 && <2.0.0.0
     , dhall >=1.8 && <2.0
     , dhall-json >=1.0 && <2.0
     , directory >=1.2 && <2.0
@@ -58,8 +58,8 @@ test-suite specs
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11
-    , conferer >=1.0.0.0 && <2.0.0.0
-    , conferer-aeson >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
+    , conferer-aeson >=1.1.0.0 && <2.0.0.0
     , conferer-dhall
     , dhall >=1.8 && <2.0
     , dhall-json >=1.0 && <2.0

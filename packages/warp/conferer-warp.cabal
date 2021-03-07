@@ -4,10 +4,10 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c41ddb23f10259b3f8eaf3b77d7fa02bfa24656e72bc0f3fe30b84b8b28e1c76
+-- hash: 21314119d545698e73045b9f644de204e6e5317eb0b304f7e988612bb7bdcff0
 
 name:           conferer-warp
-version:        1.0.0.0
+version:        1.1.0.0
 synopsis:       conferer's FromConfig instances for warp settings
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
@@ -35,7 +35,7 @@ library
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , http-types >=0.8.6 && <0.13
     , text >=1.1 && <1.3
     , wai >=3.0 && <4.0
@@ -56,7 +56,7 @@ test-suite specs
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-warp
     , hspec
     , http-types >=0.8.6 && <0.13

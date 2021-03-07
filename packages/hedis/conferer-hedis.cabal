@@ -4,10 +4,10 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 11b6c1c1c753babb114e16040364b89dceaf40565d79ddf73f4dadff010e3c89
+-- hash: dfd5a84376a0a80e045f4e4453aa4213ca5cb674eaeeedf5d906d6f78319e283
 
 name:           conferer-hedis
-version:        1.0.0.0
+version:        1.1.0.0
 synopsis:       conferer's FromConfig instances for hedis settings
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
@@ -35,7 +35,7 @@ library
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , hedis >=0.7.0 && <1.0.0
     , text >=1.1 && <1.3
   if impl(ghc >= 8.4.1)
@@ -54,7 +54,7 @@ test-suite specs
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-hedis
     , hedis >=0.7.0 && <1.0.0
     , hspec
