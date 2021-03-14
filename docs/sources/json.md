@@ -91,3 +91,6 @@ exposes
 * `"object"` not present
 * `"object.a"` mapped to `"1"`
 * `"object.keys"` mapped to `"a,b"`
+
+NOTE: The keys list is always sorted in lexicographical order, since aeson doesn't
+maintain the original order of keys, we sort it to be consistent.
