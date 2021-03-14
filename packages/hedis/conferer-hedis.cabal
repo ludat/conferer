@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: dfd5a84376a0a80e045f4e4453aa4213ca5cb674eaeeedf5d906d6f78319e283
+-- hash: 571d338f5e8a710df4b1716c5df0d13146782ea9cdc5f655763e8faca9b77384
 
 name:           conferer-hedis
 version:        1.1.0.0
@@ -13,6 +13,7 @@ synopsis:       conferer's FromConfig instances for hedis settings
 description:    Library to abstract the parsing of many haskell config values from different config sources
 category:       Configuration
 homepage:       https://conferer.ludat.io
+bug-reports:    https://github.com/ludat/conferer/issues
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
 copyright:      (c) 2020 Lucas David Traverso

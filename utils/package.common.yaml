@@ -5,6 +5,7 @@
 - &misc
   homepage: https://conferer.ludat.io
   category: Configuration
+  bug-reports: https://github.com/ludat/conferer/issues
 
   extra-doc-files:
     - README.md

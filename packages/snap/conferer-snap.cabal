@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5c3a32f9f370209e2b9dce643735ef2af73e2a3f936368b76171401bd319922f
+-- hash: f24c08f79b9b3fd928adaebe450f764b3c546dd5fe48f6d23f52e1174706c0df
 
 name:           conferer-snap
 version:        1.0.0.0
@@ -13,6 +13,7 @@ synopsis:       conferer's FromConfig instances for snap Config
 description:    Library to abstract the parsing of many haskell config values from different config sources
 category:       Configuration
 homepage:       https://conferer.ludat.io
+bug-reports:    https://github.com/ludat/conferer/issues
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
 copyright:      (c) 2020 Lucas David Traverso

@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0a45775b4c68336da7215641efede52ba91e29c0f2f67755988cd4d3b1206b57
+-- hash: a835205aab15434694f7fdedf781e2137c3bb5affebfc6defffa635afa77b428
 
 name:           conferer-hspec
 version:        1.1.0.0
@@ -13,6 +13,7 @@ synopsis:       conferer's FromConfig instances for hspec Config
 description:    Library to abstract the parsing of many haskell config values from different config sources
 category:       Configuration
 homepage:       https://conferer.ludat.io
+bug-reports:    https://github.com/ludat/conferer/issues
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
 copyright:      (c) 2020 Lucas David Traverso
