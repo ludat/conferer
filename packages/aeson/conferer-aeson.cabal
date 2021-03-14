@@ -4,10 +4,10 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d13df2bf78b163e96d2bdad941bd75b766e2781ff879f3bae483e5244ef3f3f8
+-- hash: d73d44df61f4d56a6aa0b89b1ce6a27123ce674091a311ce30c992d64be6ef56
 
 name:           conferer-aeson
-version:        1.1.0.0
+version:        1.1.0.1
 synopsis:       conferer's source for reading json files
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
