@@ -20,7 +20,7 @@ import qualified Data.Vector as Vector
 import Text.Read (readMaybe)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
-import Data.List (intersperse)
+import Data.List (intersperse, sort)
 import System.Directory (doesFileExist)
 import Control.Exception
 import Control.Monad (guard)
@@ -115,6 +115,7 @@ traverseJSON key value =
               String $
               mconcat $
               intersperse "," $
+              sort $
               HashMap.keys o)
    (Just (c, ks), Object o) ->
      HashMap.lookup c o >>= traverseJSON ks

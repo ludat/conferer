@@ -6,7 +6,9 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
-Nothing
+## Changed
+
+* Make the `keys` special key always return sorted keys (because of the change from hashable-1.3.1.0)
 
 ## [v1.1.0.0] 2021-03-01
 
