@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 21314119d545698e73045b9f644de204e6e5317eb0b304f7e988612bb7bdcff0
+-- hash: b2637a0bc44386b75c871b4c995b686ead11f39ca09358dac995fb40f8254ae1
 
 name:           conferer-warp
 version:        1.1.0.0
@@ -13,6 +13,7 @@ synopsis:       conferer's FromConfig instances for warp settings
 description:    Library to abstract the parsing of many haskell config values from different config sources
 category:       Configuration
 homepage:       https://conferer.ludat.io
+bug-reports:    https://github.com/ludat/conferer/issues
 author:         Lucas David Traverso
 maintainer:     lucas6246@gmail.com
 copyright:      (c) 2020 Lucas David Traverso
