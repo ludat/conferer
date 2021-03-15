@@ -372,10 +372,13 @@ instance (FromConfigG inner, Selector selector) =>
 
       fieldName = Text.pack $ selName @selector undefined
       prefix = applyFirst Char.toLower $ Text.pack s
+      underscorePrefix = "_" <> Text.pack s <> "_"
       scopedKey =
         case Text.stripPrefix prefix fieldName of
           Just stripped -> applyFirst Char.toLower stripped
-          Nothing -> fieldName
+          Nothing -> case Text.stripPrefix underscorePrefix fieldName of
+            Just stripped -> stripped
+            Nothing -> maybe fieldName id $ Text.stripPrefix "_" fieldName
     in M1 <$> fromConfigG @inner (key /. fromText scopedKey) config
 
 instance (FromConfig inner, Typeable inner) => FromConfigG (Rec0 inner) where
@@ -418,10 +421,13 @@ instance (IntoDefaultsG inner, Selector selector) =>
 
       fieldName = Text.pack $ selName @selector undefined
       prefix = applyFirst Char.toLower $ Text.pack s
+      underscorePrefix = "_" <> Text.pack s <> "_"
       scopedKey =
         case Text.stripPrefix prefix fieldName of
           Just stripped -> applyFirst Char.toLower stripped
-          Nothing -> fieldName
+          Nothing -> case Text.stripPrefix underscorePrefix fieldName of
+            Just stripped -> stripped
+            Nothing -> maybe fieldName id $ Text.stripPrefix "_" fieldName
     in intoDefaultsG @inner (key /. fromText scopedKey) inner
 
 instance (Typeable inner) => IntoDefaultsG (Rec0 inner) where
