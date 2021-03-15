@@ -1,5 +1,5 @@
 {
-    "warp": {
+    "server": {
         "port": 8888,
         "serverName": "Java"
     },
