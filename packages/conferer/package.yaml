@@ -5,49 +5,10 @@ synopsis: |
 description: |
   Library to abstract the parsing of many haskell config values from different config sources
 
-# exapnd magic macro because nix hpack crashes on this
-# _common/lib: !include ../../utils/package.common.yaml
 
-# <<: *everything
+_common/lib: !include ../../utils/package.common.yaml
 
-library:
-  source-dirs: src
-
-homepage: https://conferer.ludat.io
-category: Configuration
-bug-reports: https://github.com/ludat/conferer/issues
-
-extra-doc-files:
-  - README.md
-  - CHANGELOG.md
-  - LICENSE
-
-author: Lucas David Traverso
-maintainer: lucas6246@gmail.com
-
-copyright: (c) 2020 Lucas David Traverso
-license: MPL-2.0
-license-file: LICENSE
-
-default-extensions:
-  - OverloadedStrings
-  - LambdaCase
-  - QuasiQuotes
-  - ScopedTypeVariables
-  - RecordWildCards
-  - StrictData
-
-ghc-options:
-  - -Wall
-  - -Wredundant-constraints
-  - -Widentities
-  - -Wincomplete-record-updates
-  - -Wincomplete-uni-patterns
-when:
-  condition: impl(ghc >= 8.4.1)
-  ghc-options:
-    - -Wpartial-fields
-
+<<: *everything
 
 dependencies:
   - base >= 4.3 && < 5
