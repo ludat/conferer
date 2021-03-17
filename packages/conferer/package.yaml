@@ -5,7 +5,6 @@ synopsis: |
 description: |
   Library to abstract the parsing of many haskell config values from different config sources
 
-
 _common/lib: !include ../../utils/package.common.yaml
 
 <<: *everything

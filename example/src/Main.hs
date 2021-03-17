@@ -12,13 +12,13 @@ import GHC.Generics
 
 data AppConfig = AppConfig
   { appConfigServer :: Settings
-  , _appConfig_seed :: Int
+  , appConfigSeed :: Int
   } deriving (Generic)
 instance Conferer.FromConfig AppConfig
 instance Conferer.DefaultConfig AppConfig where
   configDef = AppConfig
     { appConfigServer = setPort 2222 Conferer.configDef -- If you want to configure new default for internal libs this is the place
-    , _appConfig_seed = 17
+    , appConfigSeed = 17
     }
 
 main :: IO ()
@@ -27,7 +27,6 @@ main = do
   appConfig <- Conferer.fetch config
 
   putStrLn $ "Running on port: " ++ show (getPort $ appConfigServer appConfig)
-  putStrLn $ "Seed: " ++ show (_appConfig_seed appConfig)
   runSettings (appConfigServer appConfig) (application config)
 
 application :: Conferer.Config -> Application
