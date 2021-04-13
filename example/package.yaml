@@ -5,7 +5,6 @@ maintainer: lucas6246@gmail.com
 
 _common/lib: !include ../utils/package.common.yaml
 
-<<: *lib
 <<: *ghcoptions
 
 dependencies:
