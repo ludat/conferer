@@ -74,7 +74,7 @@ jobs:
         stack --resolver=${{ matrix.snapshot }} ghc -- --version
         attempts=0
         stack clean --resolver=${{ matrix.snapshot }}
-        while ! stack build -j 1 --resolver=${{ matrix.snapshot }} --test --bench --no-run-tests --no-run-benchmarks; do
+        while ! stack build -j 1 --resolver=${{ matrix.snapshot }} --ghc-options=-Werror --test --bench; do
           if [ "$attempts" -gt 5 ]; then
             echo "too many attempts ($attempts)"
             exit 1
@@ -82,4 +82,3 @@ jobs:
           echo Deps install failed, retrying
           attempts=$(( $attempts + 1))
         done
-        stack test --ghc-options=-Werror -j 1 --resolver=${{ matrix.snapshot }}
