@@ -9,13 +9,6 @@ module Conferer.FromConfig.MaybeSpec (spec) where
 import Test.Hspec
 import Conferer.FromConfig.Extended
 
-data Thing = Thing
-  { thingA :: Int
-  , thingB :: String
-  } deriving (Generic, Show, Eq)
-
-instance FromConfig Thing
-
 spec :: Spec
 spec = do
   describe "fetching a Maybe from config" $ do
