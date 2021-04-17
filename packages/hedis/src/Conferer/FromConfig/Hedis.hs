@@ -12,10 +12,12 @@
 module Conferer.FromConfig.Hedis where
 
 import Conferer.FromConfig
+#if MIN_VERSION_hedis(0,10,0)
 import Conferer.Config
+#endif
 
 import qualified Database.Redis as Redis
-import Data.Text (Text, unpack)
+import Data.Text
 import Text.Read (readMaybe)
 import Data.Dynamic
 
