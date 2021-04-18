@@ -33,8 +33,12 @@ instance FromConfig Hspec.Formatter where
     fetchFromConfigWith $
     (\case
       "silent" -> Just Hspec.silent
+#if MIN_VERSION_hspec_core(2,7,10)
+      "checks" -> Just Hspec.checks
+#endif
       "specdoc" -> Just Hspec.specdoc
       "progress" -> Just Hspec.progress
+      "failed-examples" -> Just Hspec.failed_examples
       "failed_examples" -> Just Hspec.failed_examples
       _ -> Nothing
     ) . toLower
@@ -57,6 +61,8 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   , ("colorMode", toDyn configColorMode)
   , ("htmlOutput", toDyn configHtmlOutput)
   , ("formatter", toDyn configFormatter)
+  , ("rerunAllOnSuccess", toDyn configRerunAllOnSuccess)
+  , ("outputFile", toDyn configOutputFile)
 #if MIN_VERSION_hspec_core(2,1,1)
   , ("skipPredicate", toDyn configSkipPredicate)
 #endif
@@ -74,6 +80,9 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
 #if MIN_VERSION_hspec_core(2,7,0)
   , ("focusedOnly", toDyn configFocusedOnly)
   , ("failOnFocused", toDyn configFailOnFocused)
+#endif
+#if MIN_VERSION_hspec_core(2,7,3)
+  , ("randomize", toDyn configRandomize)
 #endif
   ]
 
@@ -114,5 +123,8 @@ instance FromConfig Hspec.Config where
 #if MIN_VERSION_hspec_core(2,7,0)
     configFocusedOnly <- fetchFromConfig (key /. "focusedOnly") config
     configFailOnFocused <- fetchFromConfig (key /. "failOnFocused") config
+#endif
+#if MIN_VERSION_hspec_core(2,7,3)
+    configRandomize <- fetchFromConfig (key /. "randomize") config
 #endif
     pure Hspec.Config{..}

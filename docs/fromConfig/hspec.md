@@ -132,10 +132,18 @@ Show colorized diffs.
 
 Default: `True`
 
-### `formatter :: Maybe Formatter` (NOT CONFIGURABLE BY THE USER)
+### `formatter :: Maybe Formatter`
 
 Formatter for test results, Nothing means using the default
 formatter.
+
+* `silent`: Hide details from each test and only print summary
+* `specdoc`: Show all test names in a hierarchical structure colored acording
+  to test results
+* `progress`: Show dots as tests progress
+* `failed-examples`: Only show list of failed tests
+* `checks`: Show all test names in a hierarchical structure using unicode
+  checks for test results (requires `hspec >= 2.7.10`).
 
 Default: `Nothing`
 
@@ -156,3 +164,9 @@ Default: `Left stdout`
 Number of concurrent jobs to use, Nothing means numbers of cpus
 
 Default: `Nothing`
+
+### `randomize :: Bool`
+
+Number of concurrent jobs to use, Nothing means numbers of cpus
+
+Default: `False`

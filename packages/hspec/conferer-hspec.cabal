@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a835205aab15434694f7fdedf781e2137c3bb5affebfc6defffa635afa77b428
+-- hash: e5e73d957fe579748733c3461beadbbe190c9c4cbe011a88e38870a23502fbac
 
 name:           conferer-hspec
 version:        1.1.0.0
@@ -47,6 +47,7 @@ test-suite specs
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Conferer.FromConfig.HspecSpec
       Paths_conferer_hspec
   hs-source-dirs:
       test
