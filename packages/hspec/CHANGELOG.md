@@ -6,6 +6,10 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+* Added all defaults for now the FromConfig instance actually works
+
 ### Changed
 
 * `"checks"` is a valid value for `formatter` key (with `hspec >= 2.7.10`)

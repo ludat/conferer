@@ -61,6 +61,8 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   , ("colorMode", toDyn configColorMode)
   , ("htmlOutput", toDyn configHtmlOutput)
   , ("formatter", toDyn configFormatter)
+  , ("rerunAllOnSuccess", toDyn configRerunAllOnSuccess)
+  , ("outputFile", toDyn configOutputFile)
 #if MIN_VERSION_hspec_core(2,1,1)
   , ("skipPredicate", toDyn configSkipPredicate)
 #endif
