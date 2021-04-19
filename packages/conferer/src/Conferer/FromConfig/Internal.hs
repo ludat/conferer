@@ -13,6 +13,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE CPP #-}
 
 module Conferer.FromConfig.Internal where
 
@@ -37,7 +38,9 @@ import Data.Maybe (fromMaybe, mapMaybe)
 import qualified System.FilePath as FilePath
 import Data.List (nub, foldl', sort)
 import Data.String (IsString(..))
-import Data.Foldable (msum)
+#if __GLASGOW_HASKELL__ < 808
+import Data.Void (absurd)
+#endif
 
 -- | The typeclass for defining the way to get values from a 'Config', hiding the
 -- 'Text' based nature of the 'Conferer.Source.Source's and parse whatever value
@@ -242,28 +245,20 @@ fetchFromConfigByIsString = fetchFromConfigWith (Just . fromString . Text.unpack
 -- | Helper function to implement fetchFromConfig using some parsing function
 fetchFromConfigWith :: forall a. Typeable a => (Text -> Maybe a) -> Key -> Config -> IO a
 fetchFromConfigWith parseValue key config = do
-  getKey key config >>=
+  getKey @a key config >>=
     \case
-      MissingKey k -> do
-        throwMissingRequiredKeys @a k
-
-      FoundInSources k value ->
+      FoundInSources value k ->
         case parseValue value of
           Just a -> do
             return a
           Nothing -> do
             throwConfigParsingError @a k value
 
-      FoundInDefaults k dynamics ->
-        case fromDynamics dynamics of
-          Just a -> do
-            return a
-          Nothing -> do
-            throwMissingRequiredKeys @a [k]
+      FoundInDefaults v _key ->
+        return v
 
-fromDynamics :: forall a. Typeable a => [Dynamic] -> Maybe a
-fromDynamics =
-  msum . fmap (fromDynamic @a)
+      MissingKey () k -> do
+        throwMissingRequiredKeys @a k
 
 -- | Helper function does the plumbing of desconstructing a default into smaller
 -- defaults, which is usefull for nested 'fetchFromConfig'.
@@ -372,10 +367,15 @@ fetchRequiredFromDefaults key config =
       return a
 
 -- | Fetch from value from the defaults map of a 'Config' or else return a 'Nothing'
+{-# DEPRECATED fetchFromDefaults "depreca3" #-}
 fetchFromDefaults :: forall a. (Typeable a) => Key -> Config -> Maybe a
 fetchFromDefaults key config =
-  getKeyFromDefaults key config
-    >>= fromDynamics @a
+  case getKeyFromDefaults key config of
+    MissingKey () _ks -> Nothing
+    FoundInDefaults v _k -> Just v
+#if __GLASGOW_HASKELL__ < 808
+    FoundInSources v _ -> absurd v
+#endif
 
 -- | Same as 'fetchFromConfig' using the root key
 fetchFromRootConfig :: forall a. (FromConfig a, Typeable a) => Config -> IO a
