@@ -45,9 +45,9 @@ data Config =
 --   * 'OnlySources': 'FoundInDefaults' constructor is not possible, type of
 --       of the result is always 'Text'
 data KeyLookupResult lookupTarget
-  = MissingKey (MissingC lookupTarget) [Key]
-  | FoundInSources (SourcesC lookupTarget) Key
-  | FoundInDefaults (DefaultsC lookupTarget) Key
+  = MissingKey () [Key]
+  | FoundInSources (SourcesResultType lookupTarget) Key
+  | FoundInDefaults (DefaultsResultType lookupTarget) Key
 
 -- | Target of a lookup that the 'KeyLookupResult' is parameterized on
 -- to indicate where the value was looked for in.
@@ -61,35 +61,27 @@ data LookupTarget a
  -- ^ Look only in the sources ('FoundInSources' is not possible)
  -- its type parameter indicates the type of the default
 
--- | Modifier type family for the 'MissingKey' constructor.
-type family MissingC (a :: LookupTarget Type) where
-  MissingC ('BothSourcesAndDefaults a) = ()
-  MissingC 'OnlySources = ()
-  MissingC ('OnlyDefaultsAs _) = ()
-
 -- | Modifier type family for the 'FoundInSources' constructor.
-type family SourcesC (a :: LookupTarget Type) where
-  SourcesC ('BothSourcesAndDefaults a) = Text
-  SourcesC 'OnlySources = Text
-  SourcesC ('OnlyDefaultsAs _) = Void
+type family SourcesResultType (a :: LookupTarget Type) where
+  SourcesResultType ('BothSourcesAndDefaults a) = Text
+  SourcesResultType 'OnlySources = Text
+  SourcesResultType ('OnlyDefaultsAs _) = Void
 
 -- | Modifier type family for the 'FoundInDefaults' constructor.
-type family DefaultsC (a :: LookupTarget Type) where
-  DefaultsC ('BothSourcesAndDefaults a) = a
-  DefaultsC 'OnlySources = Void
-  DefaultsC ('OnlyDefaultsAs a) = a
+type family DefaultsResultType (a :: LookupTarget Type) where
+  DefaultsResultType ('BothSourcesAndDefaults a) = a
+  DefaultsResultType 'OnlySources = Void
+  DefaultsResultType ('OnlyDefaultsAs a) = a
 
 deriving instance
-    ( Eq a, a ~ MissingC lookupTarget
-    , Eq b, b ~ DefaultsC lookupTarget
-    , Eq c, c ~ SourcesC lookupTarget
+    ( Eq b, b ~ DefaultsResultType lookupTarget
+    , Eq c, c ~ SourcesResultType lookupTarget
     )
   => Eq (KeyLookupResult lookupTarget)
 
 deriving instance
-    ( Show a, a ~ MissingC lookupTarget
-    , Show b, b ~ DefaultsC lookupTarget
-    , Show c, c ~ SourcesC lookupTarget
+    ( Show b, b ~ DefaultsResultType lookupTarget
+    , Show c, c ~ SourcesResultType lookupTarget
     )
   => Show (KeyLookupResult lookupTarget)
 
