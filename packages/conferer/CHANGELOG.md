@@ -6,7 +6,19 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
-Nothing
+### Added
+
+* Added new functions `getKeyFromSources` and `getKeyFromDefaults`
+* Change structure of `KeyLookupResult` to keep invariants of `getKeyFromSources` `getKeyFromDefaults`
+
+### Removed
+
+* Removed `fetchFromDefaults` and `fetchRequiredFromDefaults` in favor of `getKeyFromDefaults`
+
+### Changed
+
+* `listSubkeys` now ignores the defaults (since without a type parameter we can't guarantee that a value
+    will always be found)
 
 ## [v1.1.0.0] - 2021-03-01
 
