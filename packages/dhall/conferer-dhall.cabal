@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5369decf9ec97f09aa583b969569ecc0431705a5d0f1fdf188b0ca5d1a82c73a
+-- hash: e7a6894c4340463874ee057abfcf3dde4b94bb05618151c6850f6807ef85fc7d
 
 name:           conferer-dhall
 version:        1.1.0.0
@@ -49,13 +49,13 @@ library
 
 test-suite specs
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: ConfererDhallSpecMain.hs
   other-modules:
       Paths_conferer_dhall
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
-  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererDhallSpecMain
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.11

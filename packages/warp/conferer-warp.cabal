@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b2637a0bc44386b75c871b4c995b686ead11f39ca09358dac995fb40f8254ae1
+-- hash: df73f5f80e54466703aced50513b638f4bc33dc0331ba7874c4370b0f032207e
 
 name:           conferer-warp
 version:        1.1.0.0
@@ -47,14 +47,14 @@ library
 
 test-suite specs
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: ConfererWarpSpecMain.hs
   other-modules:
       Conferer.FromConfig.WarpSpec
       Paths_conferer_warp
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
-  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererWarpSpecMain
   build-depends:
       base >=4.3 && <5
     , conferer >=1.1.0.0 && <2.0.0.0

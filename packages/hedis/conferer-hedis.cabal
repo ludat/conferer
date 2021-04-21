@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 571d338f5e8a710df4b1716c5df0d13146782ea9cdc5f655763e8faca9b77384
+-- hash: ce68464a13b964af2188b07e120c298253aa39bde0d8674cd30517b9a67fb552
 
 name:           conferer-hedis
 version:        1.1.0.0
@@ -45,14 +45,14 @@ library
 
 test-suite specs
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: ConfererHedisSpecMain.hs
   other-modules:
       Conferer.FromConfig.HedisSpec
       Paths_conferer_hedis
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
-  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererHedisSpecMain
   build-depends:
       base >=4.3 && <5
     , conferer >=1.1.0.0 && <2.0.0.0

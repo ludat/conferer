@@ -6,6 +6,7 @@ maintainer: lucas6246@gmail.com
 _common/lib: !include ../utils/package.common.yaml
 
 <<: *ghcoptions
+<<: *extensions
 
 dependencies:
 - base >= 4.7 && < 5

@@ -17,7 +17,7 @@ dependencies:
 
 tests:
   specs:
-    main: Spec.hs
+    main: ConfererHspecSpecMain
     source-dirs: test
     dependencies:
     - conferer-hspec

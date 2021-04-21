@@ -17,7 +17,7 @@ dependencies:
 
 tests:
   specs:
-    main: Spec.hs
+    main: ConfererHedisSpecMain
     source-dirs: test
     dependencies:
     - conferer-hedis

@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 084c6c8b533a377150d071cd8bdebe036310b369eb6d2edeeb57a01dab0b2b03
+-- hash: ff270bcc4d8154db08adc97727d49c5f1f9a4b1399dfac9ef714617d097a2500
 
 name:           conferer
 version:        1.1.0.0
@@ -84,7 +84,6 @@ test-suite specs
       Conferer.Source.NullSpec
       Conferer.Source.PropertiesFileSpec
       ConfererSpec
-      Spec
       Paths_conferer
   hs-source-dirs:
       test

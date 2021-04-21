@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d73d44df61f4d56a6aa0b89b1ce6a27123ce674091a311ce30c992d64be6ef56
+-- hash: a277c3aeb83a24c25a9b3314660add906a9c3a3420bee5b7b13a1f244a3f0210
 
 name:           conferer-aeson
 version:        1.1.0.1
@@ -50,7 +50,7 @@ library
 
 test-suite specs
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: ConfererAesonSpecMain.hs
   other-modules:
       Conferer.FromConfig.AesonSpec
       Conferer.Source.AesonSpec
@@ -58,7 +58,7 @@ test-suite specs
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
-  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererAesonSpecMain
   build-depends:
       aeson >=0.10 && <2.0
     , aeson-qq

@@ -1,7 +1,1 @@
-module ConfererSpecMain where
-
-import Test.Hspec.Runner
-import qualified Spec
-
-main :: IO ()
-main = hspecWith defaultConfig Spec.spec
+{-# OPTIONS_GHC -F -pgmF hspec-discover -optF --module-name=ConfererSpecMain #-}
