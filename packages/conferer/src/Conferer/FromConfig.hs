@@ -31,13 +31,15 @@ module Conferer.FromConfig
   , (/.)
   , File(..)
   , KeyLookupResult(..)
+  , LookupTarget(..)
   , OverrideFromConfig(..)
   , overrideFetch
-
-  , fetchFromDefaults
-  , fetchRequiredFromDefaults
+  , getKeyFromSources
+  , getKeyFromDefaults
+  , getKey
   ) where
 
 import Conferer.FromConfig.Internal
 import Conferer.Config.Internal.Types
+import Conferer.Config.Internal
 import Conferer.Key

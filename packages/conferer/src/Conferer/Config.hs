@@ -12,7 +12,10 @@ module Conferer.Config
     Config
     -- * Querying a config
   , getKey
+  , getKeyFromDefaults
+  , getKeyFromSources
   , KeyLookupResult(..)
+  , LookupTarget(..)
   , listSubkeys
     -- * Config creation and initialization
   , emptyConfig

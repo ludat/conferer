@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
 -- |
 -- Copyright: (c) 2019 Lucas David Traverso
 -- License: MPL-2.0
@@ -12,6 +11,9 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE CPP #-}
 module Conferer.Config.Internal where
 
 import Control.Monad (foldM, forM, msum)
@@ -24,20 +26,42 @@ import qualified Data.Map as Map
 import Conferer.Key
 import Conferer.Source.Internal
 import Conferer.Config.Internal.Types
+#if __GLASGOW_HASKELL__ < 808
+import Data.Void (absurd)
+#endif
 
 -- | This function runs lookups on the 'Config', first in 'Source's in order and
---   then on the 'Dynamic' based defaults.
-getKey :: Key -> Config -> IO KeyLookupResult
+-- then inside the defaults.
+--
+-- NOTE: that this function is parameterized on the type of the result, which means that type must
+-- match exactly for a successful lookup on the defaults.
+getKey :: forall a. Typeable a => Key -> Config -> IO (KeyLookupResult ('BothSourcesAndDefaults a))
 getKey key config = do
+  getKeyFromSources key config
+    >>= \case
+        FoundInSources textResult k ->
+          return $ FoundInSources textResult k
+        MissingKey () triedKeysForSources ->
+          case getKeyFromDefaults @a key config of
+            MissingKey () _triedKeysForDefaults ->
+              return $ MissingKey () triedKeysForSources
+            FoundInDefaults v k ->
+              return $ FoundInDefaults v k
+#if __GLASGOW_HASKELL__ < 808
+            FoundInSources v _ -> absurd v
+        FoundInDefaults v _ -> absurd v
+#endif
+-- | This function looks for a 'Key' inside the 'Source's of a 'Config'
+--
+-- This is utility function that has proved to be useful but when doubt
+-- use 'getKey'
+getKeyFromSources :: Key -> Config -> IO (KeyLookupResult ('OnlySources))
+getKeyFromSources key config = do
   let possibleKeys = getKeysFromMappings (configKeyMappings config) key
   untilJust (fmap (\MappedKey{..} -> getRawKeyInSources mappedKey config) possibleKeys)
     >>= \case
-        Just (k, textResult) ->
-          return $ FoundInSources k textResult
-        Nothing ->
-          case msum $ fmap (\MappedKey{..} -> fmap (mappedKey,) $ (getKeyFromDefaults mappedKey config)) possibleKeys of
-            Just (k, dynResult) -> return $ FoundInDefaults k dynResult
-            Nothing -> return $ MissingKey [key]
+      Just (k, t) -> pure $ FoundInSources t k
+      Nothing -> pure $ MissingKey () $ fmap mappedKey possibleKeys
 
 -- | Alias for a mapping from one key to another used for transforming keys
 type KeyMapping = (Key, Key)
@@ -51,27 +75,24 @@ data MappedKey = MappedKey
 
 
 -- | This function lists all available keys under some key, that could be fetched
---   successfully.
+-- successfully from the 'Source's.
 listSubkeys :: Key -> Config -> IO [Key]
 listSubkeys originalKey Config{..} = do
   let mappedKeys = getKeysFromMappings configKeyMappings originalKey
   subkeysFromSources <- forM mappedKeys $ \MappedKey{..} -> do
     subkeysFromSources <- listRawSubkeysInSources mappedKey configSources
-    let subkeysFromDefaults =
-          filter (mappedKey `isKeyPrefixOf`) $ Map.keys configDefaults
-    return $ fmap (MappedKey mappingsChain) $ subkeysFromSources ++ subkeysFromDefaults
+    return $ fmap (MappedKey mappingsChain) subkeysFromSources
   let subkeys = mconcat subkeysFromSources
   return $ sort $ nub $ fmap undoMappings subkeys
-
--- | This function lists subkeys in some 'Source's and combines the results
-listRawSubkeysInSources :: Key -> [Source] -> IO [Key]
-listRawSubkeysInSources mappedKey configSources = go mappedKey [] configSources
   where
-    go :: Key -> [Key] -> [Source] -> IO [Key]
-    go _ result [] = return result
-    go k result (source:otherSources) = do
-      subkeys <- getSubkeysInSource source k
-      go k (result `union` subkeys) otherSources
+    listRawSubkeysInSources :: Key -> [Source] -> IO [Key]
+    listRawSubkeysInSources mappedKey = go mappedKey []
+      where
+        go :: Key -> [Key] -> [Source] -> IO [Key]
+        go _ result [] = return result
+        go k result (source:otherSources) = do
+          subkeys <- getSubkeysInSource source k
+          go k (result `union` subkeys) otherSources
 
 -- | This function reverses the mappings in a 'MappedKey' to retrieve the
 --   original key.
@@ -156,12 +177,24 @@ getRawKeyInSources k Config{..} =
         Just t -> return $ Just (k, t)
         Nothing -> go otherSources
 
--- | This function gets values from the defaults
-getKeyFromDefaults :: Key -> Config -> Maybe [Dynamic]
+-- | Fetch from value from the defaults map of a 'Config' or else return a 'Nothing'
+getKeyFromDefaults :: forall a. (Typeable a) => Key -> Config -> KeyLookupResult ('OnlyDefaultsAs a)
 getKeyFromDefaults key Config{..} =
   let
     possibleKeys = fmap mappedKey $ getKeysFromMappings configKeyMappings key
-  in msum $ fmap (\k -> Map.lookup k configDefaults) possibleKeys
+  in case msum . fmap fetchKey $ possibleKeys of
+      Just (k, v) -> FoundInDefaults v k
+      Nothing -> MissingKey () possibleKeys
+  where
+    fromDynamics :: forall d. (Typeable d) => [Dynamic] -> Maybe d
+    fromDynamics =
+      msum . fmap (fromDynamic @d)
+
+    fetchKey :: Key -> Maybe (Key, a)
+    fetchKey k = do
+      dynamics <- Map.lookup k configDefaults
+      value <- fromDynamics @a dynamics
+      pure (k, value)
 
 -- | The empty configuration, this 'Config' is used as the base for
 --   most config creating functions.
@@ -214,7 +247,7 @@ removeDefault key config =
     removeFirstDynamic dynamics =
       let result = removeFirst (isJust . fromDynamic @t) dynamics
       in if null result
-          then Nothing 
+          then Nothing
           else Just result
 
 -- | This function adds one default of a custom type to a 'Config'

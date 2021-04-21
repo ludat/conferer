@@ -13,6 +13,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE CPP #-}
 
 module Conferer.FromConfig.Internal where
 
@@ -37,7 +38,9 @@ import Data.Maybe (fromMaybe, mapMaybe)
 import qualified System.FilePath as FilePath
 import Data.List (nub, foldl', sort)
 import Data.String (IsString(..))
-import Data.Foldable (msum)
+#if __GLASGOW_HASKELL__ < 808
+import Data.Void (absurd)
+#endif
 
 -- | The typeclass for defining the way to get values from a 'Config', hiding the
 -- 'Text' based nature of the 'Conferer.Source.Source's and parse whatever value
@@ -64,17 +67,17 @@ class FromConfig a where
   fromConfig :: Key -> Config -> IO a
   default fromConfig :: (Typeable a, Generic a, IntoDefaultsG (Rep a), FromConfigG (Rep a)) => Key -> Config -> IO a
   fromConfig key config = do
-    let configWithDefaults = case fetchFromDefaults @a key config of
-          Just d -> config & addDefaults (intoDefaultsG key $ from d)
-          Nothing -> config
+    let configWithDefaults = case getKeyFromDefaults @a key config of
+          FoundInDefaults d _ -> config & addDefaults (intoDefaultsG key $ from d)
+          _ -> config
     to <$> fromConfigG key configWithDefaults
 
 fetchFromConfig :: forall a. (FromConfig a, Typeable a) => Key -> Config -> IO a
 fetchFromConfig key config =
-  case fetchFromDefaults @(OverrideFromConfig a) key config of
-    Just (OverrideFromConfig fetch) ->
+  case getKeyFromDefaults @(OverrideFromConfig a) key config of
+    FoundInDefaults (OverrideFromConfig fetch) _ ->
       fetch key $ removeDefault @(OverrideFromConfig a) key config
-    Nothing ->
+    _ ->
       fromConfig key config
 
 -- | Utility only typeclass to smooth the naming differences between default values for
@@ -85,7 +88,16 @@ class DefaultConfig a where
   configDef :: a
 
 instance {-# OVERLAPPABLE #-} Typeable a => FromConfig a where
-  fromConfig = fetchRequiredFromDefaults
+  fromConfig key config =
+    case getKeyFromDefaults key config of
+      FoundInDefaults a _key ->
+        pure a
+      MissingKey () keys ->
+        throwMissingRequiredKeys @a keys
+#if __GLASGOW_HASKELL__ < 808
+      FoundInSources v _ -> absurd v
+#endif
+
 
 instance FromConfig () where
   fromConfig _key _config = return ()
@@ -99,15 +111,23 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
     keysForItems <- getSubkeysForItems
     case keysForItems of
       Nothing -> do
-        fetchRequiredFromDefaults @[a] key config
+        case getKeyFromDefaults @[a] key config of
+          (FoundInDefaults a _keys) ->
+            pure a
+          MissingKey () keys ->
+            throwMissingRequiredKeys @[a] keys
+#if __GLASGOW_HASKELL__ < 808
+          (FoundInSources v _) ->
+            absurd v
+#endif
       Just subkeys -> do
         let configWithDefaults :: Config =
-              case fetchFromDefaults @[a] key config of
-                Just defaults ->
+              case getKeyFromDefaults @[a] key config of
+                FoundInDefaults defaults _ ->
                   foldl' (\c (index, value) ->
                     c & addDefault (key /. "defaults" /. mkKey (show index)) value) config
                   $ zip [0 :: Integer ..] defaults
-                Nothing -> config
+                _ -> config
         forM subkeys $ \k -> do
           fetchFromConfig @a (key /. k)
             (if isKeyPrefixOf (key /. "defaults") (key /. k)
@@ -158,8 +178,8 @@ instance forall a. (Typeable a, FromConfig a) => FromConfig (Maybe a) where
   fromConfig key config = do
     let
       configWithUnwrappedDefault =
-        case fetchFromDefaults @(Maybe a) key config of
-          Just (Just defaultThing) -> do
+        case getKeyFromDefaults @(Maybe a) key config of
+          FoundInDefaults (Just defaultThing) _ -> do
             config & addDefault key defaultThing
           _ -> do
             config
@@ -186,7 +206,10 @@ instance IsString File where
 
 instance FromConfig File where
   fromConfig key config = do
-    let defaultPath = fetchFromDefaults @File key config
+    let defaultPath =
+          case getKeyFromDefaults @File key config of
+            FoundInDefaults v _ -> Just v
+            _ -> Nothing
 
     filepath <- fetchFromConfig @(Maybe String) key config
 
@@ -242,28 +265,20 @@ fetchFromConfigByIsString = fetchFromConfigWith (Just . fromString . Text.unpack
 -- | Helper function to implement fetchFromConfig using some parsing function
 fetchFromConfigWith :: forall a. Typeable a => (Text -> Maybe a) -> Key -> Config -> IO a
 fetchFromConfigWith parseValue key config = do
-  getKey key config >>=
+  getKey @a key config >>=
     \case
-      MissingKey k -> do
-        throwMissingRequiredKeys @a k
-
-      FoundInSources k value ->
+      FoundInSources value k ->
         case parseValue value of
           Just a -> do
             return a
           Nothing -> do
             throwConfigParsingError @a k value
 
-      FoundInDefaults k dynamics ->
-        case fromDynamics dynamics of
-          Just a -> do
-            return a
-          Nothing -> do
-            throwMissingRequiredKeys @a [k]
+      FoundInDefaults v _key ->
+        return v
 
-fromDynamics :: forall a. Typeable a => [Dynamic] -> Maybe a
-fromDynamics =
-  msum . fmap (fromDynamic @a)
+      MissingKey () k -> do
+        throwMissingRequiredKeys @a k
 
 -- | Helper function does the plumbing of desconstructing a default into smaller
 -- defaults, which is usefull for nested 'fetchFromConfig'.
@@ -278,13 +293,13 @@ addDefaultsAfterDeconstructingToDefaults
   Config ->
   IO Config
 addDefaultsAfterDeconstructingToDefaults destructureValue key config = do
-  case fetchFromDefaults @a key config of
-    Just value -> do
+  case getKeyFromDefaults @a key config of
+    FoundInDefaults value _ -> do
       let newDefaults =
             ((\(k, d) -> (key /. k, d)) <$> destructureValue value)
       return $
         addDefaults newDefaults config
-    Nothing -> do
+    _ -> do
       return config
 
 -- | Helper function to override the fetching function for a certain key.
@@ -361,21 +376,6 @@ throwMissingRequiredKeys keys =
 missingRequiredKeys :: forall a. (Typeable a) => [Key] -> MissingRequiredKey
 missingRequiredKeys keys =
   MissingRequiredKey keys (typeRep (Proxy :: Proxy a))
-
--- | Fetch from value from the defaults map of a 'Config' or else throw
-fetchRequiredFromDefaults :: forall a. (Typeable a) => Key -> Config -> IO a
-fetchRequiredFromDefaults key config =
-  case fetchFromDefaults key config of
-    Nothing -> do
-      throwMissingRequiredKey @a key
-    Just a ->
-      return a
-
--- | Fetch from value from the defaults map of a 'Config' or else return a 'Nothing'
-fetchFromDefaults :: forall a. (Typeable a) => Key -> Config -> Maybe a
-fetchFromDefaults key config =
-  getKeyFromDefaults key config
-    >>= fromDynamics @a
 
 -- | Same as 'fetchFromConfig' using the root key
 fetchFromRootConfig :: forall a. (FromConfig a, Typeable a) => Config -> IO a

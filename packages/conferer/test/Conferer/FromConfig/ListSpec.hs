@@ -165,7 +165,7 @@ spec = do
       ensureFetchParses
         @[[Int]]
         [ ("1.0", "0")
+        , ("prototype.1", "8")
         ]
-        [ ("prototype.1", toDyn @Int 8)
-        ]
+        [ ]
         [[0, 8]]
