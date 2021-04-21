@@ -18,8 +18,8 @@ dependencies:
 
 tests:
   specs:
-    main:                Spec.hs
-    source-dirs:         test
+    main: ConfererSnapSpecMain
+    source-dirs: test
     dependencies:
     - conferer-snap
     - hspec

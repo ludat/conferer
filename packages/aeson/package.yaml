@@ -24,7 +24,7 @@ dependencies:
 
 tests:
   specs:
-    main: Spec.hs
+    main: ConfererAesonSpecMain
     source-dirs: test
     dependencies:
     - conferer

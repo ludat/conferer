@@ -19,8 +19,8 @@ dependencies:
 
 tests:
   specs:
-    main:                Spec.hs
-    source-dirs:         test
+    main: ConfererWarpSpecMain
+    source-dirs: test
     dependencies:
     - conferer-warp
     - hspec

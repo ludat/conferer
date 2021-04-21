@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f24c08f79b9b3fd928adaebe450f764b3c546dd5fe48f6d23f52e1174706c0df
+-- hash: 5d4c8a222d0ba1f283daf6c54c3271298776195e55ecc6c1a0db2e62ba7e4484
 
 name:           conferer-snap
 version:        1.0.0.0
@@ -46,14 +46,14 @@ library
 
 test-suite specs
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: ConfererSnapSpecMain.hs
   other-modules:
       Conferer.FromConfig.SnapSpec
       Paths_conferer_snap
   hs-source-dirs:
       test
   default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
-  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
+  ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererSnapSpecMain
   build-depends:
       base >=4.3 && <5
     , conferer >=1.1.0.0 && <2.0.0.0

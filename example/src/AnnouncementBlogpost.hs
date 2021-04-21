@@ -33,8 +33,8 @@ mkMyConfig = Conferer.mkConfig' []
   ]
 
 
-main :: IO ()
-main = do
+announcementMain :: IO ()
+announcementMain = do
   config <- mkMyConfig
   appConfig <- Conferer.fetch config
   let warpSettings = appConfigServer appConfig
