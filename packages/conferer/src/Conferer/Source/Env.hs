@@ -26,7 +26,7 @@ data EnvSource =
   EnvSource
   { environment :: RawEnvironment
   , keyPrefix :: Prefix
-  , innerSource :: Source
+  , rawMap :: InMemory.RawInMemorySource
   } deriving (Show)
 
 -- | Type alias for the environment
@@ -37,9 +37,16 @@ type Prefix = Text
 
 instance IsSource EnvSource where
   getKeyInSource EnvSource{..} key = do
-    getKeyInSource innerSource key
+    return $ InMemory.lookupKey key rawMap
   getSubkeysInSource EnvSource{..} key = do
-    getSubkeysInSource innerSource key
+    return $ InMemory.subKeys key rawMap
+  explainNotFound EnvSource{..} key =
+    concat
+    [ "Setting the environment variable: "
+    , Text.unpack $ keyToEnvVar keyPrefix key
+    ]
+  explainSettedKey EnvSource {..} key =
+    "env var '" ++ (Text.unpack $ keyToEnvVar keyPrefix key) ++ "'"
 
 -- | Create a 'SourceCreator' using 'fromEnv'
 fromConfig :: Prefix -> SourceCreator
@@ -62,7 +69,7 @@ fromEnvList environment keyPrefix =
         return (k, Text.pack v)
       )
       environment
-    innerSource = InMemory.fromAssociations mappings
+    rawMap = InMemory.rawFromAssociations mappings
   in Source EnvSource {..}
 
 -- | Get the env name from a prefix and a key by uppercasing and

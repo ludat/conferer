@@ -19,7 +19,9 @@ instance FromConfig Thing
 spec :: Spec
 spec = do
   describe "list parsing" $ do
-    ensureEmptyConfigThrows @[Int]
+    ensureFetchThrows @[Int] [] [] $
+      missingRequiredKey @String "some.key.keys" emptyConfig
+
     ensureUsingDefaultReturnsSameValue @[Int] [7]
 
     context "with an empty keys it always gets an empty list" $ do
@@ -146,7 +148,7 @@ spec = do
             , Thing {thingA = 1, thingB = "b"}
             ])
         ]
-        $ aMissingRequiredKey @Int "some.key.defaults.5.a"
+        $ missingRequiredKey @Int "some.key.defaults.5.a" emptyConfig
     context "listing a default keys that's not present ignores the \
             \prototype" $ do
       ensureFetchThrows
@@ -159,7 +161,7 @@ spec = do
             , Thing {thingA = 1, thingB = "b"}
             ])
         ]
-        $ aMissingRequiredKey @Int "some.key.defaults.5.a"
+        $ missingRequiredKey @Int "some.key.defaults.5.a" emptyConfig
     context "fetching maps every key (and they can be used if the lower \
             \fromconfig uses listSubkeys" $ do
       ensureFetchParses

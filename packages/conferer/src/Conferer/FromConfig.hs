@@ -22,6 +22,7 @@ module Conferer.FromConfig
   , MissingRequiredKey
   , throwMissingRequiredKey
   , missingRequiredKey
+  , missingRequiredKeys
 
   , ConfigParsingError
   , throwConfigParsingError
@@ -40,6 +41,7 @@ module Conferer.FromConfig
   ) where
 
 import Conferer.FromConfig.Internal
+import Conferer.FromConfig.Internal.Types
 import Conferer.Config.Internal.Types
 import Conferer.Config.Internal
 import Conferer.Key

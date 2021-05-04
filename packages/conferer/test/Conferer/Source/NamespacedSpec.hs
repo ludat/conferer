@@ -4,7 +4,7 @@ import Test.Hspec
 
 import Conferer.Source
 
-import qualified Conferer.Source.InMemory as InMemory
+import qualified Conferer.Source.Test as Test
 import Conferer.Source.Namespaced
 
 spec :: Spec
@@ -12,7 +12,7 @@ spec = do
   describe "namespaced config" $ do
     let source =
           fromInner "postgres" $
-            InMemory.fromAssociations [("url", "some url")]
+            Test.fromAssociations [("url", "some url")]
     it "return nothing if the key doesn't match" $ do
       res <- getKeyInSource source "url"
       res `shouldBe` Nothing

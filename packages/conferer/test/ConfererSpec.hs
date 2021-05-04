@@ -8,7 +8,7 @@ import Test.Hspec
 
 import Data.Text (Text)
 import Conferer.FromConfig (fetchFromConfig)
-import Conferer.Source.InMemory (fromConfig)
+import Conferer.Source.Test (fromConfig)
 import Data.Dynamic (toDyn)
 import Conferer.Config (Config)
 import Conferer (mkConfig', Key)

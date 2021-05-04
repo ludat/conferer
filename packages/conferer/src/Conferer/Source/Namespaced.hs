@@ -30,6 +30,14 @@ instance IsSource NamespacedSource where
       Just innerKey -> do
         fmap (scopeKey /.) <$> getSubkeysInSource innerSource innerKey
       Nothing -> return []
+  explainNotFound NamespacedSource {..} key =
+    case stripKeyPrefix scopeKey key of
+      Just innerKey -> explainNotFound innerSource innerKey
+      Nothing -> "Doing nothing, you can't use this source for that key"
+  explainSettedKey NamespacedSource {..} key =
+    case stripKeyPrefix scopeKey key of
+      Just innerKey -> explainSettedKey innerSource innerKey
+      Nothing -> "Doing nothing, you can't use this source for that key"
 
 -- | Create a 'SourceCreator' from a prefix and another 'SourceCreator'
 fromConfig :: Key -> SourceCreator -> SourceCreator

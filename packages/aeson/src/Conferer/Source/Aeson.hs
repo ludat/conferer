@@ -6,11 +6,12 @@
 -- Portability: portable
 --
 -- Source for json config files using Aeson
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeApplications #-}
 module Conferer.Source.Aeson where
 
 import Data.Aeson
 import Control.Applicative
+import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -20,10 +21,11 @@ import qualified Data.Vector as Vector
 import Text.Read (readMaybe)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
-import Data.List (intersperse, sort)
-import System.Directory (doesFileExist)
+import Data.List
+import System.Directory
 import Control.Exception
 import Control.Monad (guard)
+import qualified Data.ByteString.Lazy.Char8 as LBS
 
 import Conferer.Source.Files
 import qualified Conferer.Source.Null as Null
@@ -33,6 +35,7 @@ import Conferer.Source
 -- makes sense for Conferer but doesn't respect json perfectly.
 data JsonSource = JsonSource
   { value :: Value
+  , filepath :: FilePath
   } deriving (Show, Eq)
 
 instance IsSource JsonSource where
@@ -40,6 +43,144 @@ instance IsSource JsonSource where
     return $ valueToText =<< traverseJSON key value
   getSubkeysInSource JsonSource {..} key = do
     return $ fmap (key /.) $ maybe [] listKeysInJSON $ traverseJSON key value
+  explainNotFound JsonSource {..} key  =
+    renderExplainForAeson filepath $ getNoKeyExplainResult key value
+  explainSettedKey JsonSource {..} key =
+    concat
+    [ "json key '"
+    , showRawKey $ getRealRawKey key value
+    , "' on file '"
+    , filepath
+    , "'"
+    ]
+    where
+      getRealRawKey :: Key -> Value -> RawKey
+      getRealRawKey k originalValue =
+        case getNoKeyExplainResult k originalValue of
+          FoundIn rawKey -> rawKey
+          result@(MissingKeyInPlainObject _ _ _) ->
+            error $ "Getting an existing key returned that it doesn't exist, \
+                    \that is a bug in conferer, please report it at \
+                    \https://github.com/ludat/conferer/issues with :\n " ++ show result
+
+renderExplainForAeson :: FilePath -> ExplainResult -> String
+renderExplainForAeson filepath e =
+  case e of
+    MissingKeyInPlainObject existingPath nonExistingPath v ->
+      "Replacing " ++
+      showRawKeyAsTarget existingPath ++
+      " from '" ++
+      value2String v ++
+      "' to '" ++
+      value2String (merge v $ objectFromPath nonExistingPath (String "some value")) ++
+      "' on file '" ++ filepath ++ "'"
+    result@(FoundIn _) ->
+      error $ "Getting an non existant key returned that it exists, \
+              \that is a bug in conferer, please report it at \
+              \https://github.com/ludat/conferer/issues with :\n " ++ show result
+  where
+    showRawKeyAsTarget :: RawKey -> String
+    showRawKeyAsTarget [] = "the whole json"
+    showRawKeyAsTarget k = "the value at '" ++ showRawKey k ++ "'"
+
+merge :: Value -> Value -> Value
+merge v1 v2 =
+  let o1 = value2map v1
+      o2 = value2map v2
+      newO = HashMap.union o1 o2
+  in
+    -- If the new object only has "_self" key we can replace it with the contents
+    -- of self
+    case (HashMap.size newO, HashMap.lookup "_self" newO) of
+      (1, Just v) -> v
+      _ -> Object newO
+  where
+    value2map :: Value -> HashMap Text Value
+    value2map (Object o) = o
+    value2map (Array v) =
+      HashMap.fromList $ zip (fmap (Text.pack . show @Integer) [0..]) $ Vector.toList v
+    value2map v = HashMap.singleton "_self" v
+
+
+objectFromPath :: RawKey -> Value -> Value
+objectFromPath [] content = content
+objectFromPath (k:ks) content =
+  Object $ HashMap.fromList [(k, objectFromPath ks content)]
+
+-- | Utility function to show a 'Value'
+value2String :: Value -> String
+value2String = LBS.unpack . encode
+
+-- | Utility function to show a raw key to the user
+showRawKey :: RawKey -> String
+showRawKey rawKey =
+  (intercalate "." $ fmap Text.unpack $ rawKey)
+
+-- | This is the representation of the 'explainNotFound', this is useful
+-- for sources which are not actually json but are isomorphic with json
+-- like dhall or yaml.
+data ExplainResult
+  = MissingKeyInPlainObject
+      RawKey
+      -- ^ The path that right now is present in the actual config
+      RawKey
+      -- ^ The path that is missing in the object
+      Value
+      -- ^ The current value that is present in the config
+  | FoundIn RawKey
+  deriving (Eq)
+
+instance Show ExplainResult where
+  show (MissingKeyInPlainObject alreadyPresentPath missingPath currentValue) =
+    intercalate " "
+      [ "MissingKeyInPlainObject"
+      , show alreadyPresentPath
+      , show missingPath
+      , "[aesonQQ|" ++ value2String currentValue ++ "|]"
+      ]
+  show (FoundIn rawKey) =
+    intercalate " "
+      [ "MissingKeyInPlainObject"
+      , show rawKey
+      ]
+
+getNoKeyExplainResult :: Key -> Value -> ExplainResult
+getNoKeyExplainResult key value = go ([], rawKeyComponents key) value
+  where
+    go :: (RawKey, RawKey) -> Value -> ExplainResult
+    go (visitedKeys, []) v@(Object o) =
+      case HashMap.lookup "_self" o of
+        Just innerValue@(Object _) ->
+          MissingKeyInPlainObject (visitedKeys ++ ["_self"]) [] innerValue
+
+        Just innerValue@(Array _) ->
+          MissingKeyInPlainObject (visitedKeys ++ ["_self"]) [] innerValue
+
+        Just _v -> FoundIn (visitedKeys ++ ["_self"])
+
+        Nothing ->
+          MissingKeyInPlainObject visitedKeys [] v
+
+    go (visitedKeys, []) v@(Array _) = MissingKeyInPlainObject visitedKeys [] v
+    go (visitedKeys, []) _v = FoundIn visitedKeys
+    go (visitedKeys, k:ks) v =
+      case v of
+        (Object o) ->
+          case HashMap.lookup k o of
+            Nothing -> MissingKeyInPlainObject visitedKeys (k:ks) v
+            (Just x) -> go (visitedKeys ++ [k], ks) x
+        (Array vs) ->
+          case readMaybe $ Text.unpack k of
+            Nothing -> MissingKeyInPlainObject visitedKeys (k:ks) v
+            Just (n :: Int) ->
+              case vs !? n of
+                Nothing ->
+                  MissingKeyInPlainObject visitedKeys (k:ks) v
+                Just innerV ->
+                  go (visitedKeys ++ [k], ks) innerV
+
+        _ ->
+          MissingKeyInPlainObject visitedKeys (k:ks) v
 
 -- | Create a 'SourceCreator' which uses files with @config/{env}.json@
 -- template and then uses 'fromFilePath'
@@ -63,7 +204,8 @@ fromFilePath fileToParse _config =
 --
 -- If the file doesn't have valid json it will throw an error.
 fromFilePath' :: FilePath -> IO Source
-fromFilePath' fileToParse = do
+fromFilePath' relativeFilePath = do
+  fileToParse <- makeAbsolute relativeFilePath
   fileExists <- doesFileExist fileToParse
   if fileExists
     then do
@@ -74,11 +216,22 @@ fromFilePath' fileToParse = do
         Just v -> do
           case invalidJsonKeys v of
             [] ->
-              return $ fromValue v
+              return $ fromValue fileToParse v
             errors ->
               throwIO $ JsonHasInvalidKeysError fileToParse errors
     else do
-      return $ Null.empty
+      return $ Source $ Null.NullSource
+        { nullExplainNotFound = \key ->
+          concat
+          [ "Creating a file '"
+          , fileToParse
+          , "' (it doesn't exist now) with the object '"
+          , value2String $ objectFromPath
+              (rawKeyComponents key)
+              (String "some value")
+          , "'"
+          ]
+        }
 
 -- | Exception thrown from 'fromFilePath' when the json in the
 -- parsed file has incorrect keys
@@ -88,8 +241,8 @@ data JsonHasInvalidKeysError =
 instance Exception JsonHasInvalidKeysError
 
 -- | Create a 'Source' from a json value, never fails.
-fromValue :: Value -> Source
-fromValue value =
+fromValue :: FilePath -> Value -> Source
+fromValue filepath value =
   Source JsonSource {..}
 
 -- | Traverse a 'Value' using a 'Key' to get a 'Value'.

@@ -29,7 +29,13 @@ data Config =
   { configSources :: [Source]
   , configDefaults :: Map Key [Dynamic]
   , configKeyMappings :: [(Key, Key)]
-  } deriving (Show)
+  }
+
+instance Show Config where
+  show _ = "Config"
+
+instance Eq Config where
+  _ == _ = True
 
 -- | Result of a key lookup in a 'Config'
 --
@@ -46,7 +52,7 @@ data Config =
 --       of the result is always 'Text'
 data KeyLookupResult lookupTarget
   = MissingKey () [Key]
-  | FoundInSources (SourcesResultType lookupTarget) Key
+  | FoundInSources (SourcesResultType lookupTarget) Int Key
   | FoundInDefaults (DefaultsResultType lookupTarget) Key
 
 -- | Target of a lookup that the 'KeyLookupResult' is parameterized on

@@ -17,7 +17,7 @@ spec = do
     context "when the key is missing" $ do
       ensureFetchParses @(Maybe Int) [] [] Nothing
     context "when the key is there but has a wrong value" $ do
-      ensureFetchThrows @(Maybe Int) [("", "Bleh")] [] anyConfigParserError
+      ensureFetchThrows @(Maybe Int) [("", "Bleh")] [] $ configParsingError @Int "some.key" "Bleh" 0 emptyConfig
     context "with default of the inner type" $ do
       ensureFetchParses @(Maybe Int) [] [("", toDyn @Int 7)] $ Just 7
     context "with default of a Just inner type" $ do
