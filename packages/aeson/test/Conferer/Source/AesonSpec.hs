@@ -9,7 +9,7 @@ import Conferer.Source.Aeson
 spec :: Spec
 spec = do
   describe "json source" $ do
-    let mk = return . fromValue
+    let mk = return . fromValue "dir/file.json"
     describe "#getKeyInSource" $ do
       it "getting an existing path returns the right value" $ do
         c <- mk [aesonQQ| {"postgres": {"url": "some url", "ssl": true}} |]
@@ -96,9 +96,7 @@ spec = do
           c <- mk [aesonQQ| {"key": false} |]
           res <- getKeyInSource c "key"
           res `shouldBe` Just "false"
-
-
-    context "#getSubkeysInSource" $ do
+    describe "#getSubkeysInSource" $ do
       describe "listing keys in non existant path" $ do
         it "gets no keys" $ do
           c <- mk [aesonQQ|{}|]
@@ -179,4 +177,75 @@ spec = do
         it "fails" $ do
           invalidJsonKeys [aesonQQ|{"": 7}|]
             `shouldBe` [[""]]
+    describe "#explainNotFound" $ do
+      context "When there is an on root that's missing a key" $ do
+        it "recomends adding that key mentioning 'the root object'" $ do
+          let s = fromValue "file.json" [aesonQQ|{}|]
+          explainNotFound s "port"
+            `shouldBe` "Replacing the whole json from '{}' to '{\"port\":\"some value\"}' on file 'file.json'"
 
+      context "When there is an object that's missing a key" $ do
+        it "recomends adding that key that's necessary" $ do
+          let s = fromValue "file.json" [aesonQQ|{server: {}}|]
+          explainNotFound s "server.port"
+            `shouldBe` "Replacing the value at 'server' from '{}' to '{\"port\":\"some value\"}' on file 'file.json'"
+
+      context "When there is an object in the key" $ do
+        it "recomends replacing it with a value" $ do
+          let s = fromValue "file.json" [aesonQQ|{port: {}}|]
+          explainNotFound s "port"
+            `shouldBe` "Replacing the value at 'port' from '{}' to '\"some value\"' on file 'file.json'"
+
+      context "When there is a primitive somewhere in the middle" $ do
+        it "recommends using '_self' and adding the key" $ do
+          let s = fromValue "file.json" [aesonQQ|{server: 7}|]
+          explainNotFound s "server.port"
+            `shouldBe` "Replacing the value at 'server' from '7' to '{\"_self\":7,\"port\":\"some value\"}' on file 'file.json'"
+
+      context "When the key ends with `keys`" $ do
+        it "recommends adding an object beside adding the raw key" $ do
+          let s = fromValue "file.json" [aesonQQ|{}|]
+          explainNotFound s "servers.keys"
+            `shouldBe` "Replacing the whole json from '{}' to '{\"servers\":{\"keys\":\"some value\"}}' on file 'file.json'"
+
+      context "When the key has an array" $ do
+        it "recommends turning the array into an object and using self" $ do
+          let s = fromValue "file.json" [aesonQQ|{"port": []}|]
+          explainNotFound s "port"
+            `shouldBe` "Replacing the value at 'port' from '[]' to '\"some value\"' on file 'file.json'"
+
+      context "When the key has an array with values" $ do
+        it "recommends turning the array into an object and using self (adding existing keys)" $ do
+          let s = fromValue "file.json" [aesonQQ|{"port": [false]}|]
+          explainNotFound s "port"
+            `shouldBe` "Replacing the value at 'port' from '[false]' to '{\"0\":false,\"_self\":\"some value\"}' on file 'file.json'"
+
+      context "When the _self key has an object" $ do
+        it "recommends replacing it with some value" $ do
+          let s = fromValue "file.json" [aesonQQ|{"port": {"_self": {}}}|]
+          explainNotFound s "port"
+            `shouldBe` "Replacing the value at 'port._self' from '{}' to '\"some value\"' on file 'file.json'"
+
+      context "When the _self key has an array" $ do
+        it "recommends replacing it with some value" $ do
+          let s = fromValue "file.json" [aesonQQ|{"port": {"_self": []}}|]
+          explainNotFound s "port"
+            `shouldBe` "Replacing the value at 'port._self' from '[]' to '\"some value\"' on file 'file.json'"
+    describe "#explainSettedKey" $ do
+      context "with a simple value" $ do
+        it "returns its path" $ do
+          let s = fromValue "file.json" [aesonQQ|{"port": 9999}|]
+          explainSettedKey s "port"
+            `shouldBe` "json key 'port' on file 'file.json'"
+      context "with a simple value inside an array" $ do
+        xit "returns its path" $ do
+          let s = fromValue "file.json" [aesonQQ|{"port": [9999]}|]
+          explainSettedKey s "port.0"
+            `shouldBe` "json key 'port[0]' on file 'file.json'"
+          -- Here and in every test I'd like to user the more normal
+          -- notation for paths (the one from js)
+      context "with an object with _self" $ do
+        it "returns its real path (including _self)" $ do
+          let s = fromValue "file.json" [aesonQQ|{"port": {"_self": 9999}}|]
+          explainSettedKey s "port"
+            `shouldBe` "json key 'port._self' on file 'file.json'"

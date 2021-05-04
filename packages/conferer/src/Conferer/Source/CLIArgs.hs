@@ -15,6 +15,7 @@ import System.Environment (getArgs)
 
 import Conferer.Source
 import qualified Conferer.Source.InMemory as InMemory
+import Data.List (intercalate)
 
 
 -- | This source provides keys from the command line arguments passed into
@@ -23,7 +24,7 @@ import qualified Conferer.Source.InMemory as InMemory
 data CLIArgsSource =
   CLIArgsSource
   { originalCliArgs :: RawCLIArgs
-  , innerSource :: Source
+  , rawMap :: InMemory.RawInMemorySource
   } deriving (Show)
 
 -- | Type alias for cli args
@@ -31,10 +32,22 @@ type RawCLIArgs = [String]
 
 instance IsSource CLIArgsSource where
   getKeyInSource CLIArgsSource{..} key = do
-    getKeyInSource innerSource key
+    return $ InMemory.lookupKey key rawMap
   getSubkeysInSource CLIArgsSource{..} key = do
-    getSubkeysInSource innerSource key
-
+    return $ InMemory.subKeys key rawMap
+  explainNotFound _ key =
+    concat
+    [ "Passing the cli arg: "
+    , "--"
+    , intercalate "." $ fmap (Text.unpack) $ rawKeyComponents key
+    , "=\"the value\""
+    ]
+  explainSettedKey _ key =
+    concat
+    [ "cli param '--"
+    , intercalate "." $ fmap (Text.unpack) $ rawKeyComponents key
+    , "'"
+    ]
 
 -- | Create a 'SourceCreator' using 'fromEnv'
 fromConfig :: SourceCreator
@@ -51,7 +64,7 @@ fromEnv = do
 fromArgs :: RawCLIArgs -> Source
 fromArgs originalCliArgs =
   let configMap = parseArgsIntoKeyValue originalCliArgs
-      innerSource = InMemory.fromAssociations configMap
+      rawMap = InMemory.rawFromAssociations configMap
   in Source $ CLIArgsSource {..}
 
 -- | Parse an argument list into a dictionary suitable for a 'Source'

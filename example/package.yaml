@@ -15,6 +15,7 @@ dependencies:
 - http-types
 - conferer
 - conferer-warp
+- conferer-aeson
 - conferer-dhall
 
 executables:

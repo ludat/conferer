@@ -11,13 +11,13 @@ module Conferer.Source.Dhall where
 import qualified Data.Text.IO as Text
 import Dhall
 import Dhall.JSON
-import System.Directory (doesFileExist)
+import System.Directory
+import Control.Exception
+
 import Conferer.Source.Files
 import qualified Conferer.Source.Aeson as JSON
 import qualified Conferer.Source.Null as Null
-
 import Conferer.Source
-import Control.Exception
 
 -- | Create a 'SourceCreator' from a dhall config file
 -- using 'fromFilePath'
@@ -38,7 +38,8 @@ fromFilePath filePath _config =
 -- if the file doesn't exist do nothing, but if it has invalid
 -- dhall throw an exception.
 fromFilePath' :: FilePath -> IO Source
-fromFilePath' filePath = do
+fromFilePath' relativeFilePath = do
+  filePath <- makeAbsolute relativeFilePath
   fileExists <- doesFileExist filePath
   if fileExists
     then do
@@ -46,8 +47,10 @@ fromFilePath' filePath = do
       dhallExpr <- inputExpr fileContent
       case dhallToJSON dhallExpr of
         Right jsonConfig -> do
-          return $ JSON.fromValue jsonConfig
+          return $ JSON.fromValue filePath jsonConfig
         Left compileError ->
           throwIO $ ErrorCall (show compileError)
     else do
-      return Null.empty
+      return $ Source $ Null.NullSource
+        { nullExplainNotFound = undefined
+        }

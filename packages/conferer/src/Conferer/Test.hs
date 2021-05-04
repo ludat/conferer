@@ -11,14 +11,14 @@ module Conferer.Test
   ) where
 
 import Conferer.Config
-import qualified Conferer.Source.InMemory as InMemory
 import Data.Text (Text)
 import Data.Dynamic
+import qualified Conferer.Source.Test as Test
 
 -- | Create a Config mostly used for testing 'Conferer.FromConfig.FromConfig'
 --   instances without having to create a full config
 configWith :: [(Key, Dynamic)] -> [(Key, Text)] -> IO Config
 configWith defaults keyValues =
-  emptyConfig 
+  emptyConfig
   & addDefaults defaults
-  & addSource (InMemory.fromConfig keyValues)
+  & addSource (Test.fromConfig keyValues)

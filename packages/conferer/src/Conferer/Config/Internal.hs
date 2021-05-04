@@ -39,8 +39,8 @@ getKey :: forall a. Typeable a => Key -> Config -> IO (KeyLookupResult ('BothSou
 getKey key config = do
   getKeyFromSources key config
     >>= \case
-        FoundInSources textResult k ->
-          return $ FoundInSources textResult k
+        FoundInSources textResult sourceIndex k ->
+          return $ FoundInSources textResult sourceIndex k
         MissingKey () triedKeysForSources ->
           case getKeyFromDefaults @a key config of
             MissingKey () _triedKeysForDefaults ->
@@ -48,7 +48,7 @@ getKey key config = do
             FoundInDefaults v k ->
               return $ FoundInDefaults v k
 #if __GLASGOW_HASKELL__ < 808
-            FoundInSources v _ -> absurd v
+            FoundInSources v _ _ -> absurd v
         FoundInDefaults v _ -> absurd v
 #endif
 -- | This function looks for a 'Key' inside the 'Source's of a 'Config'
@@ -60,7 +60,7 @@ getKeyFromSources key config = do
   let possibleKeys = getKeysFromMappings (configKeyMappings config) key
   untilJust (fmap (\MappedKey{..} -> getRawKeyInSources mappedKey config) possibleKeys)
     >>= \case
-      Just (k, t) -> pure $ FoundInSources t k
+      Just (k, i, t) -> pure $ FoundInSources t i k
       Nothing -> pure $ MissingKey () $ fmap mappedKey possibleKeys
 
 -- | Alias for a mapping from one key to another used for transforming keys
@@ -166,15 +166,15 @@ findAndSplitList cond list = go [] list
           go (curElem:prevElems) nextElems
 
 -- | This function gets a value from 'Source's but ignores mappings and defaults
-getRawKeyInSources :: Key -> Config -> IO (Maybe (Key, Text))
+getRawKeyInSources :: Key -> Config -> IO (Maybe (Key, Int, Text))
 getRawKeyInSources k Config{..} =
-  go configSources
+  go $ zip [0..] configSources
   where
     go [] = return Nothing
-    go (source:otherSources) = do
+    go ((index, source):otherSources) = do
       res <- getKeyInSource source k
       case res of
-        Just t -> return $ Just (k, t)
+        Just t -> return $ Just (k, index, t)
         Nothing -> go otherSources
 
 -- | Fetch from value from the defaults map of a 'Config' or else return a 'Nothing'

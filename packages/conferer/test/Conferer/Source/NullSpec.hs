@@ -8,5 +8,5 @@ import           Conferer.Source.Null
 spec :: Spec
 spec = do
   it "always fails to get a key" $ do
-    res <- getKeyInSource empty "some.key"
+    res <- getKeyInSource (NullSource (const "")) "some.key"
     res `shouldBe` Nothing

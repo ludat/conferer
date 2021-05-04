@@ -11,22 +11,19 @@ module Conferer.Source.Null where
 import Conferer.Source
 
 -- | Stub source that has no keys
-data NullSource =
-  NullSource
-  deriving (Show, Eq)
+data NullSource = NullSource
+  { nullExplainNotFound :: Key -> String
+  }
+
+instance Show NullSource where
+  show _ = "NullSource"
 
 instance IsSource NullSource where
   getKeyInSource _source _key =
     return Nothing
   getSubkeysInSource _source _key =
     return []
-
--- | Create 'SourceCreator'
-fromConfig :: SourceCreator
-fromConfig _config =
-  return empty
-
--- | Create a 'Source'
-empty :: Source
-empty =
-  Source $ NullSource
+  explainNotFound NullSource {..} = nullExplainNotFound
+  explainSettedKey _source key =
+    "Called explainSettedKey on NullSource with key " ++ show key ++ " , \
+    \which is probably a bug in conferer (please report at https://github.com/ludat/conferer/issues)"

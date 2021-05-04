@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ff270bcc4d8154db08adc97727d49c5f1f9a4b1399dfac9ef714617d097a2500
+-- hash: 7047fb1b6c4ba214affd2ca1a654f1914a857ed6a36e5b2136b40e04c5b9b693
 
 name:           conferer
 version:        1.1.0.0
@@ -33,6 +33,7 @@ library
       Conferer.Config.Internal.Types
       Conferer.FromConfig
       Conferer.FromConfig.Internal
+      Conferer.FromConfig.Internal.Types
       Conferer.Key
       Conferer.Key.Internal
       Conferer.Source
@@ -44,6 +45,7 @@ library
       Conferer.Source.Namespaced
       Conferer.Source.Null
       Conferer.Source.PropertiesFile
+      Conferer.Source.Test
       Conferer.Test
   other-modules:
       Paths_conferer

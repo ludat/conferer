@@ -3,8 +3,8 @@ module Conferer.FromConfig.FileSpec (spec) where
 
 import Test.Hspec
 import Conferer.FromConfig.Extended
-import Conferer.FromConfig ()
 import System.FilePath ((</>))
+
 import Data.Text (pack)
 
 spec :: Spec
@@ -14,13 +14,9 @@ spec = do
       ensureFetchParses @File [] [("", toDyn $ File "file.png")] $
         File "file.png"
       ensureFetchThrows @File [] [] $
-        aMissingRequiredKeys @String
+        missingRequiredKeys @File
           [ "some.key"
-          , "some.key.extension"
-          , "some.key.dirname"
-          , "some.key.basename"
-          , "some.key.filename"
-          ]
+          ] emptyConfig
 
       context "with whole path in root" $ do
         ensureFetchParses @File

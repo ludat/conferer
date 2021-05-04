@@ -28,12 +28,12 @@ import Data.Function
 
 import Conferer.Config
 import Conferer.FromConfig
-import qualified Conferer.Source.InMemory as InMemory
+import qualified Conferer.Source.Test as Test
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues =
   emptyConfig
-  & addSource (InMemory.fromConfig keyValues)
+  & addSource (Test.fromConfig keyValues)
 
 ensureEmptyConfigThrows :: forall a. (HasCallStack, Typeable a, FromConfig a, Show a) => SpecWith ()
 ensureEmptyConfigThrows =
