@@ -47,10 +47,20 @@ fromFilePath' relativeFilePath = do
       dhallExpr <- inputExpr fileContent
       case dhallToJSON dhallExpr of
         Right jsonConfig -> do
-          return $ JSON.fromValue filePath jsonConfig
+          JSON.fromValue filePath jsonConfig
         Left compileError ->
           throwIO $ ErrorCall (show compileError)
     else do
       return $ Source $ Null.NullSource
-        { nullExplainNotFound = undefined
+        { nullExplainNotFound = \key ->
+          concat
+            [ "Creating a file '"
+            , filePath
+            , "' (it doesn't exist now) "
+            , "and set the path '"
+            -- TODO: this should show an example of dhall but creating and showing dhall
+            -- seems pretty hard so I'll do it later
+            , JSON.showRawKey $ rawKeyComponents key
+            , "'"
+            ]
         }
