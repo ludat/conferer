@@ -10,7 +10,6 @@
 module Conferer.Source.Aeson where
 
 import Data.Aeson
-import Control.Applicative
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text)
@@ -30,6 +29,7 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import Conferer.Source.Files
 import qualified Conferer.Source.Null as Null
 import Conferer.Source
+import Data.Maybe
 
 -- | 'Source' that read a config file as json and uses that value in a way that
 -- makes sense for Conferer but doesn't respect json perfectly.
@@ -40,9 +40,19 @@ data JsonSource = JsonSource
 
 instance IsSource JsonSource where
   getKeyInSource JsonSource {..} key = do
-    return $ valueToText =<< traverseJSON key value
+    case getNoKeyExplainResult key value of
+      FoundConcrete _ t _ -> return $ Just t
+      _ -> return Nothing
+
   getSubkeysInSource JsonSource {..} key = do
-    return $ fmap (key /.) $ maybe [] listKeysInJSON $ traverseJSON key value
+
+    case getNoKeyExplainResult key value of
+      FoundConcrete _ _ v ->
+        pure $ (key /.) <$> listKeysInJSON v
+      FoundCompundThing _ v ->
+        pure $ (key /.) <$> listKeysInJSON v
+      MissingKeyInPlainObject {} ->
+        pure []
   explainNotFound JsonSource {..} key  =
     renderExplainForAeson filepath $ getNoKeyExplainResult key value
   explainSettedKey JsonSource {..} key =
@@ -57,8 +67,8 @@ instance IsSource JsonSource where
       getRealRawKey :: Key -> Value -> RawKey
       getRealRawKey k originalValue =
         case getNoKeyExplainResult k originalValue of
-          FoundIn rawKey -> rawKey
-          result@(MissingKeyInPlainObject _ _ _) ->
+          FoundConcrete rawKey _ _ -> rawKey
+          result ->
             error $ "Getting an existing key returned that it doesn't exist, \
                     \that is a bug in conferer, please report it at \
                     \https://github.com/ludat/conferer/issues with :\n " ++ show result
@@ -74,7 +84,15 @@ renderExplainForAeson filepath e =
       "' to '" ++
       value2String (merge v $ objectFromPath nonExistingPath (String "some value")) ++
       "' on file '" ++ filepath ++ "'"
-    result@(FoundIn _) ->
+    FoundCompundThing existingPath v ->
+      "Replacing " ++
+      showRawKeyAsTarget existingPath ++
+      " from '" ++
+      value2String v ++
+      "' to '" ++
+      value2String (merge v $ String "some value") ++
+      "' on file '" ++ filepath ++ "'"
+    result@FoundConcrete {} ->
       error $ "Getting an non existant key returned that it exists, \
               \that is a bug in conferer, please report it at \
               \https://github.com/ludat/conferer/issues with :\n " ++ show result
@@ -113,8 +131,8 @@ value2String = LBS.unpack . encode
 
 -- | Utility function to show a raw key to the user
 showRawKey :: RawKey -> String
-showRawKey rawKey =
-  (intercalate "." $ fmap Text.unpack $ rawKey)
+showRawKey =
+  intercalate "." . fmap Text.unpack
 
 -- | This is the representation of the 'explainNotFound', this is useful
 -- for sources which are not actually json but are isomorphic with json
@@ -127,60 +145,90 @@ data ExplainResult
       -- ^ The path that is missing in the object
       Value
       -- ^ The current value that is present in the config
-  | FoundIn RawKey
+  | FoundCompundThing RawKey Value
+  | FoundConcrete RawKey Text Value
   deriving (Eq)
 
 instance Show ExplainResult where
   show (MissingKeyInPlainObject alreadyPresentPath missingPath currentValue) =
-    intercalate " "
+    unwords
       [ "MissingKeyInPlainObject"
       , show alreadyPresentPath
       , show missingPath
       , "[aesonQQ|" ++ value2String currentValue ++ "|]"
       ]
-  show (FoundIn rawKey) =
-    intercalate " "
-      [ "MissingKeyInPlainObject"
+  show (FoundConcrete rawKey rawValue actualValue) =
+    unwords
+      [ "FoundConcrete"
       , show rawKey
+      , Text.unpack rawValue
+      , "[aesonQQ|" ++ value2String actualValue ++ "|]"
+      ]
+  show (FoundCompundThing rawKey actualValue) =
+    unwords
+      [ "FoundCompundThing"
+      , show rawKey
+      , "[aesonQQ|" ++ value2String actualValue ++ "|]"
       ]
 
 getNoKeyExplainResult :: Key -> Value -> ExplainResult
-getNoKeyExplainResult key value = go ([], rawKeyComponents key) value
+getNoKeyExplainResult key = go ([], rawKeyComponents key)
   where
-    go :: (RawKey, RawKey) -> Value -> ExplainResult
-    go (visitedKeys, []) v@(Object o) =
-      case HashMap.lookup "_self" o of
-        Just innerValue@(Object _) ->
-          MissingKeyInPlainObject (visitedKeys ++ ["_self"]) [] innerValue
+  go :: (RawKey, RawKey) -> Value -> ExplainResult
+  go (visitedKeys, []) value@(Object o) =
+    case HashMap.lookup "_self" o of
+      Just innerValue@(Object _) ->
+        FoundCompundThing (visitedKeys ++ ["_self"]) innerValue
 
-        Just innerValue@(Array _) ->
-          MissingKeyInPlainObject (visitedKeys ++ ["_self"]) [] innerValue
+      Just innerValue@(Array _) ->
+        FoundCompundThing (visitedKeys ++ ["_self"]) innerValue
 
-        Just _v -> FoundIn (visitedKeys ++ ["_self"])
+      Just v ->
+        FoundConcrete (visitedKeys ++ ["_self"]) (unsafeValueToText v) v
 
-        Nothing ->
-          MissingKeyInPlainObject visitedKeys [] v
+      Nothing ->
+        FoundCompundThing visitedKeys value
 
-    go (visitedKeys, []) v@(Array _) = MissingKeyInPlainObject visitedKeys [] v
-    go (visitedKeys, []) _v = FoundIn visitedKeys
-    go (visitedKeys, k:ks) v =
-      case v of
-        (Object o) ->
-          case HashMap.lookup k o of
-            Nothing -> MissingKeyInPlainObject visitedKeys (k:ks) v
-            (Just x) -> go (visitedKeys ++ [k], ks) x
-        (Array vs) ->
-          case readMaybe $ Text.unpack k of
-            Nothing -> MissingKeyInPlainObject visitedKeys (k:ks) v
-            Just (n :: Int) ->
-              case vs !? n of
-                Nothing ->
-                  MissingKeyInPlainObject visitedKeys (k:ks) v
-                Just innerV ->
-                  go (visitedKeys ++ [k], ks) innerV
+  go (visitedKeys, []) v@(Array _) = FoundCompundThing visitedKeys v
+  go (visitedKeys, []) v = FoundConcrete visitedKeys (unsafeValueToText v) v
 
-        _ ->
-          MissingKeyInPlainObject visitedKeys (k:ks) v
+  go (visitedKeys, ["keys"]) (Object o) =
+    case HashMap.lookup "keys" o of
+      Just v ->
+        go (visitedKeys ++ ["keys"], []) v
+      Nothing ->
+        let
+          generatedKeys =
+            mconcat $
+            intersperse "," $
+            sort $
+            HashMap.keys o
+        in FoundConcrete visitedKeys generatedKeys (String generatedKeys)
+
+  go (visitedKeys, k:ks) value@(Object o) =
+    case HashMap.lookup k o of
+      Just innerValue -> go (visitedKeys ++ [k], ks) innerValue
+      Nothing -> MissingKeyInPlainObject visitedKeys (k:ks) value
+  go (visitedKeys, ["keys"]) (Array vs) =
+    let
+      generatedKeys =
+        mconcat $
+        intersperse "," $
+        fmap (Text.pack . show)
+        [0..length vs - 1]
+    in FoundConcrete visitedKeys generatedKeys (String generatedKeys)
+  go (visitedKeys, k:ks) v@(Array vs) =
+    case readMaybe $ Text.unpack k of
+      Nothing -> MissingKeyInPlainObject visitedKeys (k:ks) v
+      Just (n :: Int) ->
+        case vs !? n of
+          Nothing ->
+            MissingKeyInPlainObject visitedKeys (k:ks) v
+          Just innerV ->
+            go (visitedKeys ++ [k], ks) innerV
+
+  go (visitedKeys, futureKeys) v =
+    MissingKeyInPlainObject visitedKeys futureKeys v
 
 -- | Create a 'SourceCreator' which uses files with @config/{env}.json@
 -- template and then uses 'fromFilePath'
@@ -209,8 +257,8 @@ fromFilePath' relativeFilePath = do
   fileExists <- doesFileExist fileToParse
   if fileExists
     then do
-      value <- decodeStrict' <$> B.readFile fileToParse
-      case value of
+      decodeStrict' <$> B.readFile fileToParse
+      >>= \case
         Nothing ->
           error $ "Failed to decode json file '" ++ fileToParse ++ "'"
         Just v -> do
@@ -259,32 +307,10 @@ fromValue filepath value =
 -- @
 traverseJSON :: Key -> Value -> Maybe Value
 traverseJSON key value =
- case (unconsKey key, value) of
-   (Nothing, v) ->
-     Just v
-   (Just ("keys", ""), Object o) ->
-      HashMap.lookup "keys" o
-        <|> pure (
-              String $
-              mconcat $
-              intersperse "," $
-              sort $
-              HashMap.keys o)
-   (Just (c, ks), Object o) ->
-     HashMap.lookup c o >>= traverseJSON ks
-   (Just ("keys", ""), Array vs) ->
-      Just $
-        String $
-        mconcat $
-        intersperse "," $
-        fmap (Text.pack . show)
-        [0..length vs - 1]
-   (Just (c, ks), Array vs) -> do
-     n :: Int <- readMaybe $ Text.unpack c
-     v <- vs !? n
-     traverseJSON ks v
-   (Just _, _) ->
-     Nothing
+  case getNoKeyExplainResult key value of
+    FoundConcrete _ _ v -> Just v
+    FoundCompundThing _ v -> Just v
+    MissingKeyInPlainObject _ _ _ -> Nothing
 
 -- | Get the list of available keys inside a json value
 listKeysInJSON :: Value -> [Key]
@@ -318,7 +344,10 @@ valueToText (Object o) = do
 valueToText (Array _as) = Nothing
 valueToText (Number n) = Just $ Text.decodeUtf8 $ L.toStrict $ encode $ Number n
 valueToText (Bool b) = Just $ boolToString b
-valueToText (Null) = Nothing
+valueToText Null = Nothing
+
+unsafeValueToText :: Value -> Text
+unsafeValueToText = fromJust . valueToText
 
 -- | Turn a 'GHC.Types.Bool' into a 'Text'
 boolToString :: Bool -> Text

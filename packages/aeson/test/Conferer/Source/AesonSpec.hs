@@ -152,6 +152,16 @@ spec = do
           c <- mk [aesonQQ|{some: {_self: 7, key: 0}}|]
           res <- getSubkeysInSource c ""
           res `shouldBe` ["some", "some.key"]
+      describe "when a list inside an object" $ do
+        it "returns the numbers of the list" $ do
+          c <- mk [aesonQQ|{"a": ["a"]}|]
+          res <- getSubkeysInSource c "a"
+          res `shouldBe` ["a.0"]
+      describe "listing keys in non existant path" $ do
+        it "gets no keys" $ do
+          c <- mk [aesonQQ|{_self: {}, a: false}|]
+          res <- getSubkeysInSource c ""
+          res `shouldBe` ["a"]
     describe "#invalidJsonKeys" $ do
       context "with some common keys" $
         it "works" $ do
