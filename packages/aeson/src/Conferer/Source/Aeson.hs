@@ -23,7 +23,7 @@ import qualified Data.ByteString.Lazy as L
 import Data.List
 import System.Directory
 import Control.Exception
-import Control.Monad (guard, unless)
+import Control.Monad (unless, forM)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 
 import Conferer.Source.Files
@@ -38,21 +38,61 @@ data JsonSource = JsonSource
   , filepath :: FilePath
   } deriving (Show, Eq)
 
+type RawKey = [Text]
+
+-- | This is the representation of the 'explainNotFound', this is useful
+-- for sources which are not actually json but are isomorphic with json
+-- like dhall or yaml.
+data FindKeyInValueResult
+  = Missing
+      RawKey
+      -- ^ The path that right now is present in the actual config
+      RawKey
+      -- ^ The path that is missing in the object
+      ValueIR
+      -- ^ The current value that is present in the config
+  | Found
+      RawKey
+      -- ^ The true json path where the key was found
+      Text
+      -- ^ The textual representation of the value
+      ValueIR
+      -- ^ The original json value that we found
+  deriving (Eq, Show)
+
 instance IsSource JsonSource where
   getKeyInSource JsonSource {..} key = do
-    case getNoKeyExplainResult key value of
-      FoundConcrete _ t _ -> return $ Just t
+    case findKeyInsideValue key value of
+      Found _ t _ -> return $ Just t
       _ -> return Nothing
 
   getSubkeysInSource JsonSource {..} key = do
-    case traverseJSON key value of
-      Just v ->
-        pure $ (key /.) <$> listKeysInJSON v
-      Nothing ->
+    let deepestValueFound = traverseJSON key value
+        foundKey = valueIRKey deepestValueFound
+    if foundKey == key
+      then do
+        pure $ listKeysInJSON deepestValueFound
+      else do
         pure []
 
   explainNotFound JsonSource {..} key  =
-    renderExplainForAeson filepath $ getNoKeyExplainResult key value
+    case findKeyInsideValue key value of
+      Missing existingPath nonExistingPath v ->
+        "Replacing " ++
+        showRawKeyAsTarget existingPath ++
+        " from '" ++
+        valueIR2String v ++
+        "' to '" ++
+        valueIR2String (setKey "some value" nonExistingPath v) ++
+        "' on file '" ++ filepath ++ "'"
+      result@Found {} ->
+        error $ "Getting an non existant key returned that it exists, \
+                \that is a bug in conferer, please report it at \
+                \https://github.com/ludat/conferer/issues with :\n " ++ show result
+    where
+      showRawKeyAsTarget :: RawKey -> String
+      showRawKeyAsTarget [] = "the whole json"
+      showRawKeyAsTarget k = "the value at '" ++ showRawKey k ++ "'"
   explainSettedKey JsonSource {..} key =
     concat
     [ "json key '"
@@ -64,86 +104,69 @@ instance IsSource JsonSource where
     where
       getRealRawKey :: Key -> ValueIR -> RawKey
       getRealRawKey k originalValue =
-        case getNoKeyExplainResult k originalValue of
-          FoundConcrete rawKey _ _ -> rawKey
+        case findKeyInsideValue k originalValue of
+          Found rawKey _ _ -> rawKey
           result ->
             error $ "Getting an existing key returned that it doesn't exist, \
                     \that is a bug in conferer, please report it at \
                     \https://github.com/ludat/conferer/issues with :\n " ++ show result
 
-renderExplainForAeson :: FilePath -> ExplainResult -> String
-renderExplainForAeson filepath e =
-  case e of
-    MissingKeyInPlainObject existingPath nonExistingPath v ->
-      "Replacing " ++
-      showRawKeyAsTarget existingPath ++
-      " from '" ++
-      value2String v ++
-      "' to '" ++
-      value2String (setKey "some value" nonExistingPath v) ++
-      "' on file '" ++ filepath ++ "'"
-    result@FoundConcrete {} ->
-      error $ "Getting an non existant key returned that it exists, \
-              \that is a bug in conferer, please report it at \
-              \https://github.com/ludat/conferer/issues with :\n " ++ show result
-  where
-    showRawKeyAsTarget :: RawKey -> String
-    showRawKeyAsTarget [] = "the whole json"
-    showRawKeyAsTarget k = "the value at '" ++ showRawKey k ++ "'"
 
 setKey :: Text -> RawKey -> ValueIR -> ValueIR
-setKey newValue = go
+setKey newText = go
   where
+  newValue = String newText
   go :: RawKey -> ValueIR -> ValueIR
-  go [] (ObjectIR _ o) =
+  go [] (ObjectIR key _ o) =
     if HashMap.null o
-      then RawValue newValue $ String newValue
-      else ObjectIR (Just (newValue, String newValue)) o
-  go (k:ks) (ObjectIR v o) = ObjectIR v $ HashMap.alter
+      then RawValue key newText newValue
+      else ObjectIR key (Just (newText, newValue)) o
+  go (k:ks) (ObjectIR key v o) = ObjectIR key v $ HashMap.alter
     (\case
       Just oldIR -> Just $ go ks oldIR
-      Nothing -> Just $ go ks (ObjectIR Nothing HashMap.empty)
+      Nothing -> Just $ go ks (ObjectIR (key /. fromText k) Nothing HashMap.empty)
     ) k o
 
-  go [] (RawValue _ _) = RawValue newValue $ String newValue
-  go (k:ks) (RawValue t v) =
-    -- FIXME: this is a hack OR IS IT?
-    ObjectIR (Just (t, v)) $ HashMap.singleton k $ go ks $ ObjectIR Nothing HashMap.empty
+  go [] (RawValue key _ _) = RawValue key newText newValue
+  go (k:ks) (RawValue key t v) =
+    ObjectIR key (Just (t, v)) $ HashMap.singleton k $ go ks $ ObjectIR (key /. fromText k) Nothing HashMap.empty
 
-  go [] (ArrayIR vs) =
+  go [] (ArrayIR key vs) =
     if Vector.null vs
-      then RawValue newValue $ String newValue
-      else ObjectIR (Just (newValue, String newValue)) $ list2object vs
-  go (k:ks) (ArrayIR vs) =
+      then RawValue key newText newValue
+      else ObjectIR key (Just (newText, newValue)) $ list2object vs
+  go (k:ks) (ArrayIR key vs) =
     case readMaybe @Int $ Text.unpack k of
       Just n | isJust $ vs !? n ->
-        ArrayIR $ Vector.imap (\i v -> if i == n then go ks v else v) vs
+        ArrayIR key $ Vector.imap (\i v -> if i == n then go ks v else v) vs
       _ ->
-        ObjectIR Nothing $
-          HashMap.insert k (go ks (ObjectIR Nothing HashMap.empty)) $ list2object vs
+        ObjectIR key Nothing $
+          HashMap.insert k (go ks (ObjectIR (key /. fromText k) Nothing HashMap.empty)) $ list2object vs
 
   list2object = HashMap.fromList . zip (fmap (Text.pack . show @Integer) [0..]) . Vector.toList
 
-fromRight :: Either e a -> a
-fromRight (Right a) = a
-fromRight (Left _) = error "f"
-
--- objectFromPath :: RawKey -> ValueIR -> ValueIR
--- objectFromPath [] content = content
--- objectFromPath (k:ks) content =
---   ObjectIR Nothing $ HashMap.fromList [(k, objectFromPath ks content)]
-
 -- | Utility function to show a 'Value'
-value2String :: ValueIR -> String
-value2String = LBS.unpack . encode . valueIR2Value
+value2String :: Value -> String
+value2String = LBS.unpack . encode
+
+valueIR2String :: ValueIR -> String
+valueIR2String = value2String . valueIR2Value
+
+valueIRRawKey :: ValueIR -> RawKey
+valueIRRawKey = rawKeyComponents . valueIRKey
+
+valueIRKey :: ValueIR -> Key
+valueIRKey (RawValue k _ _) = k
+valueIRKey (ArrayIR k _) = k
+valueIRKey (ObjectIR k _ _) = k
 
 valueIR2Value :: ValueIR -> Value
 valueIR2Value = go
   where
   go :: ValueIR -> Value
-  go (RawValue _ v) = v
-  go (ArrayIR vs) = Array $ fmap go vs
-  go (ObjectIR j o) =
+  go (RawValue _ _ v) = v
+  go (ArrayIR _ vs) = Array $ fmap go vs
+  go (ObjectIR _ j o) =
     let
       initialMap =
         case j of
@@ -157,131 +180,125 @@ showRawKey :: RawKey -> String
 showRawKey =
   intercalate "." . fmap Text.unpack
 
--- | This is the representation of the 'explainNotFound', this is useful
--- for sources which are not actually json but are isomorphic with json
--- like dhall or yaml.
-data ExplainResult
-  = MissingKeyInPlainObject
-      RawKey
-      -- ^ The path that right now is present in the actual config
-      RawKey
-      -- ^ The path that is missing in the object
-      ValueIR
-      -- ^ The current value that is present in the config
-  -- | FoundCompundThing RawKey ValueIR
-  | FoundConcrete RawKey Text ValueIR
-  deriving (Eq)
+findKeyInsideValue :: Key -> ValueIR -> FindKeyInValueResult
+findKeyInsideValue key aValue =
+  let
+    deepestValueFound = traverseJSON key aValue
+    deepestKey = valueIRKey deepestValueFound
+  in
+    case (stripKeyPrefix deepestKey key, deepestValueFound) of
+      (Just "keys", ObjectIR _ _ o) ->
+        let generatedKeys =
+              mconcat $
+              intersperse "," $
+              sort $
+              HashMap.keys o
+        in Found (rawKeyComponents key) generatedKeys deepestValueFound
 
-instance Show ExplainResult where
-  show (MissingKeyInPlainObject alreadyPresentPath missingPath currentValue) =
-    unwords
-      [ "MissingKeyInPlainObject"
-      , show alreadyPresentPath
-      , show missingPath
-      , show currentValue
-      ]
-  show (FoundConcrete rawKey rawValue actualValue) =
-    unwords
-      [ "FoundConcrete"
-      , show rawKey
-      , Text.unpack rawValue
-      , show actualValue
-      ]
-
-getNoKeyExplainResult :: Key -> ValueIR -> ExplainResult
-getNoKeyExplainResult key = go ([], rawKeyComponents key)
-  where
-  go :: (RawKey, RawKey) -> ValueIR -> ExplainResult
-  go (visitedKeys, []) value@(ObjectIR maybeSelf _) =
-    case maybeSelf of
-      Just (t, _) ->
-        FoundConcrete (visitedKeys ++ ["_self"]) t value
-
-      Nothing ->
-        MissingKeyInPlainObject visitedKeys [] value
-
-  go (visitedKeys, []) v@(ArrayIR _) =
-    MissingKeyInPlainObject visitedKeys [] v
-
-  go (visitedKeys, []) v@(RawValue t _) =
-    FoundConcrete visitedKeys t v
-
-  go (visitedKeys, ["keys"]) value@(ObjectIR _ o) =
-    case HashMap.lookup "keys" o of
-      Just v ->
-        go (visitedKeys ++ ["keys"], []) v
-      Nothing ->
+      (Just "keys", ArrayIR _ vs) ->
         let
           generatedKeys =
             mconcat $
             intersperse "," $
-            sort $
-            HashMap.keys o
-        in FoundConcrete (visitedKeys ++ ["keys"]) generatedKeys value
+            fmap (Text.pack . show)
+            [0..length vs - 1]
+        in Found (rawKeyComponents key) generatedKeys deepestValueFound
 
-  go (visitedKeys, k:ks) value@(ObjectIR _ o) =
-    case HashMap.lookup k o of
-      Just innerValue -> go (visitedKeys ++ [k], ks) innerValue
-      Nothing -> MissingKeyInPlainObject visitedKeys (k:ks) value
-  go (visitedKeys, ["keys"]) value@(ArrayIR vs) =
-    let
-      generatedKeys =
-        mconcat $
-        intersperse "," $
-        fmap (Text.pack . show)
-        [0..length vs - 1]
-    in FoundConcrete visitedKeys generatedKeys value
-  go (visitedKeys, k:ks) v@(ArrayIR vs) =
-    case readMaybe $ Text.unpack k of
-      Nothing -> MissingKeyInPlainObject visitedKeys (k:ks) v
-      Just (n :: Int) ->
-        case vs !? n of
+      (Just "", ObjectIR _ maybeSelf _) ->
+        case maybeSelf of
+          Just (t, _) ->
+            Found (rawKeyComponents key ++ ["_self"]) t deepestValueFound
           Nothing ->
-            MissingKeyInPlainObject visitedKeys (k:ks) v
-          Just innerV ->
-            go (visitedKeys ++ [k], ks) innerV
+            Missing (rawKeyComponents key) [] deepestValueFound
 
-  go (visitedKeys, futureKeys) v =
-    MissingKeyInPlainObject visitedKeys futureKeys v
+      (Just "", ArrayIR _ _) ->
+        Missing (rawKeyComponents key) [] deepestValueFound
 
+      (Just "", RawValue _ t _) ->
+        Found (rawKeyComponents key) t deepestValueFound
+
+      (Just k, _) ->
+        Missing (rawKeyComponents deepestKey) (rawKeyComponents k) deepestValueFound
+
+      (Nothing, _) ->
+        error $
+          unlines
+            [ "The impossible happened: deepestKey must be a suffix of key since \
+              \one generates the other."
+            , ""
+            , "deepestKey: " ++ show deepestKey
+            , "key: " ++ show key
+            , "value: " ++ show aValue
+            ]
+
+
+-- | Internal Repepresentation of a json value that matches the way we find keys
+-- so concrete values are translated into a single constructor and the special
+-- "_self" key is descriminated, and also each node contains its 'Key'
 data ValueIR
-  = RawValue Text Value
-  | ArrayIR (Vector ValueIR)
-  | ObjectIR (Maybe (Text, Value)) (HashMap Text ValueIR)
+  = ArrayIR
+    -- ^ Repesentation of an array
+    Key
+    -- ^ path inside the original json
+    (Vector ValueIR)
+    -- ^ inner values
+  | ObjectIR
+    -- ^ Repesentation of an object
+    Key
+    -- ^ path inside the original json
+    (Maybe (Text, Value))
+    -- ^ "_self" key value, with the textual representation and the original value
+    (HashMap Text ValueIR)
+    -- ^ inner values (these Text are all valid key fragments)
+  | RawValue Key Text Value
   deriving (Eq, Show)
 
-aaaa :: Value -> Either String ValueIR
-aaaa = go
+parseValue :: Value -> Either ProblemWithJSON ValueIR
+parseValue = go ""
   where
-  go (Object o) = do
-    let invalidKeys = filter (not . validFragmentForJSON) $ HashMap.keys o
+  go key (Object o) = do
+    let
+      (validKeys, invalidKeys) = partition (isValidKeyFragment . fst)
+        $ HashMap.toList
+        $ HashMap.delete "_self" o
     unless (null invalidKeys) $
-      Left $ "keys malosas: " ++ show invalidKeys
-    self <- parseSelf $ HashMap.lookup "_self" o
-    content <- traverse go o
-    Right $ ObjectIR self content
-  go (Array as) = do
-    content <- traverse go as
-    Right $ ArrayIR content
-  go v@(Bool b) =
-    Right $ RawValue (boolToString b) v
-  go v@(Number n) =
-    Right $ RawValue (numberToString n) v
-  go v@Null =
-    Right $ RawValue "null" v
-  go v@(String s) =
-    Right $ RawValue s v
+      Left $ InvalidKey (rawKeyComponents key) (fst $ head invalidKeys)
+    self <- sequence $ parseSelf key <$> HashMap.lookup "_self" o
+    content <- forM validKeys $ \(k, v) -> do
+      let currentKey = key /. fromText k
+      inner <- go currentKey v
+      pure (k, inner)
+    Right $ ObjectIR key self $ HashMap.fromList content
 
-  parseSelf :: Maybe Value -> Either String (Maybe (Text, Value))
-  parseSelf =
-    \case
-      Just v@(String t) -> Right $ Just (t, v)
-      Just v@(Object _) -> Left $ "'_self' should be a primitive (number, string or bool) but it is: '" ++ LBS.unpack (encode v) ++ "'"
-      Just v@(Array _) -> Left $ "'_self' should be a primitive (number, string or bool) but it is: '" ++ LBS.unpack (encode v) ++ "'"
-      Just v@(Number n) -> Right $ Just (numberToString n, v)
-      Just v@(Bool b) -> Right $ Just (boolToString b, v)
-      Just v@Null -> Right $ Just ("null", v)
-      Nothing -> Right Nothing
+  go key (Array as) = do
+    content <- forM (Vector.indexed as) $ \(i, v) -> do
+      let
+        k = Text.pack $ show i
+        currentKey = key /. fromText k
+      go currentKey v
+    Right $ ArrayIR key content
+
+  go key v@(Bool b) =
+    Right $ RawValue key (boolToString b) v
+
+  go key v@(Number n) =
+    Right $ RawValue key (numberToString n) v
+
+  go key v@Null =
+    Right $ RawValue key "null" v
+
+  go key v@(String s) =
+    Right $ RawValue key s v
+
+  parseSelf :: Key -> Value -> Either ProblemWithJSON (Text, Value)
+  parseSelf k v =
+    case v of
+      (String t) -> Right (t, v)
+      (Object _) -> Left $ InvalidSelfValue (rawKeyComponents k) v
+      (Array _) -> Left $ InvalidSelfValue (rawKeyComponents k) v
+      (Number n) -> Right (numberToString n, v)
+      (Bool b) -> Right (boolToString b, v)
+      Null -> Right ("null", v)
 
   boolToString True = "true"
   boolToString False = "false"
@@ -328,19 +345,28 @@ fromFilePath' relativeFilePath = do
           [ "Creating a file '"
           , fileToParse
           , "' (it doesn't exist now) with the object '"
-          , value2String $ setKey "some text"
+          , valueIR2String $ setKey "some text"
               (rawKeyComponents key)
-              (ObjectIR Nothing HashMap.empty)
+              emptyRootObject
           , "'"
           ]
         }
 
+emptyRootObject :: ValueIR
+emptyRootObject = ObjectIR "" Nothing HashMap.empty
+
 -- | Exception thrown from 'fromFilePath' when the json in the
 -- parsed file has incorrect keys
-data JsonHasInvalidKeysError =
-  JsonHasInvalidKeysError FilePath [RawKey] deriving (Eq, Show)
+data InvalidJSONError =
+  InvalidJSONError FilePath ProblemWithJSON
+  deriving (Eq, Show)
 
-instance Exception JsonHasInvalidKeysError
+data ProblemWithJSON
+  = InvalidKey RawKey Text
+  | InvalidSelfValue RawKey Value
+  deriving (Eq, Show)
+
+instance Exception InvalidJSONError
 
 -- | Create a 'Source' from a json value, never fails.
 fromValue :: FilePath -> Value -> IO Source
@@ -349,60 +375,48 @@ fromValue filepath rawValue =
     Right s ->
       pure s
     Left e ->
-      throwIO $ JsonHasInvalidKeysError e []
+      throwIO $ InvalidJSONError filepath e
 
 -- | Create a 'Source' from a json value, never fails.
-fromValue' :: FilePath -> Value -> Either String Source
-fromValue' filepath rawValue =
-  case aaaa rawValue of
-    Right value ->
-      Right $ Source JsonSource {..}
-    Left e ->
-      Left e
+fromValue' :: FilePath -> Value -> Either ProblemWithJSON Source
+fromValue' filepath rawValue = do
+  value <- parseValue rawValue
+  pure $ Source JsonSource {..}
 
--- | Traverse a 'Value' using a 'Key' to get a 'Value'.
+-- | Traverse a 'ValueIR' using a 'Key' to get the deepest 'ValueIR' that
+-- matches that 'Key'
 --
--- This function can nest objects and arrays when keys are nested
---
--- @
--- 'traverseJSON' "a.b" {a: {b: 12}} == Just "12"
--- 'traverseJSON' "a.b" {a: {b: false}} == Just "false"
--- 'traverseJSON' "a" {a: {b: false}} == Nothing
--- 'traverseJSON' "1" [false, true] == Just "true"
--- 'traverseJSON' "0.a" [{a: "hi"}] == Just "hi"
--- 'traverseJSON' "0" [] == Nothing
--- @
-traverseJSON :: Key -> ValueIR -> Maybe ValueIR
-traverseJSON key value =
-  case getNoKeyExplainResult key value of
-    FoundConcrete _ _ v -> Just v
-    MissingKeyInPlainObject _ [] v -> Just v
-    MissingKeyInPlainObject {} -> Nothing
+-- This means it's is possible that the value returned is not the value at
+-- that 'Key'.
+traverseJSON :: Key -> ValueIR -> ValueIR
+traverseJSON = go
+  where
+  go :: Key -> ValueIR -> ValueIR
+  go key value =
+    case (unconsKey key, value) of
+      (Just (k, restOfKey), ObjectIR _ _ o) -> fromMaybe value $ do
+        x <- HashMap.lookup k o
+        Just $ go restOfKey x
+      (Just (k, restOfKey), ArrayIR _ vs) -> fromMaybe value $ do
+        n <- readMaybe @Int $ Text.unpack k
+        x <- vs !? n
+        Just $ go restOfKey x
+      (Nothing, v) -> v
+      (Just (_, _), v) -> v
 
 -- | Get the list of available keys inside a json value
 listKeysInJSON :: ValueIR -> [Key]
-listKeysInJSON = go ""
+listKeysInJSON = go True
   where
-  go :: Key -> ValueIR -> [Key]
-  go key value =
-    case (unconsKey key, value) of
-      (_, ObjectIR x o) ->
-        let
-          self =
-            case x of
-              Just _ -> [key]
-              Nothing -> []
-        in self ++ do
-          (k, v) <- HashMap.toList o
-          guard $ isValidKeyFragment k
-          go (key /. fromText k) v
-      (_, ArrayIR as) -> do
-        (index :: Integer, v) <- zip [0..] $ Vector.toList as
-        go (key /. mkKey (show index)) v
-      (Nothing, _) -> []
-      (_, _) -> [key]
-
-type RawKey = [Text]
-
-validFragmentForJSON :: Text -> Bool
-validFragmentForJSON fragment = isValidKeyFragment fragment || fragment == "_self"
+  go :: Bool -> ValueIR -> [Key]
+  go isTopLevel value =
+    case value of
+      ObjectIR k (Just _) o ->
+        (if isTopLevel then [] else [k]) ++
+          concatMap (go False) (HashMap.elems o)
+      ObjectIR _ _ o -> do
+        concatMap (go False) (HashMap.elems o)
+      ArrayIR _ vs -> do
+        concatMap (go False) vs
+      RawValue k _ _ ->
+        if isTopLevel then [] else [k]

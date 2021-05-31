@@ -14,6 +14,7 @@ import System.Directory
 import qualified Conferer.Source.Aeson as JSON
 import Conferer.Source.Files
 import Conferer.Source
+import Conferer.Source.Null
 
 -- | Create a 'SourceCreator' from a yaml file that we get from the env
 -- with the same logic as 'JSON.JSONSource'
@@ -31,7 +32,24 @@ fromFilePath filePath _config =
 fromFilePath' :: FilePath -> IO Source
 fromFilePath' relativeFilePath = do
   filePath <- makeAbsolute relativeFilePath
-  configAsJson <- decodeFileEither filePath
-  case configAsJson of
-    Right jsonConfig -> return $ JSON.fromValue filePath jsonConfig
-    Left parseException -> error (show parseException)
+  filePathExists <- doesFileExist filePath
+  if filePathExists
+    then do
+      configAsJson <- decodeFileEither filePath
+      case configAsJson of
+        Right jsonConfig -> JSON.fromValue filePath jsonConfig
+        Left _ -> do
+          error $ "Failed to decode json file '" ++ filePath ++ "'"
+    else
+      pure $ Source $ NullSource
+        { nullExplainNotFound = \key ->
+          concat
+          [ "Creating a file '"
+          , filePath
+          , "' (it doesn't exist now) with the object '"
+          , JSON.valueIR2String $ JSON.setKey "some text"
+              (rawKeyComponents key)
+              JSON.emptyRootObject
+          , "'"
+          ]
+        }

@@ -35,12 +35,6 @@ spec = do
           res <- getKeyInSource c "key"
           res `shouldBe` Just "72"
 
-      context "with a key that's not valid" $ do
-        it "ignores the value" $ do
-          c <- mk [aesonQQ| { key: {key_: 72}} |]
-          res <- getKeyInSource c "key"
-          res `shouldBe` Nothing
-
       describe "with an array" $ do
         it "getting a path with number gets the right value" $ do
           c <- mk [aesonQQ| {"key": ["value"]} |]
@@ -140,16 +134,6 @@ spec = do
           c <- mk [aesonQQ|[true, true, true]|]
           res <- getSubkeysInSource c ""
           res `shouldBe` ["0", "1", "2"]
-      describe "gettings keys with invalid names" $ do
-        it "ignores those names" $ do
-          c <- mk [aesonQQ|{"_a": 7}|]
-          res <- getSubkeysInSource c ""
-          res `shouldBe` []
-      describe "when json keys don't follow the conferer Key format" $ do
-        it "ignores the evil keys" $ do
-          c <- mk [aesonQQ|{some: {k_e_y: 0}}|]
-          res <- getSubkeysInSource c ""
-          res `shouldBe` []
       describe "when '_self' is present" $ do
         it "gets an object if it has '_self'" $ do
           c <- mk [aesonQQ|{some: {_self: 7, key: 0}}|]
@@ -160,36 +144,27 @@ spec = do
           c <- mk [aesonQQ|{"a": ["a"]}|]
           res <- getSubkeysInSource c "a"
           res `shouldBe` ["a.0"]
-      xdescribe "listing keys in non existant path" $ do
+    describe "#invalidJsonKeys" $ do
+      describe "listing keys in non existant path" $ do
         it "gets no keys" $ do
-          c <- mk [aesonQQ|{_self: {}, a: false}|]
-          res <- getSubkeysInSource c ""
-          res `shouldBe` ["a"]
-    -- describe "#invalidJsonKeys" $ do
-    --   context "with some common keys" $
-    --     it "works" $ do
-    --       invalidJsonKeys [aesonQQ|{postgres: {url: "some url", ssl: true}} |]
-    --         `shouldBe` []
-    --   context "with one top level invalid key" $
-    --     it "fails" $ do
-    --       invalidJsonKeys [aesonQQ|{k_e_y: {}} |]
-    --         `shouldBe` [["k_e_y"]]
-    --   context "with one invalid key inside an object" $
-    --     it "fails" $ do
-    --       invalidJsonKeys [aesonQQ|{some: {k_e_y: {}}} |]
-    --         `shouldBe` [["some", "k_e_y"]]
-    --   context "with one invalid key inside an array" $
-    --     it "fails" $ do
-    --       invalidJsonKeys [aesonQQ|[{k_e_y: {}}]|]
-    --         `shouldBe` [["0", "k_e_y"]]
-    --   context "with _self" $
-    --     it "succeeds" $ do
-    --       invalidJsonKeys [aesonQQ|[{some: {_self: 7}}]|]
-    --         `shouldBe` []
-    --   context "with empty key" $
-    --     it "fails" $ do
-    --       invalidJsonKeys [aesonQQ|{"": 7}|]
-    --         `shouldBe` [[""]]
+          parseValue [aesonQQ|{_self: {}, a: false}|]
+            `shouldBe` Left (InvalidSelfValue [] [aesonQQ|{}|])
+      describe "gettings keys with invalid names" $ do
+        it "ignores those names" $ do
+          parseValue [aesonQQ|{"_a": 7}|]
+            `shouldBe` Left (InvalidKey [] "_a")
+      context "with one invalid key inside an object" $
+        it "fails" $ do
+          parseValue [aesonQQ|{some: {k_e_y: {}}} |]
+            `shouldBe` Left (InvalidKey ["some"] "k_e_y")
+      context "with one invalid key inside an array" $
+        it "fails" $ do
+          parseValue [aesonQQ|[{k_e_y: {}}]|]
+            `shouldBe` Left (InvalidKey ["0"] "k_e_y")
+      context "with empty key" $
+        it "fails" $ do
+          parseValue [aesonQQ|{"": 7}|]
+            `shouldBe` Left (InvalidKey [] "")
     describe "#explainNotFound" $ do
       context "When there is an on root that's missing a key" $ do
         it "recomends adding that key mentioning 'the root object'" $ do
@@ -233,23 +208,17 @@ spec = do
           explainNotFound s "port"
             `shouldBe` "Replacing the value at 'port' from '[false]' to '{\"0\":false,\"_self\":\"some value\"}' on file 'file.json'"
 
-      xcontext "When the _self key has an object" $ do
-        it "recommends replacing it with some value" $ do
-          s <- mk [aesonQQ|{"port": {"_self": {}}}|]
-          explainNotFound s "port"
-            `shouldBe` "Replacing the value at 'port._self' from '{}' to '\"some value\"' on file 'file.json'"
-
-      xcontext "When the _self key has an array" $ do
-        it "recommends replacing it with some value" $ do
-          s <- mk [aesonQQ|{"port": {"_self": []}}|]
-          explainNotFound s "port"
-            `shouldBe` "Replacing the value at 'port._self' from '[]' to '\"some value\"' on file 'file.json'"
     describe "#explainSettedKey" $ do
       context "with a simple value" $ do
         it "returns its path" $ do
           s <- mk [aesonQQ|{"port": 9999}|]
           explainSettedKey s "port"
             `shouldBe` "json key 'port' on file 'file.json'"
+      context "with a simple value" $ do
+        it "returns its path" $ do
+          s <- mk [aesonQQ|{"port": 9999}|]
+          explainSettedKey s "keys"
+            `shouldBe` "json key 'keys' on file 'file.json'"
       context "with a simple value inside an array" $ do
         xit "returns its path" $ do
           s <- mk [aesonQQ|{"port": [9999]}|]
