@@ -48,14 +48,17 @@ data MissingRequiredKey =
 instance Exception MissingRequiredKey where
   displayException (MissingRequiredKey someKeys aTypeRep config) =
     let
-      sourcesExplanations =
-        fmap (\s -> explainNotFound s $ head someKeys) $
-        configSources config
+      explainSingleKey k =
+        concat
+        $ fmap (\source -> "* " ++ explainNotFound source k ++ "\n")
+        $ configSources config
+      keyExplanations =
+        fmap explainSingleKey someKeys
     in unlines
     [ "Couldn't find a '" ++ show aTypeRep ++ "'."
     , ""
     , "You can set it by either:"
-    ] ++ (intercalate "\n" $ fmap ("* " ++) $ sourcesExplanations)
+    ] ++ intercalate "\n" keyExplanations
 
 -- | Simplified helper function to throw a 'MissingRequiredKey'
 throwMissingRequiredKey :: forall t a. Typeable t => Key -> Config -> IO a
