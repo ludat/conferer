@@ -6,7 +6,12 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
-Nothing
+### Added
+
+* More strict parser:
+  - Disallow invalid keys with a clear error message
+  - Disallow using objects or arrays in the `_self` special key
+* Implement the explain interfaces for `YamlSource`
 
 ## [v1.1.0.0] 2021-03-01
 
