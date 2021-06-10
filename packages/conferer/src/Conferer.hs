@@ -63,8 +63,8 @@ fetch' :: forall a. (FromConfig a, Typeable a) => Config -> a -> IO a
 fetch' c a = do
   asTopLevel $ fetchFromRootConfigWithDefault c a
 
--- | Given an IO action that run it but if it throws a Conferer related excpetion
--- pretty print it and exit the program with failure.
+-- | Given an IO action, it runs and if it throws a Conferer related exception
+-- it pretty prints the error and exits the program with failure.
 asTopLevel :: IO a -> IO a
 asTopLevel action =
   action

@@ -30,9 +30,9 @@ instance IsSource TestSource where
   getSubkeysInSource TestSource {..} key = do
     return $ InMemory.subKeys key rawMap
   explainNotFound _ _ =
-    error "Tryig to explain a Test Source, use an InMemory source instead"
+    error "Trying to explain a Test Source, use an InMemory source instead"
   explainSettedKey _ _ =
-    error "Tryig to explain a Test Source, use an InMemory source instead"
+    error "Trying to explain a Test Source, use an InMemory source instead"
 
 -- | Create a 'SourceCreator' from a list of associations
 fromConfig :: [(Key, Text)] -> SourceCreator

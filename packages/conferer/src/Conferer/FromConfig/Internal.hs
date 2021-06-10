@@ -118,7 +118,7 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
           MissingKey () keys ->
             throwMissingRequiredKeys @String (fmap (/. "keys") keys) config
 #if __GLASGOW_HASKELL__ < 808
-          (FoundInSources v _ _) ->
+          FoundInSources v _ _ ->
             absurd v
 #endif
       Just subkeys -> do

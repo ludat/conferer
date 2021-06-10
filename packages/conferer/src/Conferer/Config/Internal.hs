@@ -60,7 +60,7 @@ getKeyFromSources key config = do
   let possibleKeys = getKeysFromMappings (configKeyMappings config) key
   untilJust (fmap (\MappedKey{..} -> getRawKeyInSources mappedKey config) possibleKeys)
     >>= \case
-      Just (k, i, t) -> pure $ FoundInSources t i k
+      Just (key, index, text) -> pure $ FoundInSources text index key
       Nothing -> pure $ MissingKey () $ fmap mappedKey possibleKeys
 
 -- | Alias for a mapping from one key to another used for transforming keys
