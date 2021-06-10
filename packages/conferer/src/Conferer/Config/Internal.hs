@@ -55,13 +55,15 @@ getKey key config = do
 --
 -- This is utility function that has proved to be useful but when doubt
 -- use 'getKey'
-getKeyFromSources :: Key -> Config -> IO (KeyLookupResult ('OnlySources))
+getKeyFromSources :: Key -> Config -> IO (KeyLookupResult 'OnlySources)
 getKeyFromSources key config = do
   let possibleKeys = getKeysFromMappings (configKeyMappings config) key
   untilJust (fmap (\MappedKey{..} -> getRawKeyInSources mappedKey config) possibleKeys)
     >>= \case
-      Just (key, index, text) -> pure $ FoundInSources text index key
-      Nothing -> pure $ MissingKey () $ fmap mappedKey possibleKeys
+      Just (actualKey, index, text) ->
+        pure $ FoundInSources text index actualKey
+      Nothing ->
+        pure $ MissingKey () $ fmap mappedKey possibleKeys
 
 -- | Alias for a mapping from one key to another used for transforming keys
 type KeyMapping = (Key, Key)

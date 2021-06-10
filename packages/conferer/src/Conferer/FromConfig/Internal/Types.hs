@@ -1,3 +1,11 @@
+-- |
+-- Copyright: (c) 2021 Lucas David Traverso
+-- License: MPL-2.0
+-- Maintainer: Lucas David Traverso <lucas6246@gmail.com>
+-- Stability: unstable
+-- Portability: portable
+--
+-- FromConfig related internal types
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
@@ -11,13 +19,13 @@ import Conferer.Config.Internal.Types
 import Conferer.Source.Internal
 import Data.List (intercalate)
 
-type FailureExplanation = Text
-type OriginalValue = Text
-
 -- | Exception to show that a value couldn't be parsed properly
 data ConfigParsingError =
   ConfigParsingError Key OriginalValue TypeRep Int Config
   deriving (Typeable, Show, Eq)
+
+-- | Type of the value returned by the 'Source'
+type OriginalValue = Text
 
 instance Exception ConfigParsingError where
   displayException (ConfigParsingError key _value aTypeRep sourceIndex c) =
@@ -40,7 +48,7 @@ configParsingError key value sourceIndex config =
   ConfigParsingError key value (typeRep (Proxy :: Proxy a)) sourceIndex config
 
 -- | Exception to show that some non optional 'Key' was missing while trying
--- to 'fetchFromConfig'
+-- to 'Conferer.FromConfig.Internal.fetchFromConfig'
 data MissingRequiredKey =
   MissingRequiredKey [Key] TypeRep Config
   deriving (Typeable, Show, Eq)

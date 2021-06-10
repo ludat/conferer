@@ -92,6 +92,9 @@ fromFileContent originalFilePath fileContent =
       rawMap = InMemory.rawFromAssociations keyValues
   in Source $ PropertiesFileSource {..}
 
+-- | Create a 'Source' given a file that doesn't exist, this 'Source'
+-- will fail searching keys but it'll complain about that missing
+-- file
 fromNonExistentFilepath :: FilePath -> Source
 fromNonExistentFilepath filePath =
   Source $ Null.NullSource

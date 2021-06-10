@@ -15,7 +15,17 @@ import Data.Text (Text)
 
 import Conferer.Source
 
+-- | Function to explain what a user may do to set this key.
+--
+-- For more information about the semantics look as 'explainNotFound'
+--
+-- Mostly just a newtype to distinguish from 'ExplainSettedKey'
 newtype ExplainNotFound = ExplainNotFound (Key -> String)
+-- | Function to tell the user to reference this key.
+--
+-- For more information about the semantics look as 'explainSettedKey'
+--
+-- Mostly just a newtype to distinguish from 'ExplainNotFound'
 newtype ExplainSettedKey = ExplainSettedKey (Key -> String)
 
 -- | A 'Source' mostly use for mocking which is configured directly using a
@@ -27,6 +37,12 @@ data InMemorySource =
   , inMemoryExplainNotFound :: Key -> String
   , inMemoryExplainSettedKey :: Key -> String
   }
+
+-- | Newtype for reusing a simple key -> text map for building other 'Source's
+newtype RawInMemorySource =
+  RawInMemorySource (Map Key Text)
+  deriving (Show, Eq)
+
 
 instance Show InMemorySource where
   show InMemorySource {..} = "InMemorySource " ++ show innerRawMap
@@ -41,22 +57,26 @@ instance IsSource InMemorySource where
   explainSettedKey InMemorySource {..} key =
     inMemoryExplainSettedKey key
 
-newtype RawInMemorySource =
-  RawInMemorySource (Map Key Text)
-  deriving (Show, Eq)
-
+-- | Lookup a 'Key' inside a 'RawInMemorySource', mainly used to use
+-- functionality of 'InMemorySource' without using it, to customize
+-- the error messages.
 lookupKey :: Key -> RawInMemorySource -> Maybe Text
 lookupKey key (RawInMemorySource m) =
   Map.lookup key m
 
+-- | List subkeys from a 'Key' inside a 'RawInMemorySource', mainly
+-- used to use functionality of 'InMemorySource' without using it,
+-- to customize the error messages.
 subKeys :: Key -> RawInMemorySource -> [Key]
 subKeys key (RawInMemorySource m) =
   filter (\k -> key `isKeyPrefixOf` k && key /= k) $ Map.keys m
 
+-- | Create a 'RawInMemorySource'.
 rawFromMap :: Map Key Text -> RawInMemorySource
 rawFromMap =
   RawInMemorySource
 
+-- | Same as 'rawFromMap' but provide associations instead of a map.
 rawFromAssociations :: [(Key, Text)] -> RawInMemorySource
 rawFromAssociations =
   RawInMemorySource . Map.fromList

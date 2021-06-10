@@ -73,6 +73,9 @@ class FromConfig a where
           _ -> config
     to <$> fromConfigG key configWithDefaults
 
+-- | Main function to get keys from a config, it wraps 'fromConfig' with some general
+
+-- functionallity, like fetch overriding.
 fetchFromConfig :: forall a. (FromConfig a, Typeable a) => Key -> Config -> IO a
 fetchFromConfig key config =
   case getKeyFromDefaults @(OverrideFromConfig a) key config of
@@ -199,6 +202,7 @@ newtype File =
   File FilePath
   deriving (Show, Eq, Ord, Read)
 
+-- | Unpack the 'FilePath' from a 'File'
 unFile :: File -> FilePath
 unFile (File f) = f
 
@@ -250,6 +254,8 @@ parseBool text =
     "1" -> pure False
     _ -> Nothing
 
+-- | Special type that's used internally to implement fromConfig
+-- overriding.
 data OverrideFromConfig a =
   OverrideFromConfig (Key -> Config -> IO a)
 

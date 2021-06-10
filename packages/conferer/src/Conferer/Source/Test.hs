@@ -14,10 +14,10 @@ import Data.Map (Map)
 import Data.Text (Text)
 
 -- | 'Source' for testing, mainly for checking that given some
--- behavior from 'Source' some 'fetchFromConfig' will behave
--- properly.
+-- behavior from 'Source' some 'Conferer.FromConfig.Internal.fetchFromConfig'
+-- will behave properly.
 --
--- Note: Don't use this source for real code, use 'InMemorySource'
+-- Note: Don't use this source for real code, use 'Conferer.Source.InMemory.InMemorySource'
 -- instead, since this source can't explain things to the user
 data TestSource =
   TestSource

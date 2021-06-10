@@ -38,6 +38,8 @@ data JsonSource = JsonSource
   , filepath :: FilePath
   } deriving (Show, Eq)
 
+-- | This represents a real json path (which has strictly more things than
+-- a 'Key')
 type RawKey = [Text]
 
 -- | This is the representation of the 'explainNotFound', this is useful
@@ -112,6 +114,8 @@ instance IsSource JsonSource where
                     \https://github.com/ludat/conferer/issues with :\n " ++ show result
 
 
+-- | set a 'RawKey' inside a 'ValueIR' while also preserving any already present
+-- keys.
 setKey :: Text -> RawKey -> ValueIR -> ValueIR
 setKey newText = go
   where
@@ -149,17 +153,24 @@ setKey newText = go
 value2String :: Value -> String
 value2String = LBS.unpack . encode
 
+-- | Utility function to show a 'ValueIR'
 valueIR2String :: ValueIR -> String
 valueIR2String = value2String . valueIR2Value
 
+-- | Utility function like 'valueIRKey' but returns a 'RawKey' instead
 valueIRRawKey :: ValueIR -> RawKey
 valueIRRawKey = rawKeyComponents . valueIRKey
 
+-- | Utility function get the 'Key' where the 'ValueIR' was found.
 valueIRKey :: ValueIR -> Key
 valueIRKey (RawValue k _ _) = k
 valueIRKey (ArrayIR k _) = k
 valueIRKey (ObjectIR k _ _) = k
 
+-- | Utility function to get the original 'Value' back from a 'ValueIR'
+--
+-- This function satisfies that
+-- @(valueIR2Value. fromRight . parseValue) == id@
 valueIR2Value :: ValueIR -> Value
 valueIR2Value = go
   where
@@ -180,6 +191,16 @@ showRawKey :: RawKey -> String
 showRawKey =
   intercalate "." . fmap Text.unpack
 
+-- | Given a 'ValueIR' traverse it with a 'Key' to see if there is a value
+-- for that specific 'Key'
+--
+-- This function implements the @keys@ special key
+--
+-- It works by traversing the 'ValueIR' using 'traverseJSON' which always
+-- succeeds and then compares the key of the found 'ValueIR' with the
+-- original key (checking for left overs), if there are none then that
+-- value is returned, otherwise we try to use the special "keys" key
+-- and finally it just returns a 'Missing' result
 findKeyInsideValue :: Key -> ValueIR -> FindKeyInValueResult
 findKeyInsideValue key aValue =
   let
@@ -232,7 +253,7 @@ findKeyInsideValue key aValue =
             ]
 
 
--- | Internal Repepresentation of a json value that matches the way we find keys
+-- | Internal Representation of a json value that matches the way we find keys
 -- so concrete values are translated into a single constructor and the special
 -- "_self" key is descriminated, and also each node contains its 'Key'
 data ValueIR
@@ -253,6 +274,9 @@ data ValueIR
   | RawValue Key Text Value
   deriving (Eq, Show)
 
+-- | Parse a raw 'Value' into a nicer internal representation ('ValueIR')
+-- and report errors if the json is malformed which currently may be
+-- caused by keys with invalid charaters or _self key with invalid value.
 parseValue :: Value -> Either ProblemWithJSON ValueIR
 parseValue = go ""
   where
@@ -352,6 +376,8 @@ fromFilePath' relativeFilePath = do
           ]
         }
 
+-- | Utility function for creating an empty root object, mostly for
+-- reporting errors
 emptyRootObject :: ValueIR
 emptyRootObject = ObjectIR "" Nothing HashMap.empty
 
@@ -361,9 +387,13 @@ data InvalidJSONError =
   InvalidJSONError FilePath ProblemWithJSON
   deriving (Eq, Show)
 
+-- | Possible problems while parsing a 'Value' into a 'ValueIR' in
+-- 'parseValue'
 data ProblemWithJSON
   = InvalidKey RawKey Text
+  -- ^ a key has is not a valid key fragment (e.g. "k_e_y" or "")
   | InvalidSelfValue RawKey Value
+  -- ^ a _self key has a non concrete value (like an object or an array)
   deriving (Eq, Show)
 
 instance Exception InvalidJSONError
