@@ -1,10 +1,9 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7047fb1b6c4ba214affd2ca1a654f1914a857ed6a36e5b2136b40e04c5b9b693
 
 name:           conferer
 version:        1.1.0.0
@@ -51,11 +50,17 @@ library
       Paths_conferer
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , bytestring >=0.10 && <0.11
+    , bytestring ==0.10.*
     , containers >=0.5 && <0.7
     , directory >=1.2 && <2.0
     , filepath >=1.0 && <2.0
@@ -89,12 +94,18 @@ test-suite specs
       Paths_conferer
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererSpecMain
   build-depends:
       QuickCheck
     , base >=4.3 && <5
-    , bytestring >=0.10 && <0.11
+    , bytestring ==0.10.*
     , conferer
     , containers >=0.5 && <0.7
     , deepseq

@@ -1,10 +1,9 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e7a6894c4340463874ee057abfcf3dde4b94bb05618151c6850f6807ef85fc7d
 
 name:           conferer-dhall
 version:        1.1.0.0
@@ -32,11 +31,17 @@ library
       Paths_conferer_dhall
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , bytestring >=0.10 && <0.11
+    , bytestring ==0.10.*
     , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-aeson >=1.1.0.0 && <2.0.0.0
     , dhall >=1.8 && <2.0
@@ -54,11 +59,17 @@ test-suite specs
       Paths_conferer_dhall
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererDhallSpecMain
   build-depends:
       base >=4.3 && <5
-    , bytestring >=0.10 && <0.11
+    , bytestring ==0.10.*
     , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-aeson >=1.1.0.0 && <2.0.0.0
     , conferer-dhall
