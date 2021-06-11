@@ -43,6 +43,9 @@ import qualified Conferer.Source.Env as Env
 import qualified Conferer.Source.CLIArgs as Cli
 import qualified Conferer.Source.PropertiesFile as PropertiesFile
 import Conferer.Config (Defaults)
+import Conferer.FromConfig.Internal.Types
+import Control.Exception
+import System.Exit (exitFailure)
 
 -- | Use the 'FromConfig' instance to get a value of type @a@ from the config
 --   using some default fallback. The most common use for this is creating a custom
@@ -52,12 +55,25 @@ import Conferer.Config (Defaults)
 --   but malformed somehow (@"abc"@ as an Int) but that depends on the 'FromConfig'
 --   implementation for the type.
 fetch :: forall a. (FromConfig a, Typeable a, DefaultConfig a) => Config -> IO a
-fetch c = fetchFromRootConfigWithDefault c configDef
+fetch c = fetch' c configDef
 
 -- | Same as 'fetch' but it accepts the default as a parameter instead of using
 --   the default from 'configDef'
 fetch' :: forall a. (FromConfig a, Typeable a) => Config -> a -> IO a
-fetch' = fetchFromRootConfigWithDefault
+fetch' c a = do
+  asTopLevel $ fetchFromRootConfigWithDefault c a
+
+-- | Given an IO action, it runs and if it throws a Conferer related exception
+-- it pretty prints the error and exits the program with failure.
+asTopLevel :: IO a -> IO a
+asTopLevel action =
+  action
+     `catch` (\(e :: MissingRequiredKey) -> do
+       putStrLn $ displayException e
+       exitFailure)
+     `catch` (\(e :: ConfigParsingError) -> do
+       putStrLn $ displayException e
+       exitFailure)
 
 -- | Same as 'fetch'' but you can specify a 'Key' instead of the root key which allows
 --   you to fetch smaller values when you need them instead of a big one at

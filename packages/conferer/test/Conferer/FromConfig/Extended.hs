@@ -7,15 +7,11 @@ module Conferer.FromConfig.Extended
   ( module Conferer.FromConfig
   , module GHC.Generics
   , configWith
-  , anyConfigParserError
-  , aConfigParserError
-  , aMissingRequiredKey
-  , aMissingRequiredKeys
   , ensureEmptyConfigThrows
   , ensureUsingDefaultReturnsSameValue
   , ensureSingleConfigParsesTheRightThing
   , ensureSingleConfigThrowsParserError
-  , ensureSingleConfigThrows
+  , ensureSingleFetchThrows
   , ensureFetchParses
   , ensureFetchThrows
   , toDyn
@@ -31,55 +27,43 @@ import Data.Dynamic
 import Data.Function
 
 import Conferer.Config
-import Conferer.FromConfig.Internal
-  ( MissingRequiredKey(..)
-  , ConfigParsingError(..)
-  )
 import Conferer.FromConfig
-import qualified Conferer.Source.InMemory as InMemory
+import qualified Conferer.Source.Test as Test
 
 configWith :: [(Key, Text)] -> IO Config
 configWith keyValues =
   emptyConfig
-  & addSource (InMemory.fromConfig keyValues)
+  & addSource (Test.fromConfig keyValues)
 
-anyConfigParserError :: ConfigParsingError -> Bool
-anyConfigParserError _ = True
-
-aConfigParserError :: Key -> Text -> ConfigParsingError -> Bool
-aConfigParserError key txt (ConfigParsingError k t _) =
-  key == k && t == txt
-
-aMissingRequiredKey :: forall t. Typeable t => Key -> MissingRequiredKey -> Bool
-aMissingRequiredKey key (MissingRequiredKey k t) =
-  [key] == k && typeRep (Proxy :: Proxy t) == t
-
-aMissingRequiredKeys :: forall t. Typeable t => [Key] -> MissingRequiredKey -> Bool
-aMissingRequiredKeys keys (MissingRequiredKey k t) =
-  keys == k && typeRep (Proxy :: Proxy t) == t
-
-data InvalidThing = InvalidThing deriving (Show, Eq)
-
-ensureEmptyConfigThrows :: forall a. (Typeable a, FromConfig a) => SpecWith ()
+ensureEmptyConfigThrows :: forall a. (HasCallStack, Typeable a, FromConfig a, Show a) => SpecWith ()
 ensureEmptyConfigThrows =
   context "with empty config"  $ do
     it "throws an exception" $ do
       config <- configWith []
       fetchFromConfig @a "some.key" config
-        `shouldThrow` aMissingRequiredKey @a "some.key"
+        `shouldThrowExactly` (missingRequiredKey @a "some.key" emptyConfig)
 
 ensureSingleConfigThrowsParserError ::
-    forall a. (FromConfig a, Typeable a) =>
+    forall a. (HasCallStack, FromConfig a, Typeable a, Show a) =>
     Text -> SpecWith ()
 ensureSingleConfigThrowsParserError keyContent =
   context "with invalid types in the defaults"  $ do
     it "throws an exception" $ do
       config <- configWith [("some.key", keyContent)]
       fetchFromConfig @a "some.key" config
-        `shouldThrow` aConfigParserError "some.key" keyContent
+        `shouldThrowExactly` (configParsingError @a "some.key" keyContent 0 emptyConfig)
+
+shouldThrowExactly :: forall e a. (HasCallStack, Exception e, Eq e, Show a) => IO a -> e -> Expectation
+shouldThrowExactly action expectedException = do
+  result <- try @e action
+  case result of
+    Right a -> do
+      fail $ "Expected an exception but got: " ++ show a
+    Left e -> do
+      e `shouldBe` expectedException
 
 ensureUsingDefaultReturnsSameValue ::
-    forall a. (Typeable a, Eq a, Show a, FromConfig a) =>
+    forall a. (HasCallStack, Typeable a, Eq a, Show a, FromConfig a) =>
     a -> SpecWith ()
 ensureUsingDefaultReturnsSameValue value =
   context ("with a default of '" ++ show value ++ "'") $ do
@@ -90,7 +74,7 @@ ensureUsingDefaultReturnsSameValue value =
       fetchedValue `shouldBe` value
 
 ensureSingleConfigParsesTheRightThing ::
-    forall a. (Eq a, Show a, FromConfig a, Typeable a) =>
+    forall a. (HasCallStack, Eq a, Show a, FromConfig a, Typeable a) =>
     Text -> a -> SpecWith ()
 ensureSingleConfigParsesTheRightThing keyContent value =
   context ("with a config value of '" ++ unpack keyContent ++ "'" ) $ do
@@ -99,18 +83,19 @@ ensureSingleConfigParsesTheRightThing keyContent value =
       fetchedValue <- fetchFromConfig @a "some.key" config
       fetchedValue `shouldBe` value
 
-ensureSingleConfigThrows ::
-    forall a e. (FromConfig a, Typeable a, Exception e) =>
-    Text -> (e -> Bool) -> SpecWith ()
-ensureSingleConfigThrows keyContent checkException =
+ensureSingleFetchThrows ::
+    forall a e. (HasCallStack, FromConfig a, Typeable a, Exception e, Eq e, Show a) =>
+    Text -> e -> SpecWith ()
+ensureSingleFetchThrows keyContent checkException =
   it "gets the right value" $ do
     config <- configWith [("some.key", keyContent)]
     fetchFromConfig @a "some.key" config
-      `shouldThrow` checkException
+      `shouldThrowExactly` checkException
 
 ensureFetchParses ::
     forall a.
-    ( FromConfig a
+    ( HasCallStack
+    , FromConfig a
     , Typeable a
     , Eq a
     , Show a
@@ -133,16 +118,19 @@ ensureFetchThrows ::
     ( FromConfig a
     , Typeable a
     , Exception e
+    , Eq e
+    , HasCallStack
+    , Show a
     )
     => [(Key, Text)]
     -> [(Key, Dynamic)]
-    -> (e -> Bool)
+    -> e
     -> SpecWith ()
-ensureFetchThrows configs defaults exceptionCheck =
+ensureFetchThrows configs defaults expectedException =
   it "throws an exception" $ do
     config <- addDefaults (mapKeys defaults) <$> configWith (mapKeys configs)
     fetchFromConfig @a "some.key" config
-      `shouldThrow` exceptionCheck
+      `shouldThrowExactly` expectedException
   where
     mapKeys :: forall x. [(Key, x)] -> [(Key, x)]
     mapKeys = fmap (\(k, x) -> ("some.key" /. k, x))

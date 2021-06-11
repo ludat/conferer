@@ -37,4 +37,5 @@ import Conferer.Key
 import Data.Function
 import Data.Dynamic (Dynamic)
 
+-- | Type of the defaults of a 'Config'
 type Defaults = [(Key, Dynamic)]

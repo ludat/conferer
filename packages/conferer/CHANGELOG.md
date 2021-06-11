@@ -10,6 +10,11 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 * Added new functions `getKeyFromSources` and `getKeyFromDefaults`
 * Change structure of `KeyLookupResult` to keep invariants of `getKeyFromSources` `getKeyFromDefaults`
+* Added `asTopLevel` to display pretty errors and use `exitFailure` upon errors
+* Fake `Show` and `Eq` instances for `Config`
+* Reasonable implementations for the new `explain*` function on `Source` for the default sources
+* `TestSource` which is like `InMemorySource` but throws when asking to explain keys (should be only
+  used for testing)
 
 ### Removed
 
@@ -19,6 +24,17 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 * `listSubkeys` now ignores the defaults (since without a type parameter we can't guarantee that a value
     will always be found)
+* `FoundInSources` now contains the index of the source it was found on
+* `FromConfig` instances:
+  - `File` throw with a `File` type on root key instead of string on every subkey (to improve error messages)
+  - `List` now throws more specific errors (like `String` on `keys` instead of `[a]` on `.`) to
+    report more actionable errors
+  - `Bool` now accepts more values as true: `t`, `y`, `yes`, `1` and as false: `f`, `n`, `no`, `0`
+* Moved exceptions related code from `FromConfig/Internal.hs` to `FromConfig/Internal/Types.hs`
+* `explainSettedKey` and `explainMissingKey` to the `Source` typeclass to give better explanations
+  of missing keys and setted keys
+* `NullSource` and `InMemorySource` now accept one or more functions to implement the explain
+  function from `Source`
 
 ## [v1.1.0.0] - 2021-03-01
 

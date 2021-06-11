@@ -62,9 +62,9 @@ instance FromConfig Redis.ConnectInfo where
 -- act as if it wasn't present
 #if MIN_VERSION_hedis(0,10,0)
     config <-
-      fetchFromConfig @(Maybe Text) (key /. "url") firstConfig
+      getKeyFromSources (key /. "url") firstConfig
         >>= \case
-        Just connectionString -> do
+        FoundInSources connectionString i k -> do
           case Redis.parseConnectInfo $ unpack connectionString of
             Right Redis.ConnInfo{..} -> do
               return $
@@ -76,8 +76,8 @@ instance FromConfig Redis.ConnectInfo where
                     , (key /. "database", toDyn connectDatabase)
                     ]
             Left _e ->
-              throwConfigParsingError @Redis.ConnectInfo key connectionString
-        Nothing -> do
+              throwConfigParsingError @Redis.ConnectInfo k connectionString i originalConfig
+        _ -> do
           return firstConfig
 #else
     config <- return firstConfig

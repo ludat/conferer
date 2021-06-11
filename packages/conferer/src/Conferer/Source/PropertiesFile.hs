@@ -10,7 +10,7 @@ module Conferer.Source.PropertiesFile where
 
 import Data.Text (Text)
 import Data.Function ((&))
-import System.Directory (doesFileExist)
+import System.Directory
 import Data.Maybe (catMaybes)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
@@ -19,20 +19,41 @@ import Conferer.Source
 import Conferer.Source.Files
 import qualified Conferer.Source.Null as Null
 import qualified Conferer.Source.InMemory as InMemory
+import Data.List
 
 -- | 'Source' that uses a config file in @config/{env}.properties@ and
 -- parses it as a properties file with @some.key=a value@ lines
-data PropertiesFileSource =
-  PropertiesFileSource
-  { originalFilePath :: FilePath
-  , innerSource :: Source
-  } deriving (Show)
+data PropertiesFileSource
+  = PropertiesFileSource
+    { originalFilePath :: FilePath
+    , rawMap :: InMemory.RawInMemorySource
+    }
+  deriving (Show)
 
 instance IsSource PropertiesFileSource where
   getKeyInSource PropertiesFileSource{..} key = do
-    getKeyInSource innerSource key
+    return $ InMemory.lookupKey key rawMap
+
   getSubkeysInSource PropertiesFileSource{..} key = do
-    getSubkeysInSource innerSource key
+    return $ InMemory.subKeys key rawMap
+
+  explainNotFound PropertiesFileSource{..} key =
+    concat
+    [ "Adding a new line '"
+    , concat $ intersperse "." $ fmap Text.unpack $ rawKeyComponents key
+    , "=some value' to the file '"
+    , originalFilePath
+    , "'"
+    ]
+  explainSettedKey PropertiesFileSource{..} key =
+    concat
+    [ "key '"
+    , concat $ intersperse "." $ fmap Text.unpack $ rawKeyComponents key
+    , "' (on file '"
+    , originalFilePath
+    , "')"
+    ]
+
 
 -- | Create a 'SourceCreator' using 'getFilePathFromEnv' to get the path to file
 -- and 'fromFilePath'
@@ -50,14 +71,15 @@ fromFilePath filepath _config =
 -- | Create a 'Source' reading the file and using that as a properties file, but
 -- if the file doesn't exist do nothing.
 fromFilePath' :: FilePath -> IO Source
-fromFilePath' filePath = do
+fromFilePath' relativeFilePath = do
+  filePath <- makeAbsolute relativeFilePath
   fileExists <- doesFileExist filePath
   if fileExists
     then do
       fileContent <- Text.readFile filePath
       return $ fromFileContent filePath fileContent
     else
-      return Null.empty
+      return $ fromNonExistentFilepath filePath
 
 -- | Create a 'Source' using some content as a properties file
 fromFileContent :: FilePath -> Text -> Source
@@ -67,8 +89,24 @@ fromFileContent originalFilePath fileContent =
         & Text.lines
         & fmap lineToKeyValue
         & catMaybes
-      innerSource = InMemory.fromAssociations keyValues
+      rawMap = InMemory.rawFromAssociations keyValues
   in Source $ PropertiesFileSource {..}
+
+-- | Create a 'Source' given a file that doesn't exist, this 'Source'
+-- will fail searching keys but it'll complain about that missing
+-- file
+fromNonExistentFilepath :: FilePath -> Source
+fromNonExistentFilepath filePath =
+  Source $ Null.NullSource
+    { nullExplainNotFound = \key ->
+      concat
+      [ "Creating a file '"
+      , filePath
+      , "' (it doesn't exist now) and adding a line '"
+      , concat $ intersperse "." $ fmap Text.unpack $ rawKeyComponents key
+      , "=some value'."
+      ]
+    }
 
 -- | Transform a line into a key/value pair (or not)
 lineToKeyValue :: Text -> Maybe (Key, Text)

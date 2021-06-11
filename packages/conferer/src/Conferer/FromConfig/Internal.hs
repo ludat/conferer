@@ -31,6 +31,7 @@ import Data.Function ((&))
 
 import Conferer.Key
 import Conferer.Config.Internal.Types
+import Conferer.FromConfig.Internal.Types
 import Conferer.Config.Internal
 import qualified Data.Char as Char
 import Control.Monad (forM)
@@ -72,6 +73,9 @@ class FromConfig a where
           _ -> config
     to <$> fromConfigG key configWithDefaults
 
+-- | Main function to get keys from a config, it wraps 'fromConfig' with some general
+
+-- functionallity, like fetch overriding.
 fetchFromConfig :: forall a. (FromConfig a, Typeable a) => Key -> Config -> IO a
 fetchFromConfig key config =
   case getKeyFromDefaults @(OverrideFromConfig a) key config of
@@ -93,9 +97,9 @@ instance {-# OVERLAPPABLE #-} Typeable a => FromConfig a where
       FoundInDefaults a _key ->
         pure a
       MissingKey () keys ->
-        throwMissingRequiredKeys @a keys
+        throwMissingRequiredKeys @a keys config
 #if __GLASGOW_HASKELL__ < 808
-      FoundInSources v _ -> absurd v
+      FoundInSources v _ _ -> absurd v
 #endif
 
 
@@ -112,12 +116,12 @@ instance {-# OVERLAPPABLE #-} (Typeable a, FromConfig a) =>
     case keysForItems of
       Nothing -> do
         case getKeyFromDefaults @[a] key config of
-          (FoundInDefaults a _keys) ->
+          FoundInDefaults a _keys ->
             pure a
           MissingKey () keys ->
-            throwMissingRequiredKeys @[a] keys
+            throwMissingRequiredKeys @String (fmap (/. "keys") keys) config
 #if __GLASGOW_HASKELL__ < 808
-          (FoundInSources v _) ->
+          FoundInSources v _ _ ->
             absurd v
 #endif
       Just subkeys -> do
@@ -198,6 +202,7 @@ newtype File =
   File FilePath
   deriving (Show, Eq, Ord, Read)
 
+-- | Unpack the 'FilePath' from a 'File'
 unFile :: File -> FilePath
 unFile (File f) = f
 
@@ -227,13 +232,7 @@ instance FromConfig File where
         $ fromMaybe (unFile $ fromMaybe "" defaultPath) filepath
     if FilePath.isValid constructedFilePath
       then return $ File constructedFilePath
-      else throwMissingRequiredKeys @String
-        [ key
-        , key /. "extension"
-        , key /. "dirname"
-        , key /. "basename"
-        , key /. "filename"
-        ]
+      else throwMissingRequiredKey @File key config
     where
       applyIfPresent f maybeComponent =
         (\fp -> maybe fp (f fp) maybeComponent)
@@ -242,10 +241,21 @@ instance FromConfig File where
 parseBool :: Text -> Maybe Bool
 parseBool text =
   case Text.toLower text of
-    "false" -> Just False
-    "true" -> Just True
+    "false" -> pure False
+    "f" -> pure False
+    "no" -> pure False
+    "n" -> pure False
+    "0" -> pure False
+
+    "true" -> pure True
+    "t" -> pure True
+    "yes" -> pure True
+    "y" -> pure True
+    "1" -> pure False
     _ -> Nothing
 
+-- | Special type that's used internally to implement fromConfig
+-- overriding.
 data OverrideFromConfig a =
   OverrideFromConfig (Key -> Config -> IO a)
 
@@ -267,18 +277,18 @@ fetchFromConfigWith :: forall a. Typeable a => (Text -> Maybe a) -> Key -> Confi
 fetchFromConfigWith parseValue key config = do
   getKey @a key config >>=
     \case
-      FoundInSources value k ->
+      MissingKey () k -> do
+        throwMissingRequiredKeys @a k config
+
+      FoundInSources value index k ->
         case parseValue value of
           Just a -> do
             return a
           Nothing -> do
-            throwConfigParsingError @a k value
+            throwConfigParsingError @a k value index config
 
-      FoundInDefaults v _key ->
-        return v
-
-      MissingKey () k -> do
-        throwMissingRequiredKeys @a k
+      FoundInDefaults a _k ->
+        return a
 
 -- | Helper function does the plumbing of desconstructing a default into smaller
 -- defaults, which is usefull for nested 'fetchFromConfig'.
@@ -309,73 +319,6 @@ addDefaultsAfterDeconstructingToDefaults destructureValue key config = do
 overrideFetch :: forall a. Typeable a => (Key -> Config -> IO a) -> Dynamic
 overrideFetch f =
   toDyn @(OverrideFromConfig a) $ OverrideFromConfig f
-
--- | Exception to show that a value couldn't be parsed properly
-data ConfigParsingError =
-  ConfigParsingError Key Text TypeRep
-  deriving (Typeable, Eq)
-
-instance Exception ConfigParsingError
-instance Show ConfigParsingError where
-  show (ConfigParsingError key value aTypeRep) =
-    concat
-    [ "Couldn't parse value '"
-    , Text.unpack value
-    , "' from key '"
-    , show key
-    , "' as "
-    , show aTypeRep
-    ]
-
--- | Helper function to throw 'ConfigParsingError'
-throwConfigParsingError :: forall a b. (Typeable a) => Key -> Text -> IO b
-throwConfigParsingError key text =
-  throwIO $ configParsingError @a  key text
-
--- | Helper function to create a 'ConfigParsingError'
-configParsingError :: forall a. (Typeable a) => Key -> Text -> ConfigParsingError
-configParsingError key text =
-  ConfigParsingError key text $ typeRep (Proxy :: Proxy a)
-
--- | Exception to show that some non optional 'Key' was missing while trying
--- to 'fetchFromConfig'
-data MissingRequiredKey =
-  MissingRequiredKey [Key] TypeRep
-  deriving (Typeable, Eq)
-
-instance Exception MissingRequiredKey
-instance Show MissingRequiredKey where
-  show (MissingRequiredKey keys aTypeRep) =
-    concat
-    [ "Failed to get a '"
-    , show aTypeRep
-    , "' from keys: "
-    , Text.unpack
-      $ Text.intercalate ", "
-      $ fmap (Text.pack . show)
-      $ keys
-
-    ]
-
--- | Simplified helper function to throw a 'MissingRequiredKey'
-throwMissingRequiredKey :: forall t a. Typeable t => Key -> IO a
-throwMissingRequiredKey key =
-  throwMissingRequiredKeys @t [key]
-
--- | Simplified helper function to create a 'MissingRequiredKey'
-missingRequiredKey :: forall t. Typeable t => Key -> MissingRequiredKey
-missingRequiredKey key =
-  missingRequiredKeys @t [key]
-
--- | Helper function to throw a 'MissingRequiredKey'
-throwMissingRequiredKeys :: forall t a. Typeable t => [Key] -> IO a
-throwMissingRequiredKeys keys =
-  throwIO $ missingRequiredKeys @t keys
-
--- | Helper function to create a 'MissingRequiredKey'
-missingRequiredKeys :: forall a. (Typeable a) => [Key] -> MissingRequiredKey
-missingRequiredKeys keys =
-  MissingRequiredKey keys (typeRep (Proxy :: Proxy a))
 
 -- | Same as 'fetchFromConfig' using the root key
 fetchFromRootConfig :: forall a. (FromConfig a, Typeable a) => Config -> IO a

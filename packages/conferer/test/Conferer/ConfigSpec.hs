@@ -5,7 +5,7 @@ import Test.Hspec
 import Data.Dynamic
 
 import Conferer.Config
-import Conferer.Source.InMemory
+import Conferer.Source.Test
 
 spec :: Spec
 spec = do
@@ -36,12 +36,12 @@ spec = do
         it "getting an key returns unwraps the original map" $ do
           c <- mkConfig' [] [] [("some.key", "1")]
           res <- getKeyFromSources "some.key" c
-          res `shouldBe` FoundInSources "1" "some.key"
+          res `shouldBe` FoundInSources "1" 1 "some.key"
 
         it "getting an existent key returns in the bottom maps gets it" $ do
           c <- mkConfig' [] [("some.key", "2")] [("some.key", "1")]
           res <- getKeyFromSources "some.key" c
-          res `shouldBe` FoundInSources "2" "some.key"
+          res `shouldBe` FoundInSources "2" 0 "some.key"
       describe "with some key mapping" $ do
         context "with basic one to one mapping" $
           it "gets the value through a mapping" $ do
@@ -50,7 +50,7 @@ spec = do
                   []
                   [ ("server", "aaa") ]
             res <- getKeyFromSources "something" c
-            res `shouldBe` FoundInSources "aaa" "server"
+            res `shouldBe` FoundInSources "aaa" 0 "server"
         context "with a nested key mapping" $ do
           it "goes through all the mappings and gets the right value" $ do
             c <- mkConfig
@@ -61,7 +61,7 @@ spec = do
                   [ ("server", "aaa")
                   ]
             res <- getKeyFromSources "something" c
-            res `shouldBe` FoundInSources "aaa" "server"
+            res `shouldBe` FoundInSources "aaa" 0 "server"
         context "with circular mappings" $ do
           it "gets the first key" $ do
             c <- mkConfig
@@ -73,7 +73,7 @@ spec = do
                   [ ("c", "aaa")
                   ]
             res <- getKeyFromSources "a" c
-            res `shouldBe` FoundInSources "aaa" "c"
+            res `shouldBe` FoundInSources "aaa" 0 "c"
         context "with nested key" $ do
           it "maps the right upper key" $ do
             c <- mkConfig
@@ -83,7 +83,7 @@ spec = do
                   [ ("b.k", "aaa")
                   ]
             res <- getKeyFromSources "a.k" c
-            res `shouldBe` FoundInSources "aaa" "b.k"
+            res `shouldBe` FoundInSources "aaa" 0 "b.k"
         context "with some defaults" $ do
           it "maps and allows getting the default" $ do
             c <- mkConfig
@@ -117,15 +117,15 @@ spec = do
           res <- listSubkeys "other" c
           res `shouldBe` []
       context "with a config with defaults" $ do
-        xit "returns those defaults in the list" $ do
+        it "returns those defaults in the list" $ do
           c <- mkConfig [] [] [("some.key", "7")]
           res <- listSubkeys "some" c
           res `shouldBe` ["some.key"]
       context "with configs in both defaults and sources" $ do
-        xit "returns both results combined" $ do
+        it "returns only the sources" $ do
           c <- mkConfig [] [("some.key", toDyn @Int 7)] [("some.other", "")]
           res <- listSubkeys "some" c
-          res `shouldBe` ["some.key", "some.other"]
+          res `shouldBe` ["some.other"]
       context "mappings" $ do
         context "with a simple mapping and a configured value" $ do
           it "returns the keys that are present based on the mapping" $ do

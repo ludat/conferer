@@ -6,7 +6,9 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
-Nothing
+### Changed
+
+* Improved errors when parsing the url
 
 ## [v1.1.0.0] 2021-03-07
 
