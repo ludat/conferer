@@ -1,10 +1,9 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a277c3aeb83a24c25a9b3314660add906a9c3a3420bee5b7b13a1f244a3f0210
 
 name:           conferer-aeson
 version:        1.1.0.1
@@ -33,12 +32,18 @@ library
       Paths_conferer_aeson
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       aeson >=0.10 && <2.0
     , base >=4.3 && <5
-    , bytestring >=0.10 && <0.11
+    , bytestring ==0.10.*
     , conferer >=1.1.0.0 && <2.0.0.0
     , directory >=1.2 && <2.0
     , text >=1.1 && <1.3
@@ -57,13 +62,19 @@ test-suite specs
       Paths_conferer_aeson
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererAesonSpecMain
   build-depends:
       aeson >=0.10 && <2.0
     , aeson-qq
     , base >=4.3 && <5
-    , bytestring >=0.10 && <0.11
+    , bytestring ==0.10.*
     , conferer
     , conferer-aeson
     , directory >=1.2 && <2.0

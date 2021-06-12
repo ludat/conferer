@@ -30,24 +30,27 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: actions/setup-haskell@v1.1.3
+    - uses: haskell/actions/setup@v1.2.1
       name: Setup Haskell Stack
       id: setuphaskell
       with:
         enable-stack: true
         stack-no-global: true
-        stack-version: latest
 
-    - uses: actions/cache@v1
-      name: Cache stack files on macOS
-      if: ${{ matrix.os == 'macOS' }}
-      with:
-        path: "~/.stack"
-        key: ${{ runner.os }}-${{ matrix.snapshot }}-stack2
+    # There is some kind of linking problem when actually sharing cache files
+    # between builds so we disable cache (that's the reason why we don't build
+    # this along linux and windows, the builds is just too slow, and linux
+    # covers most of the cases for a unix-y OS)
+    # - uses: actions/cache@v1
+    #   name: Cache stack files
+    #   with:
+    #     path: ${{ steps.setuphaskell.outputs.stack-root }}
+    #     key: ${{ runner.os }}-${{ matrix.snapshot }}-stack2
 
     - name: Setup stack.yaml
       shell: bash
       run: |
+        set -x
         mv -vf "stack-ci.yaml" ./stack.yaml || true
         mv -vf "stack-${{ matrix.snapshot }}.yaml" ./stack.yaml || true
         mv -vf "stack-${{ matrix.snapshot }}-${{ matrix.os }}.yaml" ./stack.yaml || true
@@ -55,22 +58,19 @@ jobs:
     - name: Build and test
       shell: bash
       run: |
+        set -x
         grep . stack.yaml
         if grep SKIP stack.yaml; then
           echo Skipped because that snapshot is broken
           exit 0
         fi
         stack setup --resolver=${{ matrix.snapshot }}
-        echo stack_root: $STACK_ROOT
+        echo "stack_root: ${{ steps.setuphaskell.outputs.stack-root }}"
         stack --version
         stack --resolver=${{ matrix.snapshot }} ghc -- --version
-        attempts=0
-        stack clean --resolver=${{ matrix.snapshot }}
-        while ! stack build -j 1 --resolver=${{ matrix.snapshot }} --ghc-options=-Werror --test --bench; do
-          if [ "$attempts" -gt 5 ]; then
-            echo "too many attempts ($attempts)"
-            exit 1
-          fi
-          echo Deps install failed, retrying
-          attempts=$(( $attempts + 1))
-        done
+        # we first build everything without running the tests (with unlimited parallelism)
+        stack build --resolver=${{ matrix.snapshot }} --ghc-options=-Werror --test --bench --no-run-tests
+
+        # once that's done we run the tests in a single threaded fashion to avoid
+        # https://github.com/commercialhaskell/stack/issues/5024#issuecomment-845001389
+        stack build --resolver=${{ matrix.snapshot }} --ghc-options=-Werror --test --bench -j 1

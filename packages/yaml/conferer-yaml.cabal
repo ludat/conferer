@@ -1,10 +1,8 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 91a59b94b272100a2091d299af7f6e568f71956e14610b4297345ac4033a1c01
 
 name:           conferer-yaml
 version:        1.1.0.0
@@ -32,7 +30,13 @@ library
       Paths_conferer_yaml
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
@@ -51,7 +55,13 @@ test-suite specs
       Paths_conferer_yaml
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererYamlSpecMain
   build-depends:
       base >=4.3 && <5
