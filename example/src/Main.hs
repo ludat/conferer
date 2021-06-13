@@ -34,3 +34,4 @@ application config _ respond = do
   body <- Conferer.fetchKey config "body" "default"
   respond $
     responseLBS status200 [("Content-Type", "text/plain")] body
+
