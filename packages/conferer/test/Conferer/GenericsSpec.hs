@@ -29,6 +29,26 @@ instance FromConfig Bigger
 instance DefaultConfig Bigger where
   configDef = Bigger (configDef {thingA = 27}) 1
 
+data WithUnderscoreAndConstructor = WithUnderscoreAndConstructor
+  { _withUnderscoreAndConstructor_number :: Int
+  , _withUnderscoreAndConstructor_name :: String
+  } deriving (Generic, Show, Eq)
+
+instance FromConfig WithUnderscoreAndConstructor
+
+instance DefaultConfig WithUnderscoreAndConstructor where
+  configDef = WithUnderscoreAndConstructor 0 ""
+
+data WithUnderscoreOnly = WithUnderscoreOnly
+  { _number :: Int
+  , _name :: String
+  } deriving (Generic, Show, Eq)
+
+instance FromConfig WithUnderscoreOnly
+
+instance DefaultConfig WithUnderscoreOnly where
+  configDef = WithUnderscoreOnly 0 ""
+
 spec :: Spec
 spec = do
   describe "Generics" $ do
@@ -96,3 +116,65 @@ spec = do
           [ ("", toDyn @Bigger configDef)
           ]
           Bigger { biggerThing = Thing { thingA = 10, thingB = 20 }, biggerB = 30}
+
+    context "with a record that has fields with underscore and constructor" $ do
+      context "without a default but with all of the keys defined" $ do
+        ensureFetchParses
+          [ ("number", "7")
+          , ("name", "juan")
+          ]
+          []
+          WithUnderscoreAndConstructor { _withUnderscoreAndConstructor_name = "juan", _withUnderscoreAndConstructor_number = 7 }
+      context "when no keys are set" $ do
+        ensureFetchParses
+          []
+          [ ("", toDyn $ configDef @WithUnderscoreAndConstructor)
+          ]
+          WithUnderscoreAndConstructor { _withUnderscoreAndConstructor_name = "", _withUnderscoreAndConstructor_number = 0 }
+      context "when all keys are set" $ do
+        ensureFetchParses
+          [ ("number", "1")
+          , ("name", "ludat")
+          ]
+          [ ("", toDyn $ configDef @WithUnderscoreAndConstructor)
+          ]
+          WithUnderscoreAndConstructor { _withUnderscoreAndConstructor_name = "ludat", _withUnderscoreAndConstructor_number = 1 }
+
+      context "when some keys are set" $ do
+        ensureFetchParses
+          [ ("number", "2")
+          ]
+          [ ("", toDyn $ configDef @WithUnderscoreAndConstructor)
+          ]
+          WithUnderscoreAndConstructor { _withUnderscoreAndConstructor_name = "", _withUnderscoreAndConstructor_number = 2 }
+
+    context "with a record that has fields with leading underscores" $ do
+      context "without a default but with all of the keys defined" $ do
+        ensureFetchParses
+          [ ("number", "7")
+          , ("name", "juan")
+          ]
+          []
+          WithUnderscoreOnly { _name = "juan", _number = 7 }
+      context "when no keys are set" $ do
+        ensureFetchParses
+          []
+          [ ("", toDyn $ configDef @WithUnderscoreOnly)
+          ]
+          WithUnderscoreOnly { _name = "", _number = 0 }
+      context "when all keys are set" $ do
+        ensureFetchParses
+          [ ("number", "1")
+          , ("name", "ludat")
+          ]
+          [ ("", toDyn $ configDef @WithUnderscoreOnly)
+          ]
+          WithUnderscoreOnly { _name = "ludat", _number = 1 }
+
+      context "when some keys are set" $ do
+        ensureFetchParses
+          [ ("number", "2")
+          ]
+          [ ("", toDyn $ configDef @WithUnderscoreOnly)
+          ]
+          WithUnderscoreOnly { _name = "", _number = 2 }

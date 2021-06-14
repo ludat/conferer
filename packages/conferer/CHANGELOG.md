@@ -15,6 +15,7 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 * Reasonable implementations for the new `explain*` function on `Source` for the default sources
 * `TestSource` which is like `InMemorySource` but throws when asking to explain keys (should be only
   used for testing)
+* `Generic` based instance of `FromConfig` now also strips `_` and `_constructorName`
 
 ### Removed
 
