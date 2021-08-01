@@ -34,7 +34,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: haskell/actions/setup@v1.2.1
+    - uses: ludat/haskell-actions/setup@main
       name: Setup Haskell Stack
       id: setuphaskell
       with:
