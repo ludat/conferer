@@ -16,7 +16,32 @@ import Data.Text (toLower)
 import Data.Dynamic (toDyn, Dynamic)
 
 import qualified Test.Hspec.Core.Runner as Hspec
-import qualified Test.Hspec.Core.Formatters as Hspec
+#if MIN_VERSION_hspec_core(2,8,0)
+import qualified Test.Hspec.Core.Format as Hspec
+import qualified Test.Hspec.Core.Formatters.V1 as FormattersV1
+import qualified Test.Hspec.Core.Formatters.V2 as FormattersV2
+#else
+import qualified Test.Hspec.Core.Formatters as FormattersV1
+#endif
+
+#if MIN_VERSION_hspec_core(2,8,0)
+newtype Format
+  = Format { unFormat :: Hspec.FormatConfig -> IO Hspec.Format }
+
+instance FromConfig Format where
+  fromConfig key config = do
+    formatter <- fetchFromConfigWith (
+      (\case
+        "silent" -> Just FormattersV2.silent
+        "checks" -> Just FormattersV2.checks
+        "specdoc" -> Just FormattersV2.specdoc
+        "progress" -> Just FormattersV2.progress
+        "failed-examples" -> Just FormattersV2.failed_examples
+        "failed_examples" -> Just FormattersV2.failed_examples
+        _ -> Nothing
+      ) . toLower) key config
+    pure $ Format $ FormattersV2.formatterToFormat formatter
+#endif
 
 instance FromConfig Hspec.ColorMode where
   fromConfig =
@@ -28,18 +53,18 @@ instance FromConfig Hspec.ColorMode where
       _ -> Nothing
     ) . toLower
 
-instance FromConfig Hspec.Formatter where
+instance FromConfig FormattersV1.Formatter where
   fromConfig =
     fetchFromConfigWith $
     (\case
-      "silent" -> Just Hspec.silent
+      "silent" -> Just FormattersV1.silent
 #if MIN_VERSION_hspec_core(2,7,10)
-      "checks" -> Just Hspec.checks
+      "checks" -> Just FormattersV1.checks
 #endif
-      "specdoc" -> Just Hspec.specdoc
-      "progress" -> Just Hspec.progress
-      "failed-examples" -> Just Hspec.failed_examples
-      "failed_examples" -> Just Hspec.failed_examples
+      "specdoc" -> Just FormattersV1.specdoc
+      "progress" -> Just FormattersV1.progress
+      "failed-examples" -> Just FormattersV1.failed_examples
+      "failed_examples" -> Just FormattersV1.failed_examples
       _ -> Nothing
     ) . toLower
 
@@ -62,7 +87,9 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   , ("htmlOutput", toDyn configHtmlOutput)
   , ("formatter", toDyn configFormatter)
   , ("rerunAllOnSuccess", toDyn configRerunAllOnSuccess)
+#if !MIN_VERSION_hspec_core(2,8,0)
   , ("outputFile", toDyn configOutputFile)
+#endif
 #if MIN_VERSION_hspec_core(2,1,1)
   , ("skipPredicate", toDyn configSkipPredicate)
 #endif
@@ -83,6 +110,12 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
 #endif
 #if MIN_VERSION_hspec_core(2,7,3)
   , ("randomize", toDyn configRandomize)
+#endif
+#if MIN_VERSION_hspec_core(2,8,0)
+  , ("printSlowItems", toDyn configPrintSlowItems)
+  , ("quickCheckMaxShrinks", toDyn configQuickCheckMaxShrinks)
+  , ("times", toDyn configTimes)
+  , ("format", toDyn $ Format <$> configFormat)
 #endif
   ]
 
@@ -105,7 +138,9 @@ instance FromConfig Hspec.Config where
     configFormatter <- fetchFromConfig (key /. "formatter") config
     configRerunAllOnSuccess <- fetchFromConfig (key /. "rerunAllOnSuccess") config
     configFilterPredicate <- fetchFromConfig (key /. "filterPredicate") config
+#if !MIN_VERSION_hspec_core(2,8,0)
     configOutputFile <- fetchFromConfig (key /. "outputFile") config
+#endif
 #if MIN_VERSION_hspec_core(2,1,1)
     configSkipPredicate <- fetchFromConfig (key /. "skipPredicate") config
 #endif
@@ -126,5 +161,11 @@ instance FromConfig Hspec.Config where
 #endif
 #if MIN_VERSION_hspec_core(2,7,3)
     configRandomize <- fetchFromConfig (key /. "randomize") config
+#endif
+#if MIN_VERSION_hspec_core(2,8,0)
+    configPrintSlowItems <- fetchFromConfig (key /. "printSlowItems") config
+    configQuickCheckMaxShrinks <- fetchFromConfig (key /. "quickCheckMaxShrinks") config
+    configTimes <- fetchFromConfig (key /. "times") config
+    configFormat <- fmap unFormat <$> fetchFromConfig (key /. "format") config
 #endif
     pure Hspec.Config{..}
