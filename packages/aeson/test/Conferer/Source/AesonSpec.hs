@@ -48,8 +48,7 @@ spec = do
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just ""
           context "with a non empty array" $ do
-            it "the magic 'keys' key is a comma separated list of all \
-               \indexes present on the array" $ do
+            it "the magic 'keys' key is a comma separated list of all indexes present on the array" $ do
               c <- mk [aesonQQ| {"key": [true, true, true]}|]
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just "0,1,2"
@@ -66,8 +65,7 @@ spec = do
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just ""
           context "with a non empty object" $ do
-            it "the magic 'keys' key is a comma separated list of all \
-               \keys present in the object" $ do
+            it "the magic 'keys' key is a comma separated list of all keys present in the object" $ do
               c <- mk [aesonQQ| {"key": {a: true, b: true, c: true}}|]
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just "a,b,c"
