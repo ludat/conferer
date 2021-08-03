@@ -2,6 +2,9 @@ name: macOS
 
 # Trigger the workflow on push or pull request, but only for the master branch
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
   schedule:
     - cron: '0 8 * * 3'
