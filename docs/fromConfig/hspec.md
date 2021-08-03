@@ -135,7 +135,7 @@ Default: `True`
 ### `formatter :: Maybe Formatter`
 
 Formatter for test results, Nothing means using the default
-formatter.
+formatter (deprecated after hspec `>= 2.8.0`, use `format`)
 
 * `silent`: Hide details from each test and only print summary
 * `specdoc`: Show all test names in a hierarchical structure colored acording
@@ -155,7 +155,7 @@ Default: `False`
 
 ### `outputFile :: Either Handle FilePath`
 
-Where should the hspec results end up.
+Where should the hspec results end up, deprecated after hspec `>= 2.8.0`
 
 Default: `Left stdout`
 
@@ -167,6 +167,41 @@ Default: `Nothing`
 
 ### `randomize :: Bool`
 
-Number of concurrent jobs to use, Nothing means numbers of cpus
+Randomize execution order
 
 Default: `False`
+
+### `printSlowItems :: Integer`
+
+Print the N slowest spec items
+
+Default: `10`
+
+### `quickCheckMaxShrinks :: Maybe Int`
+
+Max shrink for quickcheck
+
+Default: `Nothing`
+
+### `times :: Bool`
+
+Report times for individual spec items
+
+Default: `False`
+
+### `format :: Maybe (FormatConfig -> IO Format)`
+
+Similar to `formatter` and will replace it at some point.
+
+Although it's a function it has some well known defaults that can be configured
+using strings.
+
+* `silent`: Hide details from each test and only print summary
+* `specdoc`: Show all test names in a hierarchical structure colored acording
+  to test results
+* `progress`: Show dots as tests progress
+* `failed-examples`: Only show list of failed tests
+* `checks`: Show all test names in a hierarchical structure using unicode
+  checks for test results (requires `hspec >= 2.7.10`).
+
+Default: `Nothing`

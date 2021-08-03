@@ -18,6 +18,9 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 ### Added
 
 * `randomize` key is used for configuring `configRandomize`
+* `"printSlowItems"`, `"quickCheckMaxShrinks"`, `"times"`, `"format"` configure
+  `configPrintSlowItems`, `configQuickCheckMaxShrinks`, `configTimes` and `configFormat`
+  respectively (for `hspec >= 2.8.0`)
 
 ## [v1.1.0.0] 2021-03-07
 
