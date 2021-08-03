@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Conferer.Source.AesonSpec where
 
 import Data.Aeson.QQ
@@ -47,8 +48,7 @@ spec = do
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just ""
           context "with a non empty array" $ do
-            it "the magic 'keys' key is a comma separated list of all \
-               \indexes present on the array" $ do
+            it "the magic 'keys' key is a comma separated list of all indexes present on the array" $ do
               c <- mk [aesonQQ| {"key": [true, true, true]}|]
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just "0,1,2"
@@ -65,8 +65,7 @@ spec = do
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just ""
           context "with a non empty object" $ do
-            it "the magic 'keys' key is a comma separated list of all \
-               \keys present in the object" $ do
+            it "the magic 'keys' key is a comma separated list of all keys present in the object" $ do
               c <- mk [aesonQQ| {"key": {a: true, b: true, c: true}}|]
               res <- getKeyInSource c "key.keys"
               res `shouldBe` Just "a,b,c"
@@ -188,7 +187,11 @@ spec = do
         it "recommends using '_self' and adding the key" $ do
           s <- mk [aesonQQ|{server: 7}|]
           explainNotFound s "server.port"
+#if ( __GLASGOW_HASKELL__ >= 900 )
+            `shouldBe` "Replacing the value at 'server' from '7' to '{\"port\":\"some value\",\"_self\":7}' on file 'file.json'"
+#else
             `shouldBe` "Replacing the value at 'server' from '7' to '{\"_self\":7,\"port\":\"some value\"}' on file 'file.json'"
+#endif
 
       context "When the key ends with `keys`" $ do
         it "recommends adding an object beside adding the raw key" $ do
@@ -206,7 +209,11 @@ spec = do
         it "recommends turning the array into an object and using self (adding existing keys)" $ do
           s <- mk [aesonQQ|{"port": [false]}|]
           explainNotFound s "port"
+#if ( __GLASGOW_HASKELL__ >= 900 )
+            `shouldBe` "Replacing the value at 'port' from '[false]' to '{\"_self\":\"some value\",\"0\":false}' on file 'file.json'"
+#else
             `shouldBe` "Replacing the value at 'port' from '[false]' to '{\"0\":false,\"_self\":\"some value\"}' on file 'file.json'"
+#endif
 
     describe "#explainSettedKey" $ do
       context "with a simple value" $ do

@@ -2,6 +2,9 @@ name: macOS
 
 # Trigger the workflow on push or pull request, but only for the master branch
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
   schedule:
     - cron: '0 8 * * 3'
@@ -30,7 +33,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: haskell/actions/setup@v1.2.1
+    - uses: ludat/haskell-actions/setup@main
       name: Setup Haskell Stack
       id: setuphaskell
       with:

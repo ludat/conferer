@@ -3,7 +3,6 @@ cabal-version: 1.18
 -- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
 
 name:           conferer-hspec
 version:        1.1.0.0
@@ -42,7 +41,7 @@ library
   build-depends:
       base >=4.3 && <5
     , conferer >=1.1.0.0 && <2.0.0.0
-    , hspec-core >=2.0.0 && <2.8.0
+    , hspec-core >=2.0.0 && <2.9.0
     , text >=1.1 && <1.3
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
@@ -69,7 +68,7 @@ test-suite specs
     , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-hspec
     , hspec
-    , hspec-core >=2.0.0 && <2.8.0
+    , hspec-core >=2.0.0 && <2.9.0
     , text >=1.1 && <1.3
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
