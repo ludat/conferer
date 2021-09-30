@@ -16,6 +16,8 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 * `TestSource` which is like `InMemorySource` but throws when asking to explain keys (should be only
   used for testing)
 * `Generic` based instance of `FromConfig` now also strips `_` and `_constructorName`
+* expose `mkKeyFragment`, `isKeyCharacter` and `mkKeyCharacter` and rename `isValidKeyFragment` to
+  `isKeyFragment` for consistency
 
 ### Removed
 
