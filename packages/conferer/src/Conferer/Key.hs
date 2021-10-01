@@ -8,6 +8,7 @@
 -- Public API for Key related features
 module Conferer.Key
   ( Key
+  , KeyFragment
   -- * Creating 'Key's
   , mkKey
   , fromText
@@ -15,8 +16,12 @@ module Conferer.Key
   , (/.)
   , stripKeyPrefix
   , isKeyPrefixOf
-  , isValidKeyFragment
+
+  , mkKeyFragment
+  , isKeyFragment
+
   , isKeyCharacter
+  , mkKeyCharacter
   -- * Introspecting 'Key's
   , rawKeyComponents
   , unconsKey

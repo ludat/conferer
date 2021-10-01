@@ -21,19 +21,19 @@ spec = do
   describe "#isValidKeyFragment" $ do
     context "with a all leters" $ do
       it "is valid" $
-        isValidKeyFragment "fragment" `shouldBe` True
+        isKeyFragment "fragment" `shouldBe` True
     context "with only numbers" $ do
       it "is valid" $
-        isValidKeyFragment "000" `shouldBe` True
+        isKeyFragment "000" `shouldBe` True
     context "with both numbers and letters" $ do
       it "is valid" $
-        isValidKeyFragment "000" `shouldBe` True
+        isKeyFragment "fragment000" `shouldBe` True
     context "with a dot" $ do
       it "is not valid" $ do
-        isValidKeyFragment "some.fragment" `shouldBe` False
+        isKeyFragment "some.fragment" `shouldBe` False
     context "with an uppercase letter" $ do
       it "is not valid" $ do
-        isValidKeyFragment "FRAGMENT" `shouldBe` False
+        isKeyFragment "FRAGMENT" `shouldBe` False
     context "with an empty string" $ do
       it "is not valid" $ do
-        isValidKeyFragment "" `shouldBe` False
+        isKeyFragment "" `shouldBe` False

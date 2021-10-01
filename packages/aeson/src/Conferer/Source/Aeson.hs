@@ -282,7 +282,7 @@ parseValue = go ""
   where
   go key (Object o) = do
     let
-      (validKeys, invalidKeys) = partition (isValidKeyFragment . fst)
+      (validKeys, invalidKeys) = partition (isKeyFragment . fst)
         $ HashMap.toList
         $ HashMap.delete "_self" o
     unless (null invalidKeys) $
