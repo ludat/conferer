@@ -45,6 +45,17 @@ If you want to add a new feature that doesn't have a ticket then you can add a t
 that the feature makes sense and then create a PR (you can create the PR without the ticket if you feel
 like it).
 
+## Devlopment
+
+Most of the time I use ghcid to run tests:
+
+```bash
+ghcid -c='stack repl --test --main-is conferer-aeson:test:specs' --run=':main' --warnings
+```
+
+There you can replace `conferer-aeson` with the right package and that will run those tests, and also
+reload if any of the other packages change.
+
 ## The website
 
 The website is based on [docusaurus](https://docusaurus.io/) so it's mostly generated from the
