@@ -106,23 +106,23 @@ instance FromConfig Settings where
     config <- addDefaultsAfterDeconstructingToDefaults deconstructSettingsToDefaults key originalConfig
     settingsPort <- fetchFromConfig (key /. "port") config
     settingsHost <- fetchFromConfig (key /. "host") config
-    settingsOnException <- fetchFromConfig (key /. "onException") config
-    settingsOnExceptionResponse <- fetchFromConfig (key /. "onExceptionResponse") config
-    settingsOnOpen <- fetchFromConfig (key /. "onOpen") config
-    settingsOnClose <- fetchFromConfig (key /. "onClose") config
+    NotUserConfigurable settingsOnException <- fetchFromConfig (key /. "onException") config
+    NotUserConfigurable settingsOnExceptionResponse <- fetchFromConfig (key /. "onExceptionResponse") config
+    NotUserConfigurable settingsOnOpen <- fetchFromConfig (key /. "onOpen") config
+    NotUserConfigurable settingsOnClose <- fetchFromConfig (key /. "onClose") config
     settingsTimeout <- fetchFromConfig (key /. "timeout") config
-    settingsManager <- fetchFromConfig (key /. "manager") config
+    NotUserConfigurable settingsManager <- fetchFromConfig (key /. "manager") config
     settingsFdCacheDuration <- fetchFromConfig (key /. "fdCacheDuration") config
     settingsFileInfoCacheDuration <- fetchFromConfig (key /. "fileInfoCacheDuration") config
-    settingsBeforeMainLoop <- fetchFromConfig (key /. "beforeMainLoop") config
+    NotUserConfigurable settingsBeforeMainLoop <- fetchFromConfig (key /. "beforeMainLoop") config
 #if MIN_VERSION_warp(3,0,4)
-    (ForkSettings settingsFork) <- fetchFromConfig (key /. "fork") config
+    NotUserConfigurable (ForkSettings settingsFork) <- fetchFromConfig (key /. "fork") config
 #endif
 #if MIN_VERSION_warp(2,0,3)
     settingsNoParsePath <- fetchFromConfig (key /. "noParsePath") config
 #endif
 #if MIN_VERSION_warp(3,0,1)
-    settingsInstallShutdownHandler <- fetchFromConfig (key /. "installShutdownHandler") config
+    NotUserConfigurable settingsInstallShutdownHandler <- fetchFromConfig (key /. "installShutdownHandler") config
 #endif
 #if MIN_VERSION_warp(3,0,2)
     settingsServerName <- fetchFromConfig (key /. "serverName") config
@@ -140,10 +140,10 @@ instance FromConfig Settings where
     settingsHTTP2Enabled <- fetchFromConfig (key /. "http2Enabled") config
 #endif
 #if MIN_VERSION_warp(3,1,10)
-    settingsLogger <- fetchFromConfig (key /. "logger") config
+    NotUserConfigurable settingsLogger <- fetchFromConfig (key /. "logger") config
 #endif
 #if MIN_VERSION_warp(3,2,7)
-    settingsServerPushLogger <- fetchFromConfig (key /. "serverPushLogger") config
+    NotUserConfigurable settingsServerPushLogger <- fetchFromConfig (key /. "serverPushLogger") config
 #endif
 #if MIN_VERSION_warp(3,2,8)
     settingsGracefulShutdownTimeout <- fetchFromConfig (key /. "gracefulShutdownTimeout") config
