@@ -6,10 +6,17 @@
 -- Portability: portable
 --
 -- Source for json config files using Aeson
+{-# LANGUAGE CPP              #-}
 {-# LANGUAGE TypeApplications #-}
 module Conferer.Source.Aeson where
 
+#if MIN_VERSION_aeson(2,0,0)
+import Data.Aeson hiding (Key)
+import qualified Data.Aeson.KeyMap as KeyMap
+#else
 import Data.Aeson
+import qualified Data.HashMap.Strict as KeyMap
+#endif
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text)
@@ -181,10 +188,14 @@ valueIR2Value = go
     let
       initialMap =
         case j of
-          Just (_, v) -> HashMap.singleton "_self" v
-          Nothing -> HashMap.empty
+          Just (_, v) -> KeyMap.singleton "_self" v
+          Nothing -> KeyMap.empty
 
-    in Object $ HashMap.union initialMap (fmap go o)
+#if MIN_VERSION_aeson(2,0,0)
+    in Object $ KeyMap.union initialMap (KeyMap.fromHashMapText $ fmap go o)
+#else
+    in Object $ KeyMap.union initialMap (fmap go o)
+#endif
 
 -- | Utility function to show a raw key to the user
 showRawKey :: RawKey -> String
@@ -282,12 +293,17 @@ parseValue = go ""
   where
   go key (Object o) = do
     let
+#if MIN_VERSION_aeson(2,0,0)
+      hashmap = KeyMap.toHashMapText o
+#else
+      hashmap = o
+#endif
       (validKeys, invalidKeys) = partition (isKeyFragment . fst)
         $ HashMap.toList
-        $ HashMap.delete "_self" o
+        $ HashMap.delete "_self" hashmap
     unless (null invalidKeys) $
       Left $ InvalidKey (rawKeyComponents key) (fst $ head invalidKeys)
-    self <- sequence $ parseSelf key <$> HashMap.lookup "_self" o
+    self <- sequence $ parseSelf key <$> HashMap.lookup "_self" hashmap
     content <- forM validKeys $ \(k, v) -> do
       let currentKey = key /. fromText k
       inner <- go currentKey v
