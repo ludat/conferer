@@ -71,7 +71,7 @@ test-suite specs
       StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererAesonSpecMain
   build-depends:
-      aeson >=0.10 && <2.0
+      aeson >=0.10 && <2.1
     , aeson-qq
     , base >=4.3 && <5
     , bytestring ==0.10.*

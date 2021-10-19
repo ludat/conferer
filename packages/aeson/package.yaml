@@ -17,7 +17,7 @@ dependencies:
   - directory >= 1.2 && < 2.0
 
   # json
-  - aeson >= 0.10 && < 2.0
+  - aeson >= 0.10 && < 2.1
   # These should be constrained by aeson right?
   - vector
   - unordered-containers
