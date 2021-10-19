@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 module Conferer.Source.AesonSpec where
 
 import Data.Aeson.QQ
@@ -169,13 +168,23 @@ spec = do
         it "recomends adding that key mentioning 'the root object'" $ do
           s <- mk [aesonQQ|{}|]
           explainNotFound s "port"
-            `shouldBe` "Replacing the whole json from '{}' to '{\"port\":\"some value\"}' on file 'file.json'"
+            `shouldBe`
+              "Replacing the whole json from '" ++
+              value2String [aesonQQ|{}|] ++
+              "' to '" ++
+              value2String [aesonQQ|{port:"some value"}|] ++
+              "' on file 'file.json'"
 
       context "When there is an object that's missing a key" $ do
         it "recomends adding that key that's necessary" $ do
           s <- mk [aesonQQ|{server: {}}|]
           explainNotFound s "server.port"
-            `shouldBe` "Replacing the value at 'server' from '{}' to '{\"port\":\"some value\"}' on file 'file.json'"
+            `shouldBe`
+              "Replacing the value at 'server' from '" ++
+              value2String [aesonQQ|{}|] ++
+              "' to '" ++
+              value2String [aesonQQ|{port:"some value"}|] ++
+              "' on file 'file.json'"
 
       context "When there is an object in the key" $ do
         it "recomends replacing it with a value" $ do
@@ -187,33 +196,46 @@ spec = do
         it "recommends using '_self' and adding the key" $ do
           s <- mk [aesonQQ|{server: 7}|]
           explainNotFound s "server.port"
-#if ( __GLASGOW_HASKELL__ >= 900 )
-            `shouldBe` "Replacing the value at 'server' from '7' to '{\"port\":\"some value\",\"_self\":7}' on file 'file.json'"
-#else
-            `shouldBe` "Replacing the value at 'server' from '7' to '{\"_self\":7,\"port\":\"some value\"}' on file 'file.json'"
-#endif
+            `shouldBe`
+              "Replacing the value at 'server' from '" ++
+              value2String [aesonQQ|7|] ++
+              "' to '" ++
+              value2String [aesonQQ|{_self: 7, port:"some value"}|] ++
+              "' on file 'file.json'"
 
       context "When the key ends with `keys`" $ do
         it "recommends adding an object beside adding the raw key" $ do
           s <- mk [aesonQQ|{}|]
           explainNotFound s "servers.keys"
-            `shouldBe` "Replacing the whole json from '{}' to '{\"servers\":{\"keys\":\"some value\"}}' on file 'file.json'"
+            `shouldBe`
+              "Replacing the whole json from '" ++
+              value2String [aesonQQ|{}|] ++
+              "' to '" ++
+              value2String [aesonQQ|{servers: {keys: "some value"}}|] ++
+              "' on file 'file.json'"
 
       context "When the key has an array" $ do
         it "recommends turning the array into an object and using self" $ do
           s <- mk [aesonQQ|{"port": []}|]
           explainNotFound s "port"
-            `shouldBe` "Replacing the value at 'port' from '[]' to '\"some value\"' on file 'file.json'"
+            `shouldBe`
+              "Replacing the value at 'port' from '" ++
+              value2String [aesonQQ|[]|] ++
+              "' to '" ++
+              value2String [aesonQQ|"some value"|] ++
+              "' on file 'file.json'"
+
 
       context "When the key has an array with values" $ do
         it "recommends turning the array into an object and using self (adding existing keys)" $ do
           s <- mk [aesonQQ|{"port": [false]}|]
           explainNotFound s "port"
-#if ( __GLASGOW_HASKELL__ >= 900 )
-            `shouldBe` "Replacing the value at 'port' from '[false]' to '{\"_self\":\"some value\",\"0\":false}' on file 'file.json'"
-#else
-            `shouldBe` "Replacing the value at 'port' from '[false]' to '{\"0\":false,\"_self\":\"some value\"}' on file 'file.json'"
-#endif
+            `shouldBe`
+              "Replacing the value at 'port' from '" ++
+              value2String [aesonQQ|[false]|] ++
+              "' to '" ++
+              value2String [aesonQQ|{_self: "some value", 0: false}|] ++
+              "' on file 'file.json'"
 
     describe "#explainSettedKey" $ do
       context "with a simple value" $ do
