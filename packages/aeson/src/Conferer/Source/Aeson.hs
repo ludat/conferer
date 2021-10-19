@@ -6,7 +6,7 @@
 -- Portability: portable
 --
 -- Source for json config files using Aeson
-{-# LANGUAGE CPP              #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeApplications #-}
 module Conferer.Source.Aeson where
 
@@ -95,9 +95,9 @@ instance IsSource JsonSource where
         valueIR2String (setKey "some value" nonExistingPath v) ++
         "' on file '" ++ filepath ++ "'"
       result@Found {} ->
-        error $ "Getting an non existant key returned that it exists, \
-                \that is a bug in conferer, please report it at \
-                \https://github.com/ludat/conferer/issues with :\n " ++ show result
+        error $ "Getting an non existant key returned that it exists, " ++
+                "that is a bug in conferer, please report it at " ++
+                "https://github.com/ludat/conferer/issues with :\n " ++ show result
     where
       showRawKeyAsTarget :: RawKey -> String
       showRawKeyAsTarget [] = "the whole json"
@@ -116,9 +116,9 @@ instance IsSource JsonSource where
         case findKeyInsideValue k originalValue of
           Found rawKey _ _ -> rawKey
           result ->
-            error $ "Getting an existing key returned that it doesn't exist, \
-                    \that is a bug in conferer, please report it at \
-                    \https://github.com/ludat/conferer/issues with :\n " ++ show result
+            error $ "Getting an existing key returned that it doesn't exist, " ++
+                    "that is a bug in conferer, please report it at " ++
+                    "https://github.com/ludat/conferer/issues with :\n " ++ show result
 
 
 -- | set a 'RawKey' inside a 'ValueIR' while also preserving any already present
@@ -255,8 +255,8 @@ findKeyInsideValue key aValue =
       (Nothing, _) ->
         error $
           unlines
-            [ "The impossible happened: deepestKey must be a suffix of key since \
-              \one generates the other."
+            [ "The impossible happened: deepestKey must be a suffix of key since " ++
+              "one generates the other."
             , ""
             , "deepestKey: " ++ show deepestKey
             , "key: " ++ show key
