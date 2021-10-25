@@ -107,7 +107,7 @@ instance Typeable a => FromConfig (NotUserConfigurable a) where
     case getKeyFromDefaults @(OverrideFromConfig a) key config of
       FoundInDefaults (OverrideFromConfig fetch) _ ->
         fmap NotUserConfigurable $ fetch key $ removeDefault @(OverrideFromConfig a) key config
-      _ ->
+      MissingKey () _keys ->
         case getKeyFromDefaults @(NotUserConfigurable a) key config of
           FoundInDefaults a _key ->
             pure a
@@ -122,6 +122,9 @@ instance Typeable a => FromConfig (NotUserConfigurable a) where
 #endif
 #if __GLASGOW_HASKELL__ < 808
           FoundInSources v _ _ -> absurd v
+#endif
+#if __GLASGOW_HASKELL__ < 808
+      FoundInSources v _ _ -> absurd v
 #endif
 
 instance DefaultConfig a => DefaultConfig (NotUserConfigurable a) where

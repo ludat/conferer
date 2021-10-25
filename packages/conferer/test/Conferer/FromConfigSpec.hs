@@ -23,6 +23,14 @@ spec = do
         [ ("", toDyn @(NotUserConfigurable Int) (NotUserConfigurable 42)) ]
         $ NotUserConfigurable 42
 
+    describe "with both a value and a wrapped value, the wrapped values always takes priority" $ do
+      ensureFetchParses @(NotUserConfigurable Int)
+        []
+        [ ("", toDyn @(NotUserConfigurable Int) $ NotUserConfigurable 1)
+        , ("", toDyn @Int 2)
+        ]
+        $ NotUserConfigurable 1
+
     describe "with a fetch override of the inner type" $ do
       ensureFetchParses @(NotUserConfigurable Int)
         []
