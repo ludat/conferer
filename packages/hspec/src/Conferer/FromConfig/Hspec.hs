@@ -137,12 +137,12 @@ instance FromConfig Hspec.Config where
     configHtmlOutput <- fetchFromConfig (key /. "htmlOutput") config
     configFormatter <- fetchFromConfig (key /. "formatter") config
     configRerunAllOnSuccess <- fetchFromConfig (key /. "rerunAllOnSuccess") config
-    configFilterPredicate <- fetchFromConfig (key /. "filterPredicate") config
+    configFilterPredicate <- fmap unwrapNotConfigurable <$> fetchFromConfig (key /. "filterPredicate") config
 #if !MIN_VERSION_hspec_core(2,8,0)
-    configOutputFile <- fetchFromConfig (key /. "outputFile") config
+    NotUserConfigurable configOutputFile <- fetchFromConfig (key /. "outputFile") config
 #endif
 #if MIN_VERSION_hspec_core(2,1,1)
-    configSkipPredicate <- fetchFromConfig (key /. "skipPredicate") config
+    NotUserConfigurable configSkipPredicate <- fetchFromConfig (key /. "skipPredicate") config
 #endif
 #if MIN_VERSION_hspec_core(2,1,9)
     configConcurrentJobs <- fetchFromConfig (key /. "concurrentJobs") config

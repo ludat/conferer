@@ -91,17 +91,44 @@ fetchFromConfig key config =
 class DefaultConfig a where
   configDef :: a
 
-instance {-# OVERLAPPABLE #-} Typeable a => FromConfig a where
+-- | Newtype used to provide a 'FromConfig' instance for things that can have defaults
+-- but are not user configurable
+newtype NotUserConfigurable a
+  = NotUserConfigurable a
+  deriving (Show, Eq)
+
+
+-- | Simple function to unwrap a 'NotUserConfigurable' inner value
+unwrapNotConfigurable :: NotUserConfigurable a -> a
+unwrapNotConfigurable (NotUserConfigurable a) = a
+
+instance Typeable a => FromConfig (NotUserConfigurable a) where
   fromConfig key config =
-    case getKeyFromDefaults key config of
-      FoundInDefaults a _key ->
-        pure a
-      MissingKey () keys ->
-        throwMissingRequiredKeys @a keys config
+    case getKeyFromDefaults @(OverrideFromConfig a) key config of
+      FoundInDefaults (OverrideFromConfig fetch) _ ->
+        fmap NotUserConfigurable $ fetch key $ removeDefault @(OverrideFromConfig a) key config
+      MissingKey () _keys ->
+        case getKeyFromDefaults @(NotUserConfigurable a) key config of
+          FoundInDefaults a _key ->
+            pure a
+          MissingKey () _ ->
+            case getKeyFromDefaults @a key config of
+              FoundInDefaults a _key ->
+                pure $ NotUserConfigurable a
+              MissingKey () keys ->
+                throwMissingRequiredKeys @(NotUserConfigurable a) keys config
+#if __GLASGOW_HASKELL__ < 808
+              FoundInSources v _ _ -> absurd v
+#endif
+#if __GLASGOW_HASKELL__ < 808
+          FoundInSources v _ _ -> absurd v
+#endif
 #if __GLASGOW_HASKELL__ < 808
       FoundInSources v _ _ -> absurd v
 #endif
 
+instance DefaultConfig a => DefaultConfig (NotUserConfigurable a) where
+  configDef = NotUserConfigurable configDef
 
 instance FromConfig () where
   fromConfig _key _config = return ()

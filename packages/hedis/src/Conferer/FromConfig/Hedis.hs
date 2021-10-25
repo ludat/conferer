@@ -88,9 +88,9 @@ instance FromConfig Redis.ConnectInfo where
     connectDatabase <- fetchFromConfig (key /. "database") config
 
     connectMaxConnections <- fetchFromConfig (key /. "maxConnections") config
-    connectMaxIdleTime <- fetchFromConfig (key /. "maxIdleTime") config
-    connectTimeout <- fetchFromConfig (key /. "timeout") config
+    NotUserConfigurable connectMaxIdleTime <- fetchFromConfig (key /. "maxIdleTime") config
+    connectTimeout <- fmap unwrapNotConfigurable <$> fetchFromConfig (key /. "timeout") config
 #if MIN_VERSION_hedis(0,10,2)
-    connectTLSParams <- fetchFromConfig (key /. "tlsParams") config
+    connectTLSParams <- fmap unwrapNotConfigurable <$> fetchFromConfig (key /. "tlsParams") config
 #endif
     pure Redis.ConnInfo{..}

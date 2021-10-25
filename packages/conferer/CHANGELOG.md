@@ -18,10 +18,13 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 * `Generic` based instance of `FromConfig` now also strips `_` and `_constructorName`
 * expose `mkKeyFragment`, `isKeyCharacter` and `mkKeyCharacter` and rename `isValidKeyFragment` to
   `isKeyFragment` for consistency
+* Added `NotUserConfigurable` newtype to wrap non `FromConfig` types and ease the implementation of
+  `FromConfig` instances
 
 ### Removed
 
 * Removed `fetchFromDefaults` and `fetchRequiredFromDefaults` in favor of `getKeyFromDefaults`
+* Removed `FromConfig a` instance to be more explicit when a type doesn't implement `FromConfig`
 
 ### Changed
 

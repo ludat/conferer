@@ -100,7 +100,7 @@ instance forall a m. (FromConfig a, Typeable a, Snap.MonadSnap m, Typeable m) =>
     verbose <- fetchFromConfig (key /. "verbose") config
     unixsocket <- fetchFromConfig (key /. "unixSocket") config
     unixaccessmode <- fetchFromConfig (key /. "unixSocketAccessMode") config
-    errorHandler <- fetchFromConfig (key /. "errorHandler") config
-    startupHook <- fetchFromConfig (key /. "startupHook") config
+    errorHandler <- fmap unwrapNotConfigurable <$> fetchFromConfig (key /. "errorHandler") config
+    startupHook <- fmap unwrapNotConfigurable <$> fetchFromConfig (key /. "startupHook") config
     other <- fetchFromConfig @(Maybe a) (key /. "other") config
     pure Snap.Config{..}

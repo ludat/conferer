@@ -6,7 +6,7 @@
 -- Portability: portable
 --
 -- Public API module providing FromConfig functionality
-module Conferer.FromConfig 
+module Conferer.FromConfig
   ( FromConfig(fromConfig)
   , fetchFromConfig
   , DefaultConfig(configDef)
@@ -38,6 +38,9 @@ module Conferer.FromConfig
   , getKeyFromSources
   , getKeyFromDefaults
   , getKey
+
+  , NotUserConfigurable(..)
+  , unwrapNotConfigurable
   ) where
 
 import Conferer.FromConfig.Internal
