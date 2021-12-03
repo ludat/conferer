@@ -6,12 +6,19 @@
 -- Portability: portable
 --
 -- Source for json config files using Aeson
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE RecordWildCards #-}
 module Conferer.Source.Aeson where
 
+#if MIN_VERSION_aeson(2,0,0)
+import Data.Aeson hiding (Key)
+import qualified Data.Aeson.KeyMap as KeyMap
+import qualified Data.Aeson.Key as Key
+#else
 import Data.Aeson
+import qualified Data.HashMap.Strict as KeyMap
+#endif
 import Control.Applicative
-import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -110,15 +117,24 @@ traverseJSON key value =
    (Nothing, v) ->
      Just v
    (Just ("keys", ""), Object o) ->
-      HashMap.lookup "keys" o
+      KeyMap.lookup "keys" o
         <|> pure (
               String $
+#if MIN_VERSION_aeson(2,0,0)
+              Key.toText $
+#endif
               mconcat $
               intersperse "," $
               sort $
-              HashMap.keys o)
+              KeyMap.keys o)
    (Just (c, ks), Object o) ->
-     HashMap.lookup c o >>= traverseJSON ks
+     KeyMap.lookup
+#if MIN_VERSION_aeson(2,0,0)
+      (Key.fromText c)
+#else
+      c
+#endif
+      o >>= traverseJSON ks
    (Just ("keys", ""), Array vs) ->
       Just $
         String $
@@ -143,13 +159,19 @@ listKeysInJSON = go ""
       (_, Object o) ->
         let
           self =
-            case valueToText <$> HashMap.lookup "_self" o of
+            case valueToText <$> KeyMap.lookup "_self" o of
               Just _ -> [key]
               Nothing -> []
         in self ++ do
-          (k, v) <- HashMap.toList o
-          guard $ isValidKeyFragment k
-          go (key /. fromText k) v
+          (k, v) <- KeyMap.toList o
+          let textK =
+#if MIN_VERSION_aeson(2,0,0)
+                Key.toText k
+#else
+                k
+#endif
+          guard $ isValidKeyFragment textK
+          go (key /. fromText textK) v
       (_, Array as) -> do
         (index :: Integer, v) <- zip [0..] $ Vector.toList as
         go (key /. mkKey (show index)) v
@@ -160,7 +182,7 @@ listKeysInJSON = go ""
 valueToText :: Value -> Maybe Text
 valueToText (String t) = Just t
 valueToText (Object o) = do
-  selfValue <- HashMap.lookup "_self" o
+  selfValue <- KeyMap.lookup "_self" o
   valueToText selfValue
 valueToText (Array _as) = Nothing
 valueToText (Number n) = Just $ Text.decodeUtf8 $ L.toStrict $ encode $ Number n
@@ -203,11 +225,20 @@ allKeys = go mempty
           let
             keys =
               fmap (\t -> rawkey ++ [t])
-              . HashMap.keys
+#if MIN_VERSION_aeson(2,0,0)
+              . fmap Key.toText
+#endif
+              . KeyMap.keys
               $ o
           in keys ++ do
-          (k, v) <- HashMap.toList o
-          let subkey = rawkey ++ [k]
+          (k, v) <- KeyMap.toList o
+          let textK =
+#if MIN_VERSION_aeson(2,0,0)
+                Key.toText k
+#else
+                k
+#endif
+          let subkey = rawkey ++ [textK]
           go subkey v
         Array as -> do
           (index :: Integer, v) <- zip [0..] $ Vector.toList as
