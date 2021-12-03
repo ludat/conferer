@@ -6,7 +6,7 @@ cabal-version: 1.18
 --
 
 name:           conferer-aeson
-version:        1.1.0.1
+version:        1.1.0.2
 synopsis:       conferer's source for reading json files
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
