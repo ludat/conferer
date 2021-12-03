@@ -8,9 +8,15 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 Nothing
 
+## [v1.1.0.2] 2021-12-03
+
+### Changed
+
+* Allow using aeson-2.0
+
 ## [v1.1.0.1] 2021-03-14
 
-## Changed
+### Changed
 
 * Make the `keys` special key always return sorted keys (because of the change from hashable-1.3.1.0)
 
@@ -31,6 +37,7 @@ Nothing
 First release
 
 [Unreleased]: https://github.com/ludat/conferer/compare/conferer-aeson_v1.1.0.1...HEAD
+[v1.1.0.2]: https://github.com/ludat/conferer/compare/conferer-aeson_v1.1.0.1...conferer-aeson_v1.1.0.2
 [v1.1.0.1]: https://github.com/ludat/conferer/compare/conferer-aeson_v1.1.0.0...conferer-aeson_v1.1.0.1
 [v1.1.0.0]: https://github.com/ludat/conferer/compare/conferer-aeson_v1.0.0.0...conferer-aeson_v1.1.0.0
 [v1.0.0.0]: https://github.com/ludat/conferer/compare/v0.0.0.0...conferer-aeson_v1.0.0.0
