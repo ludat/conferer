@@ -30,7 +30,7 @@ jobs:
           - 'lts-12.11'
           - 'lts-14.18'
           - 'lts-16.12'
-          - 'lts-17.4'
+          - 'lts-18.28'
           - 'nightly'
 
     steps:
