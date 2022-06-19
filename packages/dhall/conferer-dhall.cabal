@@ -3,7 +3,6 @@ cabal-version: 1.18
 -- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
 
 name:           conferer-dhall
 version:        1.1.0.0
@@ -41,7 +40,7 @@ library
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , bytestring ==0.10.*
+    , bytestring >=0.10 && <0.12
     , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-aeson >=1.1.0.0 && <2.0.0.0
     , dhall >=1.8 && <2.0
@@ -69,7 +68,7 @@ test-suite specs
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererDhallSpecMain
   build-depends:
       base >=4.3 && <5
-    , bytestring ==0.10.*
+    , bytestring >=0.10 && <0.12
     , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-aeson >=1.1.0.0 && <2.0.0.0
     , conferer-dhall

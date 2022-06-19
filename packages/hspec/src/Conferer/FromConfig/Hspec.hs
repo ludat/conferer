@@ -24,6 +24,22 @@ import qualified Test.Hspec.Core.Formatters.V2 as FormattersV2
 import qualified Test.Hspec.Core.Formatters as FormattersV1
 #endif
 
+
+#if MIN_VERSION_hspec_core(2,9,0)
+instance FromConfig Hspec.UnicodeMode where
+  fromConfig key config = do
+    fetchFromConfigWith (
+      (\case
+        "auto" -> Just Hspec.UnicodeAuto
+        "never" -> Just Hspec.UnicodeNever
+        "always" -> Just Hspec.UnicodeAlways
+        _ -> Nothing
+      ) . toLower) key config
+
+newtype AvailableFormatters =
+  AvailableFormatters [(String, Hspec.FormatConfig -> IO Hspec.Format)]
+#endif
+
 #if MIN_VERSION_hspec_core(2,8,0)
 newtype Format
   = Format { unFormat :: Hspec.FormatConfig -> IO Hspec.Format }
@@ -76,7 +92,11 @@ instance DefaultConfig Hspec.Config where
 desconstructHspecConfigToDefaults :: Hspec.Config -> [(Key, Dynamic)]
 desconstructHspecConfigToDefaults Hspec.Config{..} =
   [ ("dryRun", toDyn configDryRun)
+#if MIN_VERSION_hspec_core(2,9,0)
+  , ("failFast", toDyn configFailFast)
+#else
   , ("fastFail", toDyn configFastFail)
+#endif
   , ("rerun", toDyn configRerun)
   , ("quickCheckMaxSuccess", toDyn configQuickCheckMaxSuccess)
   , ("quickCheckMaxDiscardRatio", toDyn configQuickCheckMaxDiscardRatio)
@@ -87,6 +107,7 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   , ("htmlOutput", toDyn configHtmlOutput)
   , ("formatter", toDyn configFormatter)
   , ("rerunAllOnSuccess", toDyn configRerunAllOnSuccess)
+  , ("filterPredicate", toDyn $ NotUserConfigurable configFilterPredicate)
 #if !MIN_VERSION_hspec_core(2,8,0)
   , ("outputFile", toDyn configOutputFile)
 #endif
@@ -117,6 +138,13 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   , ("times", toDyn configTimes)
   , ("format", toDyn $ Format <$> configFormat)
 #endif
+#if MIN_VERSION_hspec_core(2,9,0)
+  , ("unicodeMode", toDyn configUnicodeMode)
+  , ("availableFormatters", toDyn $ NotUserConfigurable configAvailableFormatters)
+#endif
+#if MIN_VERSION_hspec_core(2,9,2)
+  , ("prettyPrint", toDyn configPrettyPrint)
+#endif
   ]
 
 instance FromConfig Hspec.Config where
@@ -126,7 +154,11 @@ instance FromConfig Hspec.Config where
       key originalConfig
 
     configDryRun <- fetchFromConfig (key /. "dryRun") config
+#if MIN_VERSION_hspec_core(2,9,0)
+    configFailFast <- fetchFromConfig (key /. "failFast") config
+#else
     configFastFail <- fetchFromConfig (key /. "fastFail") config
+#endif
     configRerun <- fetchFromConfig (key /. "rerun") config
     configQuickCheckMaxSuccess <- fetchFromConfig (key /. "quickCheckMaxSuccess") config
     configQuickCheckMaxDiscardRatio <- fetchFromConfig (key /. "quickCheckMaxDiscardRatio") config
@@ -167,5 +199,12 @@ instance FromConfig Hspec.Config where
     configQuickCheckMaxShrinks <- fetchFromConfig (key /. "quickCheckMaxShrinks") config
     configTimes <- fetchFromConfig (key /. "times") config
     configFormat <- fmap unFormat <$> fetchFromConfig (key /. "format") config
+#endif
+#if MIN_VERSION_hspec_core(2,9,0)
+    configUnicodeMode <- fetchFromConfig (key /. "unicodeMode") config
+    NotUserConfigurable configAvailableFormatters <- fetchFromConfig (key /. "availableFormatters") config
+#endif
+#if MIN_VERSION_hspec_core(2,9,2)
+    configPrettyPrint <- fetchFromConfig (key /. "prettyPrint") config
 #endif
     pure Hspec.Config{..}

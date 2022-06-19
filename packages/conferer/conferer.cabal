@@ -3,7 +3,6 @@ cabal-version: 1.18
 -- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
 
 name:           conferer
 version:        1.1.0.0
@@ -60,7 +59,7 @@ library
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , bytestring ==0.10.*
+    , bytestring >=0.10 && <0.12
     , containers >=0.5 && <0.7
     , directory >=1.2 && <2.0
     , filepath >=1.0 && <2.0
@@ -105,7 +104,7 @@ test-suite specs
   build-depends:
       QuickCheck
     , base >=4.3 && <5
-    , bytestring ==0.10.*
+    , bytestring >=0.10 && <0.12
     , conferer
     , containers >=0.5 && <0.7
     , deepseq
