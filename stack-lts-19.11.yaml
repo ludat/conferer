@@ -1,0 +1,13 @@
+resolver: none
+
+packages:
+  - ./packages/conferer/
+  - ./packages/aeson/
+  - ./packages/dhall/
+  - ./packages/hedis/
+  - ./packages/hspec/
+  # TODO: snap-server requires and old version of attoparsec so it
+  # can't be build
+  # - ./packages/snap/
+  - ./packages/warp/
+  - ./packages/yaml/
