@@ -6,11 +6,9 @@ packages:
   - ./packages/dhall/
   - ./packages/hedis/
   - ./packages/hspec/
-  # TODO: 2 Disabled since nightly updated to ghc 9.0 with `base-4.15` snap-server
-  # is cannot be installed (https://github.com/snapframework/snap-server/issues/141)
   # - ./packages/snap/
   - ./packages/warp/
   - ./packages/yaml/
 
-extra-deps:
-  - snap-server-1.1.2.0@sha256:3167b836a0b0ee49c8d6c973535c33f583c9ef9ba62d9723f08509b38368cb8f,14641
+# extra-deps:
+#   - snap-server-1.1.2.0@sha256:3167b836a0b0ee49c8d6c973535c33f583c9ef9ba62d9723f08509b38368cb8f,14641
