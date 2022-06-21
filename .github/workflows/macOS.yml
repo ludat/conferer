@@ -33,7 +33,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: ludat/haskell-actions/setup@main
+    - uses: haskell/actions/setup@v2
       name: Setup Haskell Stack
       id: setuphaskell
       with:
@@ -44,7 +44,7 @@ jobs:
     # between builds so we disable cache (that's the reason why we don't build
     # this along linux and windows, the builds is just too slow, and linux
     # covers most of the cases for a unix-y OS)
-    # - uses: actions/cache@v1
+    # - uses: actions/cache@v3
     #   name: Cache stack files
     #   with:
     #     path: ${{ steps.setuphaskell.outputs.stack-root }}

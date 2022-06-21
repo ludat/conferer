@@ -37,14 +37,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: ludat/haskell-actions/setup@main
+    - uses: haskell/actions/setup@v2
       name: Setup Haskell Stack
       id: setuphaskell
       with:
         enable-stack: true
         stack-no-global: true
 
-    - uses: actions/cache@v1
+    - uses: actions/cache@v3
       name: Cache stack files
       with:
         path: ${{ steps.setuphaskell.outputs.stack-root }}
