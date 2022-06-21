@@ -35,16 +35,16 @@ jobs:
           - 'nightly'
 
     steps:
-    - uses: actions/checkout
+    - uses: actions/checkout@main
 
-    - uses: haskell/actions/setup
+    - uses: haskell/actions/setup@main
       name: Setup Haskell Stack
       id: setuphaskell
       with:
         enable-stack: true
         stack-no-global: true
 
-    - uses: actions/cache
+    - uses: actions/cache@main
       name: Cache stack files
       with:
         path: ${{ steps.setuphaskell.outputs.stack-root }}

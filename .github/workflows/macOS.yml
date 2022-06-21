@@ -32,9 +32,9 @@ jobs:
           - 'nightly'
 
     steps:
-    - uses: actions/checkout
+    - uses: actions/checkout@main
 
-    - uses: haskell/actions/setup
+    - uses: haskell/actions/setup@main
       name: Setup Haskell Stack
       id: setuphaskell
       with:
@@ -45,7 +45,7 @@ jobs:
     # between builds so we disable cache (that's the reason why we don't build
     # this along linux and windows, the builds is just too slow, and linux
     # covers most of the cases for a unix-y OS)
-    # - uses: actions/cache
+    # - uses: actions/cache@main
     #   name: Cache stack files
     #   with:
     #     path: ${{ steps.setuphaskell.outputs.stack-root }}
