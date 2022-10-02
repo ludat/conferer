@@ -4,9 +4,9 @@ packages:
   - ./packages/conferer/
   - ./packages/aeson/
   - ./packages/yaml/
-  # - ./packages/dhall/
-
+  - ./packages/dhall/
   - ./packages/warp/
   - ./packages/hspec/
   - ./packages/snap/
   - ./packages/hedis/
+  - ./example/
