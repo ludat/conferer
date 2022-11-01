@@ -21,6 +21,7 @@ jobs:
           # - ubuntu
           - macOS
           # - windows
+        snapshot:
           - 'lts-12.11'
           - 'lts-14.18'
           - 'lts-16.12'
