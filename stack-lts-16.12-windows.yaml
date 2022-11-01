@@ -12,4 +12,5 @@ packages:
   # https://github.com/haskell-hvr/regex-posix/issues/7 here is the reported issue
   # - ./packages/snap/
   - ./packages/hedis/
+  - ./example/
 

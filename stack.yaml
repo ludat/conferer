@@ -9,5 +9,4 @@ packages:
   - ./packages/hspec/
   - ./packages/snap/
   - ./packages/hedis/
-
   - ./example/

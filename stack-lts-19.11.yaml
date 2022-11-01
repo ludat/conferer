@@ -11,3 +11,4 @@ packages:
   # - ./packages/snap/
   - ./packages/warp/
   - ./packages/yaml/
+  - ./example/
