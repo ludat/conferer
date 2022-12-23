@@ -27,6 +27,7 @@ jobs:
           - 'lts-16.12'
           - 'lts-18.28'
           - 'lts-19.11'
+          - 'lts-20.4'
           - 'nightly'
 
     steps:
