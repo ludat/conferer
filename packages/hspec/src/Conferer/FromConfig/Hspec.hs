@@ -145,6 +145,19 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
 #if MIN_VERSION_hspec_core(2,9,2)
   , ("prettyPrint", toDyn configPrettyPrint)
 #endif
+#if MIN_VERSION_hspec_core(2,10,0)
+  , ("prettyPrintFunction", toDyn configPrettyPrintFunction)
+#endif
+#if MIN_VERSION_hspec_core(2,10,2)
+  , ("failOnPending", toDyn configFailOnPending)
+#endif
+#if MIN_VERSION_hspec_core(2,10,5)
+  , ("failOnEmpty", toDyn configFailOnEmpty)
+#endif
+#if MIN_VERSION_hspec_core(2,10,6)
+  , ("diffContext", toDyn configDiffContext)
+  , ("externalDiff", toDyn configExternalDiff)
+#endif
   ]
 
 instance FromConfig Hspec.Config where
@@ -206,5 +219,18 @@ instance FromConfig Hspec.Config where
 #endif
 #if MIN_VERSION_hspec_core(2,9,2)
     configPrettyPrint <- fetchFromConfig (key /. "prettyPrint") config
+#endif
+#if MIN_VERSION_hspec_core(2,10,0)
+    NotUserConfigurable configPrettyPrintFunction <- fetchFromConfig (key /. "prettyPrintFunction") config
+#endif
+#if MIN_VERSION_hspec_core(2,10,2)
+    configFailOnPending <- fetchFromConfig (key /. "failOnPending") config
+#endif
+#if MIN_VERSION_hspec_core(2,10,5)
+    configFailOnEmpty <- fetchFromConfig (key /. "failOnEmpty") config
+#endif
+#if MIN_VERSION_hspec_core(2,10,6)
+    configDiffContext <- fetchFromConfig (key /. "diffContext") config
+    NotUserConfigurable configExternalDiff <- fetchFromConfig (key /. "externalDiff") config
 #endif
     pure Hspec.Config{..}

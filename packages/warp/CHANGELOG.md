@@ -6,7 +6,7 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ## [Unreleased]
 
-Nothing
+* Added support for new field `settingsMaxBuilderResponseBufferSize` and `settingsAccept`
 
 ## [v1.1.0.0] 2021-03-07
 
