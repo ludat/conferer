@@ -55,6 +55,9 @@ deconstructSettingsToDefaults Settings{..} =
 #if MIN_VERSION_warp(3,0,4)
   , ("fork", toDyn $ ForkSettings settingsFork)
 #endif
+#if MIN_VERSION_warp(3,3,23)
+  , ("accept", toDyn settingsAccept)
+#endif
 #if MIN_VERSION_warp(2,0,3)
   , ("noParsePath", toDyn settingsNoParsePath)
 #endif
@@ -95,6 +98,9 @@ deconstructSettingsToDefaults Settings{..} =
 #if MIN_VERSION_warp(3,3,11)
   , ("altSvc", toDyn settingsAltSvc)
 #endif
+#if MIN_VERSION_warp(3,3,22)
+  , ("maxBuilderResponseBufferSize", toDyn settingsMaxBuilderResponseBufferSize)
+#endif
   ]
 
 -- | Newtype wrapper for the 'settingsFork' value that has too much polymorphism
@@ -117,6 +123,9 @@ instance FromConfig Settings where
     NotUserConfigurable settingsBeforeMainLoop <- fetchFromConfig (key /. "beforeMainLoop") config
 #if MIN_VERSION_warp(3,0,4)
     NotUserConfigurable (ForkSettings settingsFork) <- fetchFromConfig (key /. "fork") config
+#endif
+#if MIN_VERSION_warp(3,3,23)
+    NotUserConfigurable settingsAccept <- fetchFromConfig (key /. "accept") config
 #endif
 #if MIN_VERSION_warp(2,0,3)
     settingsNoParsePath <- fetchFromConfig (key /. "noParsePath") config
@@ -157,5 +166,8 @@ instance FromConfig Settings where
 #endif
 #if MIN_VERSION_warp(3,3,11)
     settingsAltSvc <- fetchFromConfig (key /. "altSvc") config
+#endif
+#if MIN_VERSION_warp(3,3,22)
+    settingsMaxBuilderResponseBufferSize <- fetchFromConfig (key /. "maxBuilderResponseBufferSize") config
 #endif
     return Settings{..}
