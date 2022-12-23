@@ -1,5 +1,5 @@
 name: conferer-warp
-version: 1.1.0.0
+version: 1.1.0.1
 synopsis: |
   conferer's FromConfig instances for warp settings
 description: |
