@@ -42,7 +42,7 @@ jobs:
         enable-stack: true
         stack-no-global: true
 
-    - uses: actions/cache@main
+    - uses: actions/cache/restore@v3
       name: Cache stack files
       with:
         path: ${{ steps.setuphaskell.outputs.stack-root }}
@@ -76,3 +76,9 @@ jobs:
         # once that's done we run the tests in a single threaded fashion to avoid
         # https://github.com/commercialhaskell/stack/issues/5024#issuecomment-845001389
         stack build --resolver=${{ matrix.snapshot }} --ghc-options=-Werror --test --bench -j 1
+
+    - uses: actions/cache/save@v3
+      if: always()
+      with:
+        path: ${{ steps.setuphaskell.outputs.stack-root }}
+        key: ${{ runner.os }}-${{ matrix.snapshot }}-stack2
