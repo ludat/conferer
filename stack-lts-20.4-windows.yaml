@@ -1,0 +1,15 @@
+resolver: none
+
+packages:
+  - ./packages/conferer/
+  - ./packages/aeson/
+  - ./packages/dhall/
+  - ./packages/hedis/
+  - ./packages/hspec/
+  # Looks like snap-core can't build since the `parseTime` function
+  # from `time` package was deleted
+  # - ./packages/snap/
+  - ./packages/warp/
+  - ./packages/yaml/
+  - ./example/
+
