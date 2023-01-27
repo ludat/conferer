@@ -1,7 +1,7 @@
 # Conferer
 
 [![Hackage](https://img.shields.io/hackage/v/conferer)](https://hackage.haskell.org/package/conferer)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ludat/conferer/haskell.yml?branch=master)](https://github.com/ludat/conferer/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ludat/conferer/haskell.yml?branch=master)](https://github.com/ludat/conferer/actions)
 [![Hackage-Deps](https://img.shields.io/hackage-deps/v/conferer)](https://packdeps.haskellers.com/feed?needle=conferer)
 [![License](https://img.shields.io/github/license/ludat/conferer)](https://www.mozilla.org/en-US/MPL/2.0/)
 
