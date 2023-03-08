@@ -129,15 +129,15 @@ In the future I'd like to make this behavior configurable but for now I think it
 ### What we've got
 
 With that code we get the same as before, we can configure the same things in multiple ways, for
-example for settings the key `"server.port"` we can use:
+example for settings the key `"warp.port"` we can use:
 
-* env vars: `AWESOMEAPP_SERVER_PORT=5555`
-* cli params: `--server.port=5555`
-* properties file: `./config/development.properties` with `server.port=5555`
+* env vars: `AWESOMEAPP_WARP_PORT=5555`
+* cli params: `--warp.port=5555`
+* properties file: `./config/development.properties` with `warp.port=5555`
 
 And we can set a bunch of values from or appConfig:
 
-* `server.port=5555`: set warp's listening port to 5555
+* `warp.port=5555`: set warp's listening port to 5555
 * `secret=real_secrets`: set our custom secret to `"real_secrets"`
 * `hedis=redis://username:password@host:42/2`: set hedis' connection string directly
 * `hedis.host=redis.example.com`: set hedis' connection host to `redis.example.com` and use default
