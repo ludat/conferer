@@ -6,7 +6,6 @@
 module Conferer.FromConfig.Extended
   ( module Conferer.FromConfig
   , module GHC.Generics
-  , configWith
   , ensureEmptyConfigThrows
   , ensureUsingDefaultReturnsSameValue
   , ensureSingleConfigParsesTheRightThing
@@ -28,18 +27,13 @@ import Data.Function
 
 import Conferer.Config
 import Conferer.FromConfig
-import qualified Conferer.Source.Test as Test
-
-configWith :: [(Key, Text)] -> IO Config
-configWith keyValues =
-  emptyConfig
-  & addSource (Test.fromConfig keyValues)
+import Conferer.Test (configWith)
 
 ensureEmptyConfigThrows :: forall a. (HasCallStack, Typeable a, FromConfig a, Show a) => SpecWith ()
 ensureEmptyConfigThrows =
   context "with empty config"  $ do
     it "throws an exception" $ do
-      config <- configWith []
+      config <- configWith [] []
       fetchFromConfig @a "some.key" config
         `shouldThrowExactly` (missingRequiredKey @a "some.key" emptyConfig)
 
@@ -49,7 +43,7 @@ ensureSingleConfigThrowsParserError ::
 ensureSingleConfigThrowsParserError keyContent =
   context "with invalid types in the defaults"  $ do
     it "throws an exception" $ do
-      config <- configWith [("some.key", keyContent)]
+      config <- configWith [] [("some.key", keyContent)]
       fetchFromConfig @a "some.key" config
         `shouldThrowExactly` (configParsingError @a "some.key" keyContent 0 emptyConfig)
 
@@ -68,7 +62,7 @@ ensureUsingDefaultReturnsSameValue ::
 ensureUsingDefaultReturnsSameValue value =
   context ("with a default of '" ++ show value ++ "'") $ do
     it "gets that same value" $ do
-      config <- configWith []
+      config <- configWith [] []
       fetchedValue <- fetchFromConfig @a "some.key"
         (config & addDefault "some.key" value)
       fetchedValue `shouldBe` value
@@ -79,7 +73,7 @@ ensureSingleConfigParsesTheRightThing ::
 ensureSingleConfigParsesTheRightThing keyContent value =
   context ("with a config value of '" ++ unpack keyContent ++ "'" ) $ do
     it "gets the right value" $ do
-      config <- configWith [("some.key", keyContent)]
+      config <- configWith [] [("some.key", keyContent)]
       fetchedValue <- fetchFromConfig @a "some.key" config
       fetchedValue `shouldBe` value
 
@@ -88,7 +82,7 @@ ensureSingleFetchThrows ::
     Text -> e -> SpecWith ()
 ensureSingleFetchThrows keyContent checkException =
   it "gets the right value" $ do
-    config <- configWith [("some.key", keyContent)]
+    config <- configWith [] [("some.key", keyContent)]
     fetchFromConfig @a "some.key" config
       `shouldThrowExactly` checkException
 
@@ -106,7 +100,7 @@ ensureFetchParses ::
     -> SpecWith ()
 ensureFetchParses configs defaults expectedValue =
   it "gets the right value" $ do
-    config <- addDefaults (mapKeys defaults) <$> configWith (mapKeys configs)
+    config <- configWith (mapKeys defaults) (mapKeys configs)
     fetchedValue <- fetchFromConfig @a "some.key" config
     fetchedValue `shouldBe` expectedValue
   where
@@ -128,7 +122,7 @@ ensureFetchThrows ::
     -> SpecWith ()
 ensureFetchThrows configs defaults expectedException =
   it "throws an exception" $ do
-    config <- addDefaults (mapKeys defaults) <$> configWith (mapKeys configs)
+    config <- configWith (mapKeys defaults) (mapKeys configs)
     fetchFromConfig @a "some.key" config
       `shouldThrowExactly` expectedException
   where
