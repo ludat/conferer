@@ -1,6 +1,6 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.35.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -44,9 +44,9 @@ library
     , snap-core >=1.0 && <2.0
     , snap-server >=1.0 && <2.0
     , text >=1.1 && <2.1
+  default-language: Haskell2010
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
-  default-language: Haskell2010
 
 test-suite specs
   type: exitcode-stdio-1.0
@@ -72,6 +72,6 @@ test-suite specs
     , snap-core >=1.0 && <2.0
     , snap-server >=1.0 && <2.0
     , text >=1.1 && <2.1
+  default-language: Haskell2010
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
-  default-language: Haskell2010
