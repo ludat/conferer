@@ -1,6 +1,6 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
@@ -40,7 +40,7 @@ library
       StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
-      aeson >=0.10 && <2.2
+      aeson >=0.10 && <2.3
     , base >=4.3 && <5
     , bytestring >=0.10 && <0.12
     , conferer >=1.1.0.0 && <2.0.0.0
@@ -70,7 +70,7 @@ test-suite specs
       StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -main-is ConfererAesonSpecMain
   build-depends:
-      aeson >=0.10 && <2.2
+      aeson >=0.10 && <2.3
     , aeson-qq
     , base >=4.3 && <5
     , bytestring >=0.10 && <0.12

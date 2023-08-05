@@ -11,6 +11,7 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 * More strict parser for the json value:
   - Disallow invalid keys with a clear error message
   - Disallow using objects or arrays in the `_self` special key
+* Accept aeson 2.2
 
 ## [v1.1.0.2] 2021-12-03
 
