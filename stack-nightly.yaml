@@ -11,5 +11,7 @@ packages:
   - ./packages/yaml/
   - ./example/
 
-# extra-deps:
-#   - snap-server-1.1.2.0@sha256:3167b836a0b0ee49c8d6c973535c33f583c9ef9ba62d9723f08509b38368cb8f,14641
+extra-deps:
+  - dhall-1.42.0
+  - dhall-json-1.7.12
+  # - snap-server-1.1.2.0@sha256:3167b836a0b0ee49c8d6c973535c33f583c9ef9ba62d9723f08509b38368cb8f,14641
