@@ -1,4 +1,5 @@
 resolver: none
+allow-newer: true
 
 packages:
   - ./packages/conferer/
