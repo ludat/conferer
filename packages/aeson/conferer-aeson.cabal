@@ -1,6 +1,6 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.35.2.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -42,10 +42,10 @@ library
   build-depends:
       aeson >=0.10 && <2.3
     , base >=4.3 && <5
-    , bytestring >=0.10 && <0.12
+    , bytestring >=0.10 && <0.13
     , conferer >=1.1.0.0 && <2.0.0.0
     , directory >=1.2 && <2.0
-    , text >=1.1 && <2.1
+    , text >=1.1 && <2.2
     , unordered-containers
     , vector
   default-language: Haskell2010
@@ -73,12 +73,12 @@ test-suite specs
       aeson >=0.10 && <2.3
     , aeson-qq
     , base >=4.3 && <5
-    , bytestring >=0.10 && <0.12
+    , bytestring >=0.10 && <0.13
     , conferer
     , conferer-aeson
     , directory >=1.2 && <2.0
     , hspec
-    , text >=1.1 && <2.1
+    , text >=1.1 && <2.2
     , unordered-containers
     , vector
   default-language: Haskell2010
