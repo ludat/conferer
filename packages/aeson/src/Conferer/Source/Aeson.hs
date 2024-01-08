@@ -27,10 +27,10 @@ import qualified Data.Vector as Vector
 import Text.Read (readMaybe)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
-import Data.List
+import Data.List (intercalate, sort, intersperse, partition)
 import System.Directory
 import Control.Exception
-import Control.Monad (unless, forM)
+import Control.Monad (forM)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 
 import Conferer.Source.Files
@@ -301,8 +301,10 @@ parseValue = go ""
       (validKeys, invalidKeys) = partition (isKeyFragment . fst)
         $ HashMap.toList
         $ HashMap.delete "_self" hashmap
-    unless (null invalidKeys) $
-      Left $ InvalidKey (rawKeyComponents key) (fst $ head invalidKeys)
+    case invalidKeys of
+      (firstInvalidKey, _invalidValue):_ ->
+        Left $ InvalidKey (rawKeyComponents key) firstInvalidKey
+      _ -> pure ()
     self <- sequence $ parseSelf key <$> HashMap.lookup "_self" hashmap
     content <- forM validKeys $ \(k, v) -> do
       let currentKey = key /. fromText k
