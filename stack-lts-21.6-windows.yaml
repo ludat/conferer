@@ -13,3 +13,7 @@ packages:
   - ./packages/yaml/
   - ./example/
 
+flags:
+  conferer-hspec:
+    no-hspec-api: true
+

@@ -1,5 +1,5 @@
 name: conferer-hspec
-version: 1.1.0.0
+version: 1.1.1.0
 synopsis: |
   conferer's FromConfig instances for hspec Config
 description: |
@@ -9,11 +9,22 @@ _common/lib: !include ../../utils/package.common.yaml
 
 <<: *everything
 
+flags:
+  no-hspec-api:
+    description: Disable the hspec-api library dependency for older versions of hspec
+    default: false
+    manual: false
+
+
 dependencies:
   - base >= 4.3 && < 5
   - conferer >= 1.1.0.0 && < 2.0.0.0
   - text >= 1.1 && < 2.2
-  - hspec-core >= 2.0.0 && < 2.11.0
+  - hspec-core >= 2.0.0 && < 2.12.0
+
+when:
+  - condition: '! flag(no-hspec-api)'
+    dependencies: hspec-api
 
 tests:
   specs:

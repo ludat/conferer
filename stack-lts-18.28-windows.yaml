@@ -14,3 +14,7 @@ packages:
   - ./packages/hedis/
   - ./example/
 
+flags:
+  conferer-hspec:
+    no-hspec-api: true
+

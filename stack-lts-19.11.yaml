@@ -19,3 +19,8 @@ extra-deps:
   - snap-server-1.1.2.0
   - readable-0.3.1
   - io-streams-haproxy-1.0.1.0
+
+flags:
+  conferer-hspec:
+    no-hspec-api: true
+

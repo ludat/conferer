@@ -18,7 +18,11 @@ import Data.Dynamic (toDyn, Dynamic)
 import qualified Test.Hspec.Core.Runner as Hspec
 #if MIN_VERSION_hspec_core(2,8,0)
 import qualified Test.Hspec.Core.Format as Hspec
+#if MIN_VERSION_hspec_core(2,11,0)
+import qualified Test.Hspec.Api.Formatters.V1 as FormattersV1
+#else
 import qualified Test.Hspec.Core.Formatters.V1 as FormattersV1
+#endif
 import qualified Test.Hspec.Core.Formatters.V2 as FormattersV2
 #else
 import qualified Test.Hspec.Core.Formatters as FormattersV1
@@ -158,6 +162,15 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   , ("diffContext", toDyn configDiffContext)
   , ("externalDiff", toDyn configExternalDiff)
 #endif
+#if MIN_VERSION_hspec_core(2,11,0)
+  , ("failOnEmptyDescription", toDyn configFailOnEmptyDescription)
+#endif
+#if MIN_VERSION_hspec_core(2,11,2)
+  , ("expertMode", toDyn configExpertMode)
+#endif
+#if MIN_VERSION_hspec_core(2,11,5)
+  , ("formatException", toDyn configFormatException)
+#endif
   ]
 
 instance FromConfig Hspec.Config where
@@ -232,5 +245,14 @@ instance FromConfig Hspec.Config where
 #if MIN_VERSION_hspec_core(2,10,6)
     configDiffContext <- fetchFromConfig (key /. "diffContext") config
     NotUserConfigurable configExternalDiff <- fetchFromConfig (key /. "externalDiff") config
+#endif
+#if MIN_VERSION_hspec_core(2,11,0)
+    configFailOnEmptyDescription <- fetchFromConfig (key /. "failOnEmptyDescription") config
+#endif
+#if MIN_VERSION_hspec_core(2,11,2)
+    configExpertMode <- fetchFromConfig (key /. "expertMode") config
+#endif
+#if MIN_VERSION_hspec_core(2,11,5)
+    NotUserConfigurable configFormatException <- fetchFromConfig (key /. "formatException") config
 #endif
     pure Hspec.Config{..}
