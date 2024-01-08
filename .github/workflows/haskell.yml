@@ -37,7 +37,7 @@ jobs:
     steps:
     - uses: actions/checkout@main
 
-    - uses: haskell/actions/setup@main
+    - uses: haskell-actions/setup@main
       name: Setup Haskell Stack
       id: setuphaskell
       with:
