@@ -2,12 +2,14 @@ resolver: none
 
 packages:
   - ./packages/conferer/
-  - ./packages/aeson/
+  # - ./packages/aeson/
   # - ./packages/dhall/
   - ./packages/hedis/
-  - ./packages/hspec/
+  # - ./packages/hspec/
   # - ./packages/snap/
   - ./packages/warp/
-  - ./packages/yaml/
-  - ./example/
+  # - ./packages/yaml/
+  # - ./example/
 
+extra-deps: []
+  # - dhall-json-1.7.12@sha256:11e3b8eff71da871d8e965a8c3a00ee2666b5d103295132824cff47232fdc365,4517

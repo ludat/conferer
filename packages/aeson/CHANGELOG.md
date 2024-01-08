@@ -8,6 +8,7 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ### Changed
 
+* Add restriction to avoid base >= 4.19.0.0
 * More strict parser for the json value:
   - Disallow invalid keys with a clear error message
   - Disallow using objects or arrays in the `_self` special key
