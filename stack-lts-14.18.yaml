@@ -1,0 +1,19 @@
+resolver: none
+
+packages:
+  - ./packages/conferer/
+  - ./packages/aeson/
+  - ./packages/dhall/
+  - ./packages/hedis/
+  - ./packages/hspec/
+  - ./packages/snap/
+  - ./packages/warp/
+  - ./packages/yaml/
+  - ./example/
+
+extra-deps: []
+
+flags:
+  conferer-hspec:
+    no-hspec-api: true
+
