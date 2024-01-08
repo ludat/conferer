@@ -10,7 +10,7 @@ _common/lib: !include ../../utils/package.common.yaml
 <<: *everything
 
 dependencies:
-  - base >= 4.3 && < 5
+  - base >= 4.3 && < 4.19.0.0
   - conferer >= 1.1.0.0 && < 2.0.0.0
   - bytestring >= 0.10 && < 0.13
   - text >= 1.1 && < 2.2

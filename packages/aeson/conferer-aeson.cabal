@@ -41,7 +41,7 @@ library
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       aeson >=0.10 && <2.3
-    , base >=4.3 && <5
+    , base >=4.3 && <4.19.0.0
     , bytestring >=0.10 && <0.13
     , conferer >=1.1.0.0 && <2.0.0.0
     , directory >=1.2 && <2.0
@@ -72,7 +72,7 @@ test-suite specs
   build-depends:
       aeson >=0.10 && <2.3
     , aeson-qq
-    , base >=4.3 && <5
+    , base >=4.3 && <4.19.0.0
     , bytestring >=0.10 && <0.13
     , conferer
     , conferer-aeson
