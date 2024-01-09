@@ -3,13 +3,17 @@ resolver: none
 packages:
   - ./packages/conferer/
   - ./packages/aeson/
-  # - ./packages/dhall/
+  - ./packages/dhall/
   - ./packages/hedis/
   - ./packages/hspec/
-  # - ./packages/snap/
+  - ./packages/snap/
   - ./packages/warp/
   - ./packages/yaml/
-  # - ./example/
+  - ./example/
 
 extra-deps: []
+
+flags:
+  conferer-hspec:
+    no-hspec-api: true
 

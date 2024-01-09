@@ -5,7 +5,7 @@ cabal-version: 1.18
 -- see: https://github.com/sol/hpack
 
 name:           conferer-hspec
-version:        1.1.0.0
+version:        1.1.1.0
 synopsis:       conferer's FromConfig instances for hspec Config
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
@@ -22,6 +22,11 @@ extra-doc-files:
     README.md
     CHANGELOG.md
     LICENSE
+
+flag no-hspec-api
+  description: Disable the hspec-api library dependency for older versions of hspec
+  manual: False
+  default: False
 
 library
   exposed-modules:
@@ -41,11 +46,12 @@ library
   build-depends:
       base >=4.3 && <5
     , conferer >=1.1.0.0 && <2.0.0.0
-    , hspec-core >=2.0.0 && <2.11.0
+    , hspec-core >=2.0.0 && <2.12.0
     , text >=1.1 && <2.2
   default-language: Haskell2010
-  if impl(ghc >= 8.4.1)
-    ghc-options: -Wpartial-fields
+  if ! flag(no-hspec-api)
+    build-depends:
+        hspec-api
 
 test-suite specs
   type: exitcode-stdio-1.0
@@ -68,8 +74,9 @@ test-suite specs
     , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-hspec
     , hspec
-    , hspec-core >=2.0.0 && <2.11.0
+    , hspec-core >=2.0.0 && <2.12.0
     , text >=1.1 && <2.2
   default-language: Haskell2010
-  if impl(ghc >= 8.4.1)
-    ghc-options: -Wpartial-fields
+  if ! flag(no-hspec-api)
+    build-depends:
+        hspec-api
