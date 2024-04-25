@@ -22,13 +22,9 @@ jobs:
           - macOS
           # - windows
         snapshot:
-          - 'lts-12.11'
-          - 'lts-14.18'
-          - 'lts-16.12'
-          - 'lts-18.28'
-          - 'lts-19.11'
           - 'lts-20.26'
-          - 'lts-21.6'
+          - 'lts-21.25'
+          - 'lts-22.18'
           - 'nightly'
 
     steps:
