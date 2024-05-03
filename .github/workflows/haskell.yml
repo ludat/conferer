@@ -45,7 +45,7 @@ jobs:
         enable-stack: true
         stack-no-global: true
 
-    - uses: actions/cache/restore@v3
+    - uses: actions/cache/restore@v4
       name: Cache stack files
       with:
         path: ${{ steps.setuphaskell.outputs.stack-root }}
@@ -80,7 +80,7 @@ jobs:
         # https://github.com/commercialhaskell/stack/issues/5024#issuecomment-845001389
         stack build --resolver=${{ matrix.snapshot }} --ghc-options=-Werror --test --bench -j 1
 
-    - uses: actions/cache/save@v3
+    - uses: actions/cache/save@v4
       if: always()
       with:
         path: ${{ steps.setuphaskell.outputs.stack-root }}
