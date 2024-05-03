@@ -171,6 +171,9 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
 #if MIN_VERSION_hspec_core(2,11,5)
   , ("formatException", toDyn configFormatException)
 #endif
+#if MIN_VERSION_hspec_core(2,11,8)
+  , ("seed", toDyn configSeed)
+#endif
   ]
 
 instance FromConfig Hspec.Config where
@@ -254,5 +257,8 @@ instance FromConfig Hspec.Config where
 #endif
 #if MIN_VERSION_hspec_core(2,11,5)
     NotUserConfigurable configFormatException <- fetchFromConfig (key /. "formatException") config
+#endif
+#if MIN_VERSION_hspec_core(2,11,8)
+    configSeed <- fetchFromConfig (key /. "seed") config
 #endif
     pure Hspec.Config{..}
