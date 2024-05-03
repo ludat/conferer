@@ -15,7 +15,3 @@ packages:
 extra-deps:
   - dhall-json-1.7.12@sha256:de9712d0d538a4e4ff5c86b6949f8776fd499cee9a7e537e31348566e74a317a,4517
 
-flags:
-  conferer-hspec:
-    no-hspec-api: true
-
