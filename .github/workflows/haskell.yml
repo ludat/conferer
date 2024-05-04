@@ -19,10 +19,7 @@ jobs:
       matrix:
         os:
           - ubuntu
-          # There is some linking problems when using the cache so builds are very slow
-          # so we avoid them on the regular CI (since linux and macos are pretty similar
-          # already)
-          # - macOS
+          - macOS
           - windows
         snapshot:
           - 'lts-12.11'
