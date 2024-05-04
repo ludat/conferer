@@ -19,10 +19,7 @@ jobs:
       matrix:
         os:
           - ubuntu
-          # There is some linking problems when using the cache so builds are very slow
-          # so we avoid them on the regular CI (since linux and macos are pretty similar
-          # already)
-          # - macOS
+          - macOS
           - windows
         snapshot:
           - 'lts-12.11'
@@ -34,6 +31,23 @@ jobs:
           - 'lts-21.25'
           - 'lts-22.18'
           - 'nightly'
+        exclude:
+          # github actions runs with arm for macos
+          #
+          # older versions of ghc support arm through llvm and the version that
+          # the machine uses is not compatible with ghc.
+          #
+          # So we exclude those builds
+          - snapshot: 'lts-12.11'
+            os: macOS
+          - snapshot: 'lts-14.18'
+            os: macOS
+          - snapshot: 'lts-16.12'
+            os: macOS
+          - snapshot: 'lts-18.28'
+            os: macOS
+          - snapshot: 'lts-19.33'
+            os: macOS
 
     steps:
     - uses: actions/checkout@main
