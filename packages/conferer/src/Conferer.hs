@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 -- |
 -- Copyright: (c) 2019 Lucas David Traverso
 -- License: MPL-2.0
@@ -45,7 +46,8 @@ import qualified Conferer.Source.PropertiesFile as PropertiesFile
 import Conferer.Config (Defaults)
 import Conferer.FromConfig.Internal.Types
 import Control.Exception
-import System.Exit (exitFailure)
+import System.Exit (exitFailure, exitSuccess)
+import System.Environment (getArgs, getProgName)
 
 -- | Use the 'FromConfig' instance to get a value of type @a@ from the config
 --   using some default fallback. The most common use for this is creating a custom
@@ -54,8 +56,21 @@ import System.Exit (exitFailure)
 --   This function throws only parsing exceptions when the values are present
 --   but malformed somehow (@"abc"@ as an Int) but that depends on the 'FromConfig'
 --   implementation for the type.
-fetch :: forall a. (FromConfig a, Typeable a, DefaultConfig a) => Config -> IO a
-fetch c = fetch' c configDef
+fetch :: forall a. (FromConfig a, Typeable a, DefaultConfig a, HasExplanation a) => Config -> IO a
+fetch c = do
+  progName <- getProgName
+  args <- getArgs
+  case args of
+    ["help"] -> do
+      undefined
+    ["explain"] -> do
+      explainKey @a "" c
+      exitSuccess
+    ["explain", key] -> do
+      explainKey @a (mkKey key) c
+      exitSuccess
+    _ -> do
+      fetch' c configDef
 
 -- | Same as 'fetch' but it accepts the default as a parameter instead of using
 --   the default from 'configDef'

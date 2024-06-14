@@ -4,7 +4,7 @@ module Conferer.FromConfig.SnapSpec where
 import Test.Hspec
 
 import Conferer hiding (Config)
-import Conferer.Test
+import Conferer.Test (configWith)
 import Conferer.FromConfig.Snap ()
 import Snap.Http.Server.Config
 import Snap.Internal.Core
