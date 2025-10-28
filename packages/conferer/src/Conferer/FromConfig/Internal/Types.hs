@@ -22,7 +22,7 @@ import Data.List (intercalate)
 -- | Exception to show that a value couldn't be parsed properly
 data ConfigParsingError =
   ConfigParsingError Key OriginalValue TypeRep Int Config
-  deriving (Typeable, Show, Eq)
+  deriving (Show, Eq)
 
 -- | Type of the value returned by the 'Source'
 type OriginalValue = Text
@@ -51,7 +51,7 @@ configParsingError key value sourceIndex config =
 -- to 'Conferer.FromConfig.Internal.fetchFromConfig'
 data MissingRequiredKey =
   MissingRequiredKey [Key] TypeRep Config
-  deriving (Typeable, Show, Eq)
+  deriving (Show, Eq)
 
 instance Exception MissingRequiredKey where
   displayException (MissingRequiredKey someKeys aTypeRep config) =
