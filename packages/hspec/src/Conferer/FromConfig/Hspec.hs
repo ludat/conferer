@@ -177,7 +177,7 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
 #else
   , ("quickCheckSeed", toDyn configQuickCheckSeed)
 #endif
-#if MIN_VERSION_hspec_core(2,11,14)
+#if MIN_VERSION_hspec_core(2,11,10)
   , ("annotations", toDyn $ NotUserConfigurable configAnnotations)
 #endif
   ]
