@@ -105,11 +105,12 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
   , ("quickCheckMaxSuccess", toDyn configQuickCheckMaxSuccess)
   , ("quickCheckMaxDiscardRatio", toDyn configQuickCheckMaxDiscardRatio)
   , ("quickCheckMaxSize", toDyn configQuickCheckMaxSize)
-  , ("quickCheckSeed", toDyn configQuickCheckSeed)
   , ("smallCheckDepth", toDyn configSmallCheckDepth)
   , ("colorMode", toDyn configColorMode)
   , ("htmlOutput", toDyn configHtmlOutput)
+#if !MIN_VERSION_hspec_core(2,11,0)
   , ("formatter", toDyn configFormatter)
+#endif
   , ("rerunAllOnSuccess", toDyn configRerunAllOnSuccess)
   , ("filterPredicate", toDyn $ NotUserConfigurable configFilterPredicate)
 #if !MIN_VERSION_hspec_core(2,8,0)
@@ -173,6 +174,11 @@ desconstructHspecConfigToDefaults Hspec.Config{..} =
 #endif
 #if MIN_VERSION_hspec_core(2,11,8)
   , ("seed", toDyn configSeed)
+#else
+  , ("quickCheckSeed", toDyn configQuickCheckSeed)
+#endif
+#if MIN_VERSION_hspec_core(2,11,10)
+  , ("annotations", toDyn $ NotUserConfigurable configAnnotations)
 #endif
   ]
 
@@ -192,7 +198,6 @@ instance FromConfig Hspec.Config where
     configQuickCheckMaxSuccess <- fetchFromConfig (key /. "quickCheckMaxSuccess") config
     configQuickCheckMaxDiscardRatio <- fetchFromConfig (key /. "quickCheckMaxDiscardRatio") config
     configQuickCheckMaxSize <- fetchFromConfig (key /. "quickCheckMaxSize") config
-    configQuickCheckSeed <- fetchFromConfig (key /. "quickCheckSeed") config
     configSmallCheckDepth <- fetchFromConfig (key /. "smallCheckDepth") config
     configColorMode <- fetchFromConfig (key /. "colorMode") config
     configHtmlOutput <- fetchFromConfig (key /. "htmlOutput") config
@@ -260,5 +265,11 @@ instance FromConfig Hspec.Config where
 #endif
 #if MIN_VERSION_hspec_core(2,11,8)
     configSeed <- fetchFromConfig (key /. "seed") config
+    let configQuickCheckSeed = Nothing
+#else
+    configQuickCheckSeed <- fetchFromConfig (key /. "quickCheckSeed") config
+#endif
+#if MIN_VERSION_hspec_core(2,11,10)
+    NotUserConfigurable configAnnotations <- fetchFromConfig (key /. "annotations") config
 #endif
     pure Hspec.Config{..}
