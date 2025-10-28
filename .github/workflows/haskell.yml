@@ -30,6 +30,8 @@ jobs:
           - 'lts-20.26'
           - 'lts-21.25'
           - 'lts-22.18'
+          - 'lts-23.28'
+          - 'lts-24.17'
           - 'nightly'
         exclude:
           # github actions runs with arm for macos
