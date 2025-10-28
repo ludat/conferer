@@ -37,7 +37,13 @@ import qualified Data.Char as Char
 import Control.Monad (forM)
 import Data.Maybe (fromMaybe, mapMaybe)
 import qualified System.FilePath as FilePath
-import Data.List (nub, sort)
+import Data.List
+    ( nub
+    , sort
+#if !MIN_VERSION_base(4,20,0)
+    , foldl'
+#endif
+    )
 import Data.String (IsString(..))
 #if __GLASGOW_HASKELL__ < 808
 import Data.Void (absurd)
