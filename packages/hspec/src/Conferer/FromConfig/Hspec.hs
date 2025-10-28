@@ -265,10 +265,11 @@ instance FromConfig Hspec.Config where
 #endif
 #if MIN_VERSION_hspec_core(2,11,8)
     configSeed <- fetchFromConfig (key /. "seed") config
+    let configQuickCheckSeed = Nothing
 #else
     configQuickCheckSeed <- fetchFromConfig (key /. "quickCheckSeed") config
 #endif
-#if MIN_VERSION_hspec_core(2,11,14)
+#if MIN_VERSION_hspec_core(2,11,10)
     NotUserConfigurable configAnnotations <- fetchFromConfig (key /. "annotations") config
 #endif
     pure Hspec.Config{..}
