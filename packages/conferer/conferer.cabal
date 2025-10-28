@@ -1,6 +1,6 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.36.0.
+-- This file has been generated from package.yaml by hpack version 0.38.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -60,7 +60,7 @@ library
   build-depends:
       base >=4.3 && <5
     , bytestring >=0.10 && <0.13
-    , containers >=0.5 && <0.7
+    , containers >=0.5 && <0.8
     , directory >=1.2 && <2.0
     , filepath >=1.0 && <2.0
     , text >=1.1 && <2.2
@@ -106,7 +106,7 @@ test-suite specs
     , base >=4.3 && <5
     , bytestring >=0.10 && <0.13
     , conferer
-    , containers >=0.5 && <0.7
+    , containers >=0.5 && <0.8
     , deepseq
     , directory >=1.2 && <2.0
     , filepath >=1.0 && <2.0

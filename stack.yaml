@@ -1,5 +1,7 @@
-resolver: lts-22.4
-# allow-newer: true
+resolver: lts-24.17
+compiler: ghc-9.10.3
+allow-newer: true
+notify-if-nix-on-path: false
 
 packages:
   - ./packages/conferer/
@@ -13,4 +15,4 @@ packages:
   - ./example/
 
 extra-deps:
-- dhall-json-1.7.12@sha256:11e3b8eff71da871d8e965a8c3a00ee2666b5d103295132824cff47232fdc365,4517
+  - dhall-json-1.7.12
