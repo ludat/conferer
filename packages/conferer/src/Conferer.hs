@@ -30,6 +30,21 @@ module Conferer
   -- * Some useful types
   , Config
   , Key
+  , mkKey
+  , fromText
+  -- * Documentation support
+  -- | These functions allow you to document your configuration keys
+  --   and generate schemas or explain individual keys
+  , ConfigDocs
+  , KeyDoc(..)
+  , emptyDocs
+  , doc
+  , docWithType
+  , docWithExample
+  , docWithDefault
+  , docFull
+  , explainKey
+  , generateSchema
   ) where
 
 import Data.Text (Text)
@@ -37,6 +52,7 @@ import Data.Typeable (Typeable)
 
 import Conferer.Config.Internal
 import Conferer.Config.Internal.Types
+import Conferer.Config.Docs
 import Conferer.FromConfig.Internal
 import Conferer.Key
 import qualified Conferer.Source.Env as Env

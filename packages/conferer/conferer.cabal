@@ -27,6 +27,7 @@ library
   exposed-modules:
       Conferer
       Conferer.Config
+      Conferer.Config.Docs
       Conferer.Config.Internal
       Conferer.Config.Internal.Types
       Conferer.FromConfig
@@ -72,6 +73,7 @@ test-suite specs
   type: exitcode-stdio-1.0
   main-is: ConfererSpecMain.hs
   other-modules:
+      Conferer.Config.DocsSpec
       Conferer.ConfigSpec
       Conferer.FromConfig.BoolSpec
       Conferer.FromConfig.Extended
