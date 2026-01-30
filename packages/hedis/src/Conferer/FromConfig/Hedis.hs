@@ -17,19 +17,19 @@ import Conferer.Config
 #endif
 
 import qualified Database.Redis as Redis
-import Data.Text
-import Text.Read (readMaybe)
+import qualified Data.Text as Text
+import qualified Text.Read as Text
 import Data.Dynamic
 
 instance FromConfig Redis.PortID where
   fromConfig = fetchFromConfigWith (\t -> do
-      case readMaybe $ unpack t of
+      case Text.readMaybe $ Text.unpack t of
         Just n -> return $ Redis.PortNumber n
         Nothing -> do
 #ifdef mingw32_HOST_OS
           Nothing
 #else
-          return $ Redis.UnixSocket $ unpack t
+          return $ Redis.UnixSocket $ Text.unpack t
 #endif
     )
 
@@ -65,7 +65,7 @@ instance FromConfig Redis.ConnectInfo where
       getKeyFromSources (key /. "url") firstConfig
         >>= \case
         FoundInSources connectionString i k -> do
-          case Redis.parseConnectInfo $ unpack connectionString of
+          case Redis.parseConnectInfo $ Text.unpack connectionString of
             Right Redis.ConnInfo{..} -> do
               return $
                 firstConfig
