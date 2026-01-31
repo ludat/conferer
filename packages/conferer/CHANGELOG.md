@@ -8,6 +8,7 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 ### Added
 
+* Added snapshot tests for exception messages and source explanations to ensure consistent user-facing feedback
 * Added new functions `getKeyFromSources` and `getKeyFromDefaults`
 * Change structure of `KeyLookupResult` to keep invariants of `getKeyFromSources` `getKeyFromDefaults`
 * Added `asTopLevel` to display pretty errors and use `exitFailure` upon errors
