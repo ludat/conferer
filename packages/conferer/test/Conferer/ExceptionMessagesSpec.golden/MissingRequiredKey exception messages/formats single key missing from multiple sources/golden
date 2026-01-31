@@ -1,0 +1,8 @@
+Couldn't find a 'Int'.
+
+You can set it by either:
+* Setting the environment variable: APP_CACHE_TTL
+* Passing the cli arg: --cache.ttl="the value"
+* Adding a new line 'cache.ttl=some value' to the file '/etc/app.properties'
+
+HasCallStack backtrace

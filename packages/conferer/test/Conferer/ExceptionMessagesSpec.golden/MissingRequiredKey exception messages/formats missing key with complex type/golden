@@ -1,0 +1,6 @@
+Couldn't find a '[Char]'.
+
+You can set it by either:
+* Setting the environment variable: APP_ALLOWED_HOSTS_KEYS
+
+HasCallStack backtrace

@@ -1,0 +1,9 @@
+Couldn't find a '[Char]'.
+
+You can set it by either:
+* Setting the environment variable: APP_ALLOWED_ORIGINS_KEYS
+* Passing the cli arg: --allowed.origins.keys="the value"
+* Adding a new line 'allowed.origins.keys=some value' to the file '/etc/myapp.properties'
+* Setting key '"allowed.origins.keys"' in the config
+
+HasCallStack backtrace
