@@ -21,9 +21,13 @@ tests:
   specs:
     main: ConfererSpecMain
     source-dirs: test
+    build-tools:
+      - hspec-discover
     dependencies:
       - conferer
       - hspec
+      - hspec-core
+      - hspec-golden
+      - template-haskell
       - deepseq
       - QuickCheck
-

@@ -14,6 +14,7 @@ module Conferer.FromConfig.Internal.Types where
 import Control.Exception
 import Conferer.Key (Key)
 import Data.Text (Text)
+import qualified Data.Text as Text
 import Data.Typeable
 import Conferer.Config.Internal.Types
 import Conferer.Source.Internal
@@ -28,11 +29,13 @@ data ConfigParsingError =
 type OriginalValue = Text
 
 instance Exception ConfigParsingError where
-  displayException (ConfigParsingError key _value aTypeRep sourceIndex c) =
+  displayException (ConfigParsingError key value aTypeRep sourceIndex c) =
     concat
     [ "Failed to interpret "
     , explainSettedKey (configSources c !! sourceIndex) key
-    , " as '"
+    , " with a value of '"
+    , Text.unpack value
+    , "' as '"
     , show aTypeRep
     , "'"
     ]

@@ -1,0 +1,6 @@
+Couldn't find a '[Char]'.
+
+You can set it by either:
+* Creating a file '/path/to/missing.properties' (it doesn't exist now) and adding a line 'redis.host=some value'.
+
+HasCallStack backtrace

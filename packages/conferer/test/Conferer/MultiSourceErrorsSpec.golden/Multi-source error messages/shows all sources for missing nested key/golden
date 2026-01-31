@@ -1,0 +1,8 @@
+Couldn't find a 'Int'.
+
+You can set it by either:
+* Setting the environment variable: APP_APP_WORKER_THREADS
+* Passing the cli arg: --app.worker.threads="the value"
+* Adding a new line 'app.worker.threads=some value' to the file '/etc/myapp.properties'
+
+HasCallStack backtrace

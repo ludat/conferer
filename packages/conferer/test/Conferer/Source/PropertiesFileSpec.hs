@@ -40,4 +40,3 @@ spec = do
         s <- mk "some.key=thing"
         explainSettedKey s "some.key"
           `shouldBe` "key 'some.key' (on file 'file.properties')"
-

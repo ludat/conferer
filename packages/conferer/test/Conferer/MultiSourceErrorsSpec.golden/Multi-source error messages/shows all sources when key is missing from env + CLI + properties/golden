@@ -1,0 +1,8 @@
+Couldn't find a '[Char]'.
+
+You can set it by either:
+* Setting the environment variable: APP_DATABASE_PASSWORD
+* Passing the cli arg: --database.password="the value"
+* Adding a new line 'database.password=some value' to the file '/etc/myapp.properties'
+
+HasCallStack backtrace

@@ -1,0 +1,2 @@
+Failed to interpret env var 'APP_PORT' with a value of 'not_a_number' as 'Int'
+HasCallStack backtrace

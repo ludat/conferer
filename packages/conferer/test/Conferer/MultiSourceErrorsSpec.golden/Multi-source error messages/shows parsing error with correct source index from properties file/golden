@@ -1,0 +1,2 @@
+Failed to interpret key 'feature.enabled' (on file '/config/app.properties') with a value of 'maybe' as 'Bool'
+HasCallStack backtrace
