@@ -22,7 +22,6 @@ jobs:
           - macOS
           - windows
         snapshot:
-          - 'lts-12.11'
           - 'lts-14.18'
           - 'lts-16.12'
           - 'lts-18.28'
@@ -40,8 +39,6 @@ jobs:
           # the machine uses is not compatible with ghc.
           #
           # So we exclude those builds
-          - snapshot: 'lts-12.11'
-            os: macOS
           - snapshot: 'lts-14.18'
             os: macOS
           - snapshot: 'lts-16.12'
