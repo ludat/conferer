@@ -8,21 +8,20 @@
       let
         pkgs = import nixpkgs {inherit system;};
 
-        hPkgs = pkgs.haskellPackages;
-        # hPkgs = pkgs.haskell.packages.ghc984;
-
-        myDevTools = [
-          hPkgs.ghc
-          hPkgs.ghcid
+        myDevTools = with pkgs; [
+          # hPkgs.ghc
+          # hPkgs.ghcid
           # hPkgs.ormolu # Haskell formatter
           # hPkgs.hlint # Haskell codestyle checker
           # hPkgs.hoogle # Lookup Haskell documentation
-          hPkgs.haskell-language-server # LSP server for editor
+          # hPkgs.haskell-language-server # LSP server for editor
           # hPkgs.implicit-hie # auto generate LSP hie.yaml file from cabal
           # hPkgs.retrie # Haskell refactoring tool
           # hPkgs.cabal-install
           stack-wrapped
-          pkgs.zlib # External C library needed by some Haskell packages
+          zlib # External C library needed by some Haskell packages
+          gmp.dev # External C library needed by some Haskell packages
+          ncurses # External C library needed by some Haskell packages
         ];
 
         # Wrap Stack to work with our Nix integration. We don't want to modify
@@ -35,12 +34,7 @@
           paths = [ pkgs.stack ];
           buildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
-            wrapProgram $out/bin/stack \
-              --add-flags "\
-                --no-nix \
-                --system-ghc \
-                --no-install-ghc \
-              "
+            wrapProgram $out/bin/stack --add-flags "--no-nix"
           '';
         };
       in {
