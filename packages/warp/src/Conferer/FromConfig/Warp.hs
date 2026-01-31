@@ -9,6 +9,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DerivingVia #-}
 module Conferer.FromConfig.Warp where
 
 import qualified Data.Text as Text
@@ -33,6 +35,10 @@ instance FromConfig ProxyProtocol where
       "optional" -> Just ProxyProtocolOptional
       _ -> Nothing
     ) . Text.toLower
+
+#if MIN_VERSION_warp(3,4,11)
+deriving via (NotUserConfigurable Counter) instance FromConfig Counter
+#endif
 
 instance DefaultConfig Settings where
   configDef = defaultSettings
@@ -100,6 +106,9 @@ deconstructSettingsToDefaults Settings{..} =
 #endif
 #if MIN_VERSION_warp(3,3,22)
   , ("maxBuilderResponseBufferSize", toDyn settingsMaxBuilderResponseBufferSize)
+#endif
+#if MIN_VERSION_warp(3,4,11)
+  , ("connectionCounter", toDyn settingsConnectionCounter)
 #endif
   ]
 
@@ -169,5 +178,8 @@ instance FromConfig Settings where
 #endif
 #if MIN_VERSION_warp(3,3,22)
     settingsMaxBuilderResponseBufferSize <- fetchFromConfig (key /. "maxBuilderResponseBufferSize") config
+#endif
+#if MIN_VERSION_warp(3,4,11)
+    settingsConnectionCounter <- fetchFromConfig (key /. "connectionCounter") config
 #endif
     return Settings{..}
