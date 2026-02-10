@@ -1,13 +1,11 @@
 cabal-version: 1.18
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.38.1.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 4414eb451bb8d5126f926c37ca9f4d24ba71d78a11538666358097fdc900ef1d
 
 name:           conferer-snap
-version:        1.0.0.0
+version:        1.1.0.0
 synopsis:       conferer's FromConfig instances for snap Config
 
 description:    Library to abstract the parsing of many haskell config values from different config sources
@@ -31,17 +29,23 @@ library
       Paths_conferer_snap
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , snap-core >=1.0 && <2.0
     , snap-server >=1.0 && <2.0
     , text >=1.1 && <1.3
+  default-language: Haskell2010
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
-  default-language: Haskell2010
 
 test-suite specs
   type: exitcode-stdio-1.0
@@ -51,16 +55,22 @@ test-suite specs
       Paths_conferer_snap
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings LambdaCase QuasiQuotes ScopedTypeVariables RecordWildCards StrictData
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      QuasiQuotes
+      ScopedTypeVariables
+      RecordWildCards
+      StrictData
   ghc-options: -Wall -Wredundant-constraints -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns
   build-depends:
       base >=4.3 && <5
-    , conferer >=1.0.0.0 && <2.0.0.0
+    , conferer >=1.1.0.0 && <2.0.0.0
     , conferer-snap
     , hspec
     , snap-core >=1.0 && <2.0
     , snap-server >=1.0 && <2.0
     , text >=1.1 && <1.3
+  default-language: Haskell2010
   if impl(ghc >= 8.4.1)
     ghc-options: -Wpartial-fields
-  default-language: Haskell2010

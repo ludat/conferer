@@ -8,9 +8,16 @@ and this project adheres to [PVP](https://pvp.haskell.org/).
 
 Nothing
 
+## [v1.1.0.0] 2025-02-10
+
+### Changed
+
+* Make compatible with conferer-1.1.0.0
+
 ## [v1.0.0.0] 2020-12-29
 
 First release
 
-[Unreleased]: https://github.com/ludat/conferer/compare/conferer-snap_v1.0.0.0...HEAD
+[Unreleased]: https://github.com/ludat/conferer/compare/conferer-snap_v1.1.0.0...HEAD
+[v1.1.0.0]: https://github.com/ludat/conferer/compare/conferer-snap_v1.0.0.0...conferer-snap_v1.1.0.0
 [v1.0.0.0]: https://github.com/ludat/conferer/compare/v0.0.0.0...conferer-snap_v1.0.0.0
